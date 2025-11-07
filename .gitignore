@@ -1,0 +1,144 @@
+############################
+# OS junk
+############################
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+############################
+# IDE / Editors
+############################
+# VS / Rider
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.rsuser
+*.sln.docstates
+*.DotSettings.user
+
+# VS Code (keep common project files)
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/tasks.json
+
+############################
+# Node / React (frontend)
+############################
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.tsbuildinfo
+
+# Common build outputs
+dist/
+build/
+.tmp/
+.cache/
+.eslintcache
+.stylelintcache
+
+# Framework-specific
+# Vite
+vite.config.ts.timestamp-*
+.vite/
+
+# Next.js (if you switch)
+.next/
+out/
+
+# CRA / Webpack
+*.map
+
+# Parcel
+.parcel-cache/
+
+# Storybook
+.storybook-out/
+storybook-static/
+
+# Test / Coverage
+coverage/
+.nyc_output/
+
+# Tooling
+.turbo/
+turbo/
+.sass-cache/
+*.log
+
+# Env files
+.env
+.env.*
+!.env.example
+!.env*.example
+
+############################
+# .NET 9 / C# (backend)
+############################
+# Build artifacts
+bin/
+obj/
+[Bb]uild/
+[Ll]og/
+[Ll]ogs/
+**/publish/
+artifacts/
+
+# Test
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# ASP.NET
+wwwroot/lib/           # if using LibMan to restore client libs
+# Uncomment next line if you restore client packages via npm in Backend
+# Backend/**/node_modules/
+
+# User secrets & local configs
+appsettings.*.local.json
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+project.lock.json
+project.assets.json
+PackageRestoreConsent.xml
+.nuget.props
+.nuget.targets
+
+# Others
+_ReSharper*/
+*_i.c
+*_p.c
+*.ipch
+*.ilk
+*.obj
+*.pch
+*.pdb
+*.cache
+*.tmp
+*.svclog
+
+############################
+# Containers / Infra (optional)
+############################
+# Docker
+docker-compose.override.yml
+.env.docker
