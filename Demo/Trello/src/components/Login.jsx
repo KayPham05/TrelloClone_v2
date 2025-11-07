@@ -169,7 +169,7 @@ export default function Login() {
     }
   };
 
-// ✅ Thay thế toàn bộ hàm googleLogin
+//  Thay thế toàn bộ hàm googleLogin
 const googleLogin = useGoogleLogin({
   onSuccess: async (tokenResponse) => {
     try {
@@ -182,9 +182,9 @@ const googleLogin = useGoogleLogin({
         }
       );
 
-      console.log("✅ Full response:", res); // Debug toàn bộ response
+      console.log(" Full response:", res); // Debug toàn bộ response
       
-      // ✅ Check response structure
+      //  Check response structure
       if (!res || !res.data) {
         throw new Error("Empty response from Google");
       }
@@ -216,21 +216,21 @@ const googleLogin = useGoogleLogin({
 
 
 
-  // Logout handler
-  const handleLogout = () => {
-    try {
-      const user = JSON.parse(localStorage.getItem("user"));
-      if (user?.isGoogleUser) googleLogout();
+  // // Logout handler
+  // const handleLogout = () => {
+  //   try {
+  //     const user = JSON.parse(localStorage.getItem("user"));
+  //     if (user?.isGoogleUser) googleLogout();
 
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+  //     localStorage.removeItem("token");
+  //     localStorage.removeItem("user");
 
-      toast.info("Logged out successfully!");
-      navigate("/login");
-    } catch {
-      toast.error("Logout failed!");
-    }
-  };
+  //     toast.info("Logged out successfully!");
+  //     navigate("/login");
+  //   } catch {
+  //     toast.error("Logout failed!");
+  //   }
+  // };
 
 
   return (
