@@ -1,0 +1,26 @@
+﻿using System.Diagnostics;
+
+namespace TodoAppAPI.Models
+{
+    public class User
+    {
+        public string UserUId { get; set; } = Guid.NewGuid().ToString(); // ← Not nullable
+        public string UserName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string PasswordHash { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        // FK - Role
+        public int? RoleId { get; set; }
+        public Role? Role { get; set; }
+
+        // Navigation Properties
+        public ICollection<Board>? OwnedBoards { get; set; } // ← Changed from UserOwnerBoards
+        public ICollection<Workspace>? OwnedWorkspaces { get; set; } // ← Added
+        public ICollection<Activity>? Activities { get; set; }
+        public ICollection<Comment>? Comments { get; set; }
+        public ICollection<BoardMember>? BoardMemberships { get; set; }
+        public ICollection<WorkspaceMember>? WorkspaceMemberships { get; set; }
+        public ICollection<UserInboxCard>? InboxCards { get; set; } // ← Changed from UserInboxCards
+    }
+}
