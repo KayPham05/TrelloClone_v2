@@ -1,0 +1,298 @@
+import React, {useState, useEffect, useRef, useLayoutEffect} from "react";
+import {ChevronRight, ExternalLink, Section} from "lucide-react";
+import {createPortal} from "react-dom";
+import { applyTheme, getInitialTheme } from "../components/Theme.ts";
+import PersonalSettings from "./PersonalSetting.jsx";
+export default function AccountMenu({ open, onClose, onOpenSettings }) {
+  if (!open) return null;
+  const [user, setUser] = useState(null);
+  const [themeOpen, setThemeOpen] = useState(false);
+  const [settingOpen, setSettingOpen] = useState(false);
+  const themeRef = useRef(null);
+  
+  useEffect(()=>{
+    try{
+      const raw = localStorage.getItem("user");
+      setUser(raw ? JSON.parse(raw) : null);
+    } catch {
+      setUser(null);
+    }
+  }, []);
+
+  return (
+    <div
+      role="menu"
+      aria-label="Account menu"
+      className={[
+        "absolute right-0 top-full mt-2 w-72 rounded-xl border shadow-xl z-50",
+        "bg-white text-gray-900 border-gray-200",
+        "dark:!bg-neutral-900 dark:!text-gray-100 dark:!border-neutral-700"
+      ].join(" ")}
+    >
+      {/* Header */}
+      <SectionTitle>Account</SectionTitle>
+
+      <div className="p-3 flex items-center gap-3">
+        <div
+          className="w-10 h-10 rounded-full grid place-items-center font-bold
+                    bg-amber-400 text-gray-900
+                    dark:bg-amber-300 dark:!text-gray-900
+                    ring-1 ring-amber-300/70 dark:ring-amber-200/50"
+        >
+          {user?.userName?.split(" ").map(n => n[0]).join("").toUpperCase()}
+        </div>
+        <div className="min-w-0">
+          <div className="font-semibold truncate">{user?.userName}</div>
+          <div className="text-xs text-gray-500 dark:!text-gray-400 truncate">
+            {user?.email}
+          </div>
+        </div>
+      </div>
+
+      <ul className="py-1">
+        <MenuItem text="Switch Account" onClick={onClose} />
+        <MenuItem
+          text={
+            <span className="inline-flex items-center gap-2">
+              Manage account <ExternalLink size={14} className="opacity-70 text-gray-600 dark:!text-gray-300" />
+            </span>
+          }
+          onClick={onClose}
+        />
+      </ul>
+
+      <Divider />
+
+      <SectionTitle>Settings</SectionTitle>
+      <ul className="py-1">
+        <MenuItem text="Profile and visibility" 
+                  onClick={() => onOpenSettings?.()}/>
+        <MenuItem text="Activity" onClick={onClose} />
+        <MenuItem text="Cards" onClick={onClose} />
+        <MenuItem text="Settings" onClick={onClose} />
+
+        <li
+          ref={themeRef}
+          role="menuitem"
+          tabIndex={0}
+          aria-haspopup="menu"
+          aria-expanded={themeOpen}
+          className={[
+            "px-3 py-2 cursor-pointer outline-none text-sm flex items-center justify-between",
+            "hover:bg-gray-100 focus:bg-gray-100",
+            "dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+          ].join(" ")}
+          onClick={() => setThemeOpen(v => !v)}
+        >
+          <span>Theme</span>
+          <ChevronRight size={16} className="text-gray-500 dark:!text-gray-300"  />
+        </li>
+      </ul>
+
+      <Divider>
+        <ul className="py-1">
+          <MenuItem text="Create Workspace" onClick={onClose} />
+        </ul>
+      </Divider>
+
+      <ul className="py-1">
+        <MenuItem text="Help" onClick={onClose} />
+        <MenuItem text="Shortcuts" onClick={onClose} />
+      </ul>
+
+      <Divider />
+
+      <ul className="py-1">
+        <MenuItem text="Log out" onClick={onClose} />
+      </ul>
+
+      <ThemeSubmenu
+        anchorEl={themeRef.current}
+        open={themeOpen}
+        onClose={() => setThemeOpen(false)}
+      />
+    </div>
+  );
+}
+
+function MenuItem({ icon, text, onClick }) {
+  return (
+    <li>
+      <button
+        role="menuitem"
+        onClick={onClick}
+        className="w-full flex items-center gap-2 px-4 py-2 text-left
+                  hover:bg-gray-50 dark:hover:bg-neutral-800"
+      >
+        {icon}
+        <span className="text-sm">{text}</span>
+      </button>
+    </li>
+  );
+}
+
+function SectionTitle({children}) {
+  return (
+    <div
+      className="w-full flex items-center gap-2 px-4 py-2 text-sm
+                 text-gray-700 dark:!text-gray-200"
+    >
+      {children}
+    </div>
+  );
+}
+
+function Divider({ children }) {
+  return (
+    <div className="my-2">
+      <div className="h-px bg-gray-200 dark:bg-neutral-700" />
+      {children}
+      {children ? <div className="h-px bg-gray-200 dark:bg-neutral-700 mt-2" /> : null}
+    </div>
+  );
+}
+
+function ThemeSubmenu({anchorEl, open, onClose, onEnter, onLeave}) {
+  const menuRef = useRef(null);
+  const [style, setStyle] = useState({ top: 0, left: 0, position: "fixed", zIndex: 9999, opacity: 0 });
+  const [theme, setTheme] = useState(getInitialTheme());
+
+  useEffect(() => {
+    applyTheme(theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  useLayoutEffect(() => {
+    if (!open || !anchorEl || !menuRef.current) return;
+    const GAP = 2;
+
+    const anchorRect = anchorEl.getBoundingClientRect();
+    const menuRect = menuRef.current.getBoundingClientRect();
+
+    let top = anchorRect.top;
+    let left = anchorRect.left - GAP - menuRect.width;
+    if (left < 8) left = anchorRect.right + GAP;
+
+    const maxTop = Math.max(8, window.innerHeight - menuRect.height - 8);
+    top = Math.min(Math.max(8, top), maxTop);
+
+    setStyle({ position: "fixed", top, left, zIndex: 9999, opacity: 1 });
+  }, [open, anchorEl]);
+
+  const selectTheme = (v) => {
+    setTheme(v);
+    onClose?.();
+  };
+
+  if (!open) return null;
+
+  const node = (
+    <div
+      data-profile-keepopen
+      ref={menuRef}
+      style={style}
+      role="menu"
+      aria-label="Theme submenu"
+      className="w-64 rounded-xl border shadow-xl overflow-hidden
+             bg-white border-gray-200 text-gray-900
+             dark:bg-neutral-900 dark:border-neutral-700 dark:!text-gray-100"
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+    >
+      <ul className="py-1">
+        <ThemeOption
+          value="light"
+          label="Light"
+          selected={theme === "light"}
+          onSelect={selectTheme}
+          Preview={ThemePreviewLight}
+        />
+        <ThemeOption
+          value="dark"
+          label="Dark"
+          selected={theme === "dark"}
+          onSelect={selectTheme}
+          Preview={ThemePreviewDark}
+        />
+        <ThemeOption
+          value="system"
+          label="Match system"
+          selected={theme === "system"}
+          onSelect={selectTheme}
+          Preview={ThemePreviewSystem}
+        />
+      </ul>
+    </div>
+  );
+
+  return createPortal(node, document.body);
+}
+
+function ThemePreviewLight() {
+  return (
+    <div className="w-9 h-6 rounded-md border bg-white grid grid-cols-4 gap-0.5 p-0.5 border-gray-200 dark:border-neutral-700">
+      <div className="bg-gray-200 rounded-sm col-span-1 dark:bg-neutral-700" />
+      <div className="bg-gray-100 rounded-sm col-span-3 dark:bg-neutral-800" />
+    </div>
+  );
+}
+
+function ThemePreviewDark() {
+  return (
+    <div className="w-9 h-6 rounded-md border bg-gray-900 grid grid-cols-4 gap-0.5 p-0.5 border-gray-200 dark:border-neutral-700">
+      <div className="bg-gray-700 rounded-sm col-span-1" />
+      <div className="bg-gray-800 rounded-sm col-span-3" />
+    </div>
+  );
+}
+
+function ThemePreviewSystem() {
+  return (
+    <div className="relative w-9 h-6 rounded-md border overflow-hidden border-gray-200 dark:border-neutral-700">
+      <div className="absolute inset-0 bg-white grid grid-cols-4 gap-0.5 p-0.5 dark:bg-neutral-900">
+        <div className="bg-gray-200 rounded-sm col-span-1 dark:bg-neutral-700" />
+        <div className="bg-gray-100 rounded-sm col-span-3 dark:bg-neutral-800" />
+      </div>
+      <div className="absolute inset-0 translate-x-1/3 rotate-[-25deg] origin-bottom-left w-1/2 bg-gray-900" />
+    </div>
+  );
+}
+
+function ThemeOption({ value, label, selected, onSelect, Preview }) {
+  return (
+    <li>
+      <button
+        role="menuitemradio"
+        aria-checked={selected}
+        onClick={() => onSelect(value)}
+        className={[
+          "w-full flex items-center gap-3 px-3 py-2 text-left outline-none",
+          "hover:bg-gray-50 focus:bg-gray-50",
+          "dark:hover:bg-neutral-800 dark:focus:bg-neutral-800",
+          selected ? "bg-blue-50 ring-1 ring-inset ring-blue-400 dark:bg-blue-950/30 dark:ring-blue-600/60" : ""
+        ].join(" ")}
+      >
+        <span
+          className={[
+            "inline-block w-4 h-4 rounded-full border grid place-items-center",
+            selected ? "border-blue-500 dark:border-blue-500" : "border-gray-300 dark:border-neutral-600",
+          ].join(" ")}
+          aria-hidden
+        >
+          <span
+            className={[
+              "w-2 h-2 rounded-full",
+              selected ? "bg-blue-600" : "bg-transparent",
+            ].join(" ")}
+          />
+        </span>
+
+        <div className="shrink-0">
+          <Preview />
+        </div>
+
+        <span className="text-sm text-gray-800 dark:!text-gray-100">{label}</span>
+      </button>
+    </li>
+  );
+}
