@@ -1,6 +1,6 @@
 import React from "react";
 import { Bell, Search, UserCircle, Grid3x3, Plus } from "lucide-react";
-import Profile from "./PopUpProfile";
+import Profile from "./AccountMenu";
 import PersonalSettings from "./PersonalSetting";
 export default function Header({ className = "" }) {
   const [isProfileOpen, setIsProfileOpen] = React.useState(false);

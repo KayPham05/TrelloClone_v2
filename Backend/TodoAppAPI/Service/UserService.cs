@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Net.WebSockets;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using TodoAppAPI.Data;
 using TodoAppAPI.DTOs;
@@ -51,6 +52,73 @@ namespace TodoAppAPI.Service
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
             
+        }
+
+        public async Task<bool> AddBioByUserUId(string userUId, string BIO)
+        {
+            try {
+                if (userUId == null) return false;
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.UserUId == userUId);
+                if (user == null) return false;
+                user.Bio = BIO;
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch(Exception ex)
+            {
+                    Console.WriteLine(ex.Message);
+                    return false;
+            }
+        }
+
+        public Task<string?> GetBioByUserUId(string userUId)
+        {
+            try
+            {
+                return _context.Users.Where(u => u.UserUId == userUId)
+                    .Select(u => u.Bio)
+                    .FirstOrDefaultAsync();
+           }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
+        }
+
+        public async Task<bool> AddUserUSerName(string userUId, string username)
+        {
+            try
+            {
+                if (userUId == null || username == null) return false;
+                var user = _context.Users.FirstOrDefault(u => u.UserUId == userUId);
+                if (user == null) return false;
+                user.UserName = username;
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
+
+        public Task<string?> GetUserUserName(string userUId)
+        {
+            try
+            {
+                return _context.Users.
+                    AsNoTracking()
+                    .Where(u=>userUId == u.UserUId)
+                    .Select(u=>u.UserName)
+                    .FirstOrDefaultAsync();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
         }
     }
 }

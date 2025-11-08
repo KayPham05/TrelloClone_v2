@@ -10,6 +10,8 @@ namespace TodoAppAPI.Models
         public string PasswordHash { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
+        public string Bio { get; set; } = string.Empty;
+
         // FK - Role
         public int? RoleId { get; set; }
         public Role? Role { get; set; }
