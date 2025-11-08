@@ -1,8 +1,9 @@
-// src/components/settings/SettingsContent.jsx
-import React, { useMemo, useState } from "react";
+// SettingsContent.jsx
+import React, { useMemo, useState, useEffect } from "react";
 
-export default function SettingsContent({ tab, currentUser, onSaveProfile }) {
-  if (tab === "profile") return <ProfileVisibility currentUser={currentUser} onSave={onSaveProfile} />;
+export default function SettingsContent({ tab, currentUser, onSaveProfile, loading }) {
+  if (tab === "profile")
+    return <ProfileVisibility currentUser={currentUser} onSave={onSaveProfile} loading={loading} />;
   if (tab === "settings") return <Placeholder title="Settings" />;
   if (tab === "activity") return <Placeholder title="Activity" />;
   if (tab === "cards")    return <Placeholder title="Cards" />;
@@ -16,7 +17,7 @@ function Placeholder({ title }) {
       <Header title={title} subtitle="Bạn có thể tự triển khai nội dung tab này sau." />
       <div className="px-8 pb-8 overflow-auto">
         <div className="text-sm text-gray-600 dark:!text-gray-300">
-          Khung layout đã sẵn sàng.
+          Layour border is ready
         </div>
       </div>
       <SaveBar disabled />
@@ -26,20 +27,21 @@ function Placeholder({ title }) {
 
 /* ================= Profile & Visibility ================= */
 
-function ProfileVisibility({ currentUser, onSave }) {
+function ProfileVisibility({ currentUser, onSave, loading }) {
   const init = useMemo(() => ({
-    username: currentUser?.username || "",
+    userName: currentUser?.userName || "",
     email: currentUser?.email || "",
     bio: currentUser?.bio || "",
     visibility: {
-      username: "public",
+      userName: "public",
       email:    "private",
-      bio:      "public",
+      bio:      "public"
     }
-  }), [currentUser]);
+  }), [currentUser?.userName, currentUser?.email, currentUser?.bio]);
 
   const [form, setForm] = useState(init);
-  React.useEffect(() => { setForm(init); }, [init]);
+  useEffect(() => { setForm(init); }, [init]); // khi DB về -> reset form
+
   const [saving, setSaving] = useState(false);
   const dirty = JSON.stringify(form) !== JSON.stringify(init);
 
@@ -49,39 +51,44 @@ function ProfileVisibility({ currentUser, onSave }) {
   const handleSave = async () => {
     if (!dirty || saving) return;
     setSaving(true);
-    try { await onSave?.(form); } finally { setSaving(false); }
+    try {
+      await onSave?.(form);   // form có userName, email, bio
+      // Sau onSave -> parent refetch DB -> init cập nhật -> effect trên set lại form → OK
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <div className="h-full flex flex-col dark:!text-gray-300">
       <Header
         title="Profile and Visibility"
-        subtitle="Quản lý thông tin cá nhân và mức độ hiển thị."
+        subtitle="Personal information and visibility management"
       />
 
       <div className="px-8 pb-28 overflow-auto space-y-6">
-        {/* Info banner */}
         <div className="rounded-xl border border-gray-200 dark:border-neutral-800 overflow-hidden">
           <div className="bg-gray-50 dark:bg-neutral-950/40 px-5 py-4">
             <h3 className="font-semibold dark:!text-gray-300 dark:font-bold">Manage your personal information</h3>
             <p className="text-sm text-gray-600 dark:!text-gray-300">
-              Đây là tài khoản Trello clone. Bạn có thể chỉnh sửa thông tin và quyền hiển thị ngay bên dưới.
+              Trellone Account Management. You may modify your information below.
             </p>
           </div>
-          {/* Form grid */}
+
           <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Username */}
+            {/* userName */}
             <Field label="Username">
               <input
                 className="mt-1 w-full rounded-lg border px-3 py-2
                            border-gray-300 dark:border-neutral-700
                            bg-white dark:bg-neutral-900 focus:outline-none
                            focus:ring-2 focus:ring-blue-500/50"
-                value={form.username}
-                onChange={e => onField("username", e.target.value)}
-                placeholder="your_name"
+                value={form.userName}
+                onChange={e => onField("userName", e.target.value)}
+                placeholder="Let's make a cool username!"
+                disabled={loading || saving}
               />
-              <VisPicker value={form.visibility.username} onChange={v => onVis("username", v)} />
+              <VisPicker value={form.visibility.userName} onChange={v => onVis("userName", v)} />
             </Field>
 
             {/* Email (read-only) */}
@@ -107,6 +114,7 @@ function ProfileVisibility({ currentUser, onSave }) {
                 value={form.bio}
                 onChange={e => onField("bio", e.target.value)}
                 placeholder="Tell people a bit about you…"
+                disabled={loading || saving}
               />
               <VisPicker value={form.visibility.bio} onChange={v => onVis("bio", v)} />
             </Field>
@@ -114,9 +122,8 @@ function ProfileVisibility({ currentUser, onSave }) {
         </div>
       </div>
 
-      {/* Sticky Save bar */}
       <SaveBar
-        disabled={!dirty || saving}
+        disabled={!dirty || saving || loading}
         saving={saving}
         onSave={handleSave}
       />
@@ -165,7 +172,6 @@ function VisPicker({ value, onChange }) {
     <div className="flex items-center gap-2">
       <span className="mt-2 text-xs text-gray-500 dark:!text-gray-300">Visibility:</span>
       <Opt v="public" label="Public" />
-      <Opt v="workspace" label="Workspace" />
       <Opt v="private" label="Private" />
     </div>
   );
@@ -184,7 +190,7 @@ function SaveBar({ disabled = true, saving = false, onSave }) {
         disabled={disabled}
         className={[
           "px-4 py-2 rounded-lg text-white transition",
-          !disabled ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-300 cursor-not-allowed dark:!text-gray-600" 
+          !disabled ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-300 cursor-not-allowed dark:!text-gray-600"
         ].join(" ")}
       >
         {saving ? "Saving…" : "Save"}

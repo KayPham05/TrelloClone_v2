@@ -60,14 +60,14 @@ namespace TodoAppAPI.Controllers
             if (string.IsNullOrEmpty(userUId))
                 return BadRequest("userUId is null");
             var bio = await _userService.GetBioByUserUId(userUId);
-            return Ok(bio);
+            return Ok(new { bio = bio ?? "" });
         }
         [HttpGet("GetUsername")]
         public async Task<IActionResult> GetUsername([FromQuery] string userUId)
         {
             if (string.IsNullOrEmpty(userUId)) return BadRequest("userUId is null");
-            var username = await _userService.GetUserUserName(userUId);
-            return Ok(username);
+            var userName = await _userService.GetUserUserName(userUId);
+            return Ok(new { userName = userName ?? "" });
         }
         //// PUT api/<UserController>/5
         //[HttpPut("{id}")]

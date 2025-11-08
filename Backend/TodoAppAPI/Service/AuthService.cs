@@ -31,7 +31,7 @@ namespace TodoAppAPI.Service
                 UserName = userName,
                 Email = email,
                 PasswordHash = hashedPassword,
-                RoleId = 2 // mặc định là User
+                RoleId = 2, // mặc định là User
             };
 
             _authService.Users.Add(user);
@@ -64,7 +64,8 @@ namespace TodoAppAPI.Service
                 UserUId = user.UserUId,
                 Token = token,
                 UserName = user.UserName,
-                Email = user.Email
+                Email = user.Email,
+                Bio = user.Bio
             };
         }
     }

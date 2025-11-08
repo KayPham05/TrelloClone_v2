@@ -1,8 +1,9 @@
+
 import React, {useState, useEffect, useRef, useLayoutEffect} from "react";
 import {ChevronRight, ExternalLink, Section} from "lucide-react";
 import {createPortal} from "react-dom";
 import { applyTheme, getInitialTheme } from "../components/Theme.ts";
-import PersonalSettings from "./PersonalSetting.jsx";
+import { getUsernameByUserUIdAPI, getBioByUserUIdAPI } from "../services/UserAPI.jsx";
 export default function AccountMenu({ open, onClose, onOpenSettings }) {
   if (!open) return null;
   const [user, setUser] = useState(null);
@@ -10,14 +11,40 @@ export default function AccountMenu({ open, onClose, onOpenSettings }) {
   const [settingOpen, setSettingOpen] = useState(false);
   const themeRef = useRef(null);
   
-  useEffect(()=>{
-    try{
-      const raw = localStorage.getItem("user");
-      setUser(raw ? JSON.parse(raw) : null);
-    } catch {
-      setUser(null);
-    }
-  }, []);
+    useEffect(() => {
+    if (!open) return;
+    let cancel = false;
+    (async () => {
+      const auth = JSON.parse(localStorage.getItem("user") || "{}");
+      if (!auth?.userUId) { setUser(null); return; }
+      // tự gọi API để lấy bản mới nhất
+      const [uRes, bRes] = await Promise.all([
+        getUsernameByUserUIdAPI(auth.userUId),
+        getBioByUserUIdAPI(auth.userUId),
+      ]);
+      const userName =
+        typeof uRes === "string"
+          ? uRes
+          : (uRes?.userName ?? uRes?.username ?? "");
+
+      const bio =
+        typeof bRes === "string"
+          ? bRes
+          : (bRes?.bio ?? "");
+
+      const next = {
+        userUId: auth.userUId,
+        email: auth.email || "",
+        userName,
+        bio,
+      };
+      if (!cancel) setUser(next);
+    })();
+    // lắng nghe cập nhật từ modal
+    const h = (e) => setUser(e.detail);
+    window.addEventListener("user:updated", h);
+    return () => { cancel = true; window.removeEventListener("user:updated", h); };
+  }, [open]);
 
   return (
     <div
@@ -65,12 +92,26 @@ export default function AccountMenu({ open, onClose, onOpenSettings }) {
 
       <SectionTitle>Settings</SectionTitle>
       <ul className="py-1">
-        <MenuItem text="Profile and visibility" 
-                  onClick={() => onOpenSettings?.()}/>
-        <MenuItem text="Activity" onClick={onClose} />
-        <MenuItem text="Cards" onClick={onClose} />
-        <MenuItem text="Settings" onClick={onClose} />
-
+        <MenuItem
+          text="Profile and visibility"
+          keepOpen                 // <-- giữ mở để onClick kịp chạy
+          onClick={() => onOpenSettings?.("profile")}
+        />
+         <MenuItem
+          text="Activity"
+          keepOpen
+          onClick={() => onOpenSettings?.("activity")}
+        />
+        <MenuItem
+          text="Cards"
+          keepOpen
+          onClick={() => onOpenSettings?.("cards")}
+        />
+        <MenuItem
+          text="Settings"
+          keepOpen
+          onClick={() => onOpenSettings?.("settings")}
+        />
         <li
           ref={themeRef}
           role="menuitem"
@@ -115,11 +156,14 @@ export default function AccountMenu({ open, onClose, onOpenSettings }) {
   );
 }
 
-function MenuItem({ icon, text, onClick }) {
+function MenuItem({ icon, text, onClick, keepOpen = false }) {
   return (
     <li>
       <button
         role="menuitem"
+        onPointerDown={e => {
+          if (keepOpen) e.currentTarget.dataset.profileKeepopen = "";
+        }}
         onClick={onClick}
         className="w-full flex items-center gap-2 px-4 py-2 text-left
                   hover:bg-gray-50 dark:hover:bg-neutral-800"

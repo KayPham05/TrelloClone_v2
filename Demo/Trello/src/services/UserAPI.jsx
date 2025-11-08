@@ -44,3 +44,10 @@ export const resendCodeAPI = (email) => {
         params:{email}
     })
 }
+
+const normalizeUser = (raw) => ({
+  userName: raw?.userName ?? raw?.username ?? "",
+  bio: raw?.bio ?? ""
+});
+
+export { normalizeUser };

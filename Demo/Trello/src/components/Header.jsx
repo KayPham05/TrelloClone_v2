@@ -110,7 +110,7 @@ export default function Header({ className = "" }) {
         initialTab="profile"
         onClose={() => setSettingsOpen(false)}
         currentUser={{
-          username: user?.userName ?? "",
+          userName: user?.userName ?? "",
           email: user?.email ?? "",
           bio: user?.bio ?? "",
         }}
