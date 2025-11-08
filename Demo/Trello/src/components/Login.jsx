@@ -156,6 +156,7 @@ export default function Login() {
             userUId: res.userUId,
             userName: res.userName,
             email: res.email,
+            bio: res.bio
           })
         );
         toast.success("Đăng nhập thành công!");

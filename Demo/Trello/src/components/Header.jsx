@@ -1,8 +1,49 @@
 import React from "react";
 import { Bell, Search, UserCircle, Grid3x3, Plus } from "lucide-react";
-
+import Profile from "./AccountMenu";
+import PersonalSettings from "./PersonalSetting";
 export default function Header({ className = "" }) {
+  const [isProfileOpen, setIsProfileOpen] = React.useState(false);
+  const [settingsOpen, setSettingsOpen] = React.useState(false);
+  const profileWrapRef = React.useRef(null);
+
+
+  React.useEffect(() => {
+  const onDocPointer = e => {
+    // 1) Nếu click nằm trong bất kỳ node có data-profile-keepopen thì bỏ qua
+    const path = (e.composedPath && e.composedPath()) || [];
+    if (path.some(el => el && el.dataset && el.dataset.profileKeepopen !== undefined)) {
+      return;
+    }
+
+    // 2) Nếu click không nằm trong wrap của profile thì mới đóng
+    if (!profileWrapRef.current) return;
+    if (!profileWrapRef.current.contains(e.target)) {
+      setIsProfileOpen(false);
+    }
+  };
+
+  const onKey = e => {
+    if (e.key === "Escape") setIsProfileOpen(false);
+  };
+
+  // dùng pointerdown ổn hơn mousedown/click cho case menu
+  document.addEventListener("pointerdown", onDocPointer);
+  document.addEventListener("keydown", onKey);
+  return () => {
+    document.removeEventListener("pointerdown", onDocPointer);
+    document.removeEventListener("keydown", onKey);
+  };
+}, []);
+
+  const user = React.useMemo(() => {
+    try { return JSON.parse(localStorage.getItem("user") || "null"); }
+    catch { return null; }
+  }, []);
+
+
   return (
+    <>
     <header className={`flex items-center justify-between px-6  bg-white border-b shadow-sm ${className}`}>
       {/* Logo & Brand */}
       <div className="flex items-center gap-4">
@@ -37,7 +78,7 @@ export default function Header({ className = "" }) {
         </button>
 
         {/* User Actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3" ref = {profileWrapRef}>
           {/* Notification */}
           <button className="p-2 hover:bg-gray-100 rounded-lg transition relative">
             <Bell className="text-gray-600" size={22} />
@@ -47,11 +88,39 @@ export default function Header({ className = "" }) {
           </button>
 
           {/* User Profile */}
-          <button className="p-2 hover:bg-gray-100 rounded-lg transition">
-            <UserCircle className="text-gray-600" size={28} />
+          <button aria-haspopup="menu" 
+              aria-expanded={isProfileOpen}
+              onClick={() => setIsProfileOpen(v => !v)}
+              className="p-2 hover:bg-gray-100 rounded-lg transition">
+            <UserCircle className="text-gray-600" size={28} />  
           </button>
+          <Profile 
+            open={isProfileOpen}
+            onClose={() => setIsProfileOpen(false)} 
+            onOpenSettings={() => {           
+              setSettingsOpen(true);          
+              setIsProfileOpen(false);        
+            }}
+          />
         </div>
       </div>
     </header>
+    <PersonalSettings
+        open={settingsOpen}
+        initialTab="profile"
+        onClose={() => setSettingsOpen(false)}
+        currentUser={{
+          userName: user?.userName ?? "",
+          email: user?.email ?? "",
+          bio: user?.bio ?? "",
+        }}
+        onSaveProfile={async (payload) => {
+          // TODO: call API .NET 9 lưu profile
+          // await fetch('/api/profile', { method: 'PUT', headers: {...}, body: JSON.stringify(payload) })
+          console.log("SAVE PROFILE", payload);
+        }}
+      />
+    </>
   );
+  
 }

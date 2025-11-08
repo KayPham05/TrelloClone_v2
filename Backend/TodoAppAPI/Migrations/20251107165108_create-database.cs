@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace TodoAppAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class InitDB : Migration
+    public partial class createdatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -34,6 +36,7 @@ namespace TodoAppAPI.Migrations
                     Email = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
+                    Bio = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
                     RoleId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -250,6 +253,33 @@ namespace TodoAppAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CardMembers",
+                columns: table => new
+                {
+                    CardMemberUId = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    CardUId = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    UserUId = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    Role = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false, defaultValue: "Assignee"),
+                    AssignedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CardMembers", x => x.CardMemberUId);
+                    table.ForeignKey(
+                        name: "FK_CardMembers_Cards_CardUId",
+                        column: x => x.CardUId,
+                        principalTable: "Cards",
+                        principalColumn: "CardUId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CardMembers_Users_UserUId",
+                        column: x => x.UserUId,
+                        principalTable: "Users",
+                        principalColumn: "UserUId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Comments",
                 columns: table => new
                 {
@@ -321,6 +351,16 @@ namespace TodoAppAPI.Migrations
                         principalColumn: "UserUId");
                 });
 
+            migrationBuilder.InsertData(
+                table: "Roles",
+                columns: new[] { "RoleId", "Description", "RoleName" },
+                values: new object[,]
+                {
+                    { 1, "System Administrator", "Admin" },
+                    { 2, "Regular User", "User" },
+                    { 3, "Guest User", "Guest" }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Activities_CardUId",
                 table: "Activities",
@@ -351,6 +391,17 @@ namespace TodoAppAPI.Migrations
                 name: "IX_Boards_WorkspaceUId",
                 table: "Boards",
                 column: "WorkspaceUId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CardMembers_CardUId_UserUId",
+                table: "CardMembers",
+                columns: new[] { "CardUId", "UserUId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CardMembers_UserUId",
+                table: "CardMembers",
+                column: "UserUId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Cards_ListUId",
@@ -433,6 +484,9 @@ namespace TodoAppAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "BoardMembers");
+
+            migrationBuilder.DropTable(
+                name: "CardMembers");
 
             migrationBuilder.DropTable(
                 name: "Comments");
