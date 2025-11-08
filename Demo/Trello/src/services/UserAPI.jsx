@@ -8,3 +8,15 @@ export const getUserByEmailAPI = (email) => {
         params: { email },
     } );
 }
+
+export const verificodeAPI = (email, code) => {
+    return axiosClient.post(`${END_POINT.USER}/verify-code`, {
+         email, code
+    })
+}
+
+export const resendCodeAPI = (email) => {
+    return axiosClient.post(`${END_POINT.USER}/resend-code`, null, {
+        params:{email}
+    })
+}

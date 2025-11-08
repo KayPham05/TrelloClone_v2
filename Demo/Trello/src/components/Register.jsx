@@ -15,24 +15,37 @@ export default function Register() {
 
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!username || !email || !password) {
-      toast.warning("Vui lòng nhập đầy đủ thông tin");
-      return;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!username || !email || !password) {
+    toast.warning(" Vui lòng nhập đầy đủ thông tin");
+    return;
+  }
+
+  try {
+    setLoading(true);
+    const res = await registerAPI({ userName: username, email, password });
+
+    //  Nếu backend trả message thành công
+    if (res?.message?.toLowerCase().includes("đăng ký thành công")) {
+      toast.success(
+        " Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản."
+      );
+      // Không cho đăng nhập ngay, chỉ chuyển đến trang hướng dẫn
+      setTimeout(() => {
+        navigate("/VerifyCode", { state: { email } });
+      }, 800);
+    } else {
+      toast.error(res?.message || "Đăng ký thất bại!");
     }
-    try {
-      setLoading(true);
-      await registerAPI({ userName: username, email, password });
-      toast.success("Đăng ký thành công! Hãy đăng nhập.");
-      setTimeout(() => navigate("/login"), 300);
-    } catch (err) {
-      console.error(err);
-      toast.error(err?.response?.data?.message || "Đăng ký thất bại!");
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (err) {
+    console.error(err);
+    toast.error(err?.response?.data?.message || "Đăng ký thất bại!");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
