@@ -33,3 +33,14 @@ export const addUsernameByUserUIdAPI = (userUId, username)=>{
         params: {userUId, username}
     });
 }
+export const verificodeAPI = (email, code) => {
+    return axiosClient.post(`${END_POINT.USER}/verify-code`, {
+         email, code
+    })
+}
+
+export const resendCodeAPI = (email) => {
+    return axiosClient.post(`${END_POINT.USER}/resend-code`, null, {
+        params:{email}
+    })
+}
