@@ -5,6 +5,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import VerifyCode from "./components/VerifyCode.jsx"
 import AppLayout from "./components/AppLayout.jsx"
 import Login from "./components/Login.jsx";
 import Register from "./components/Register.jsx";
@@ -19,8 +20,9 @@ createRoot(document.getElementById("root")).render(
   <GoogleOAuthProvider clientId={CLIENT_ID}>
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/VerifyCode" element={<VerifyCode/>}/>
         <Route element={<AppLayout />}>
           <Route path="/home" element={<Home />} />
           <Route path="/dashboard" element={<Layout />} />

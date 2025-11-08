@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { jwtDecode } from "jwt-decode";
 import { loginAPI } from "../services/LoginAPI";
 import { useGoogleLogin, googleLogout } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
-import axios from "axios";
-
 import "../components/css/login_v2.css"; 
 import echidna from "../assets/echidna.jpg";
 import sc from "../assets/sc.jpg";
@@ -144,7 +143,7 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) {
-      toast.error("⚠️ Vui lòng nhập đầy đủ email và mật khẩu!");
+      toast.error(" Vui lòng nhập đầy đủ email và mật khẩu!");
       return;
     }
     try {
@@ -165,6 +164,7 @@ export default function Login() {
         toast.error(res?.message || "Đăng nhập thất bại!");
       }
     } catch (err) {
+      console.log("Loix",err)
       toast.error("Sai tài khoản hoặc mật khẩu!");
     }
   };
