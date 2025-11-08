@@ -12,8 +12,8 @@ using TodoAppAPI.Data;
 namespace TodoAppAPI.Migrations
 {
     [DbContext(typeof(TodoDbContext))]
-    [Migration("20251103091824_InitDB")]
-    partial class InitDB
+    [Migration("20251108144823_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -187,6 +187,44 @@ namespace TodoAppAPI.Migrations
                     b.ToTable("Cards", (string)null);
                 });
 
+            modelBuilder.Entity("TodoAppAPI.Models.CardMember", b =>
+                {
+                    b.Property<string>("CardMemberUId")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime>("AssignedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<string>("CardUId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValue("Assignee");
+
+                    b.Property<string>("UserUId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.HasKey("CardMemberUId");
+
+                    b.HasIndex("UserUId");
+
+                    b.HasIndex("CardUId", "UserUId")
+                        .IsUnique();
+
+                    b.ToTable("CardMembers", (string)null);
+                });
+
             modelBuilder.Entity("TodoAppAPI.Models.Comment", b =>
                 {
                     b.Property<string>("CommentUId")
@@ -256,6 +294,73 @@ namespace TodoAppAPI.Migrations
                     b.ToTable("Lists", (string)null);
                 });
 
+            modelBuilder.Entity("TodoAppAPI.Models.Notification", b =>
+                {
+                    b.Property<string>("NotiId")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("ActorId")
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("BoardId")
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("CardId")
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("Link")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("ListId")
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("Read")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RecipientId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(140)
+                        .HasColumnType("nvarchar(140)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("NotiId");
+
+                    b.HasIndex("ActorId");
+
+                    b.HasIndex("ListId");
+
+                    b.HasIndex("BoardId", "CreatedAt");
+
+                    b.HasIndex("CardId", "CreatedAt");
+
+                    b.HasIndex("RecipientId", "Read", "CreatedAt");
+
+                    b.ToTable("Notifications", (string)null);
+                });
+
             modelBuilder.Entity("TodoAppAPI.Models.Role", b =>
                 {
                     b.Property<int>("RoleId")
@@ -276,6 +381,26 @@ namespace TodoAppAPI.Migrations
                     b.HasKey("RoleId");
 
                     b.ToTable("Roles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            RoleId = 1,
+                            Description = "System Administrator",
+                            RoleName = "Admin"
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            Description = "Regular User",
+                            RoleName = "User"
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            Description = "Guest User",
+                            RoleName = "Guest"
+                        });
                 });
 
             modelBuilder.Entity("TodoAppAPI.Models.TodoItem", b =>
@@ -539,6 +664,25 @@ namespace TodoAppAPI.Migrations
                     b.Navigation("List");
                 });
 
+            modelBuilder.Entity("TodoAppAPI.Models.CardMember", b =>
+                {
+                    b.HasOne("TodoAppAPI.Models.Card", "Card")
+                        .WithMany("CardMembers")
+                        .HasForeignKey("CardUId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TodoAppAPI.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserUId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Card");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TodoAppAPI.Models.Comment", b =>
                 {
                     b.HasOne("TodoAppAPI.Models.Card", "Card")
@@ -566,6 +710,45 @@ namespace TodoAppAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Board");
+                });
+
+            modelBuilder.Entity("TodoAppAPI.Models.Notification", b =>
+                {
+                    b.HasOne("TodoAppAPI.Models.User", "Actor")
+                        .WithMany("SentNotifications")
+                        .HasForeignKey("ActorId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("TodoAppAPI.Models.Board", "Board")
+                        .WithMany()
+                        .HasForeignKey("BoardId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("TodoAppAPI.Models.Card", "Card")
+                        .WithMany()
+                        .HasForeignKey("CardId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("TodoAppAPI.Models.List", "List")
+                        .WithMany()
+                        .HasForeignKey("ListId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("TodoAppAPI.Models.User", "Recipient")
+                        .WithMany("ReceivedNotifications")
+                        .HasForeignKey("RecipientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Actor");
+
+                    b.Navigation("Board");
+
+                    b.Navigation("Card");
+
+                    b.Navigation("List");
+
+                    b.Navigation("Recipient");
                 });
 
             modelBuilder.Entity("TodoAppAPI.Models.TodoItem", b =>
@@ -668,6 +851,8 @@ namespace TodoAppAPI.Migrations
                 {
                     b.Navigation("Activities");
 
+                    b.Navigation("CardMembers");
+
                     b.Navigation("Comments");
 
                     b.Navigation("TodoItems");
@@ -698,6 +883,10 @@ namespace TodoAppAPI.Migrations
                     b.Navigation("OwnedBoards");
 
                     b.Navigation("OwnedWorkspaces");
+
+                    b.Navigation("ReceivedNotifications");
+
+                    b.Navigation("SentNotifications");
 
                     b.Navigation("WorkspaceMemberships");
                 });
