@@ -3,9 +3,9 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
-import { loginAPI } from "../services/LoginAPI";
+import { loginAPI, LoginGoogleAPI } from "../services/LoginAPI";
 import { useGoogleLogin, googleLogout } from "@react-oauth/google";
-import "../components/css/login_v2.css"; 
+import "../components/css/login_v2.css";
 import echidna from "../assets/echidna.jpg";
 import sc from "../assets/sc.jpg";
 import haizz from "../assets/haizz.jpg";
@@ -21,7 +21,7 @@ export default function Login() {
 
   // ---- Effects: sticky header, typewriter, tabs, slider ----
   useEffect(() => {
-    // Sticky header on scroll 
+    // Sticky header on scroll
     const onScroll = () => {
       const header = document.querySelector("header");
       if (!header) return;
@@ -99,7 +99,9 @@ export default function Login() {
     // Section 2: Slider
     const featureTabs = Array.from(document.querySelectorAll(".feature-tab"));
     const slides = Array.from(document.querySelectorAll(".slider-item"));
-    const indicators = Array.from(document.querySelectorAll(".slide-indicator"));
+    const indicators = Array.from(
+      document.querySelectorAll(".slide-indicator")
+    );
 
     const applySlide = (index) => {
       slides.forEach((s) => s.classList.remove("active"));
@@ -164,57 +166,37 @@ export default function Login() {
         toast.error(res?.message || "Đăng nhập thất bại!");
       }
     } catch (err) {
-      console.log("Loix",err)
+      console.log("Loix", err);
       toast.error("Sai tài khoản hoặc mật khẩu!");
     }
   };
 
-//  Thay thế toàn bộ hàm googleLogin
-const googleLogin = useGoogleLogin({
-  onSuccess: async (tokenResponse) => {
-    try {
-      const res = await axios.get(
-        "https://www.googleapis.com/oauth2/v2/userinfo",
-        {
-          headers: {
-            Authorization: `Bearer ${tokenResponse.access_token}`,
-          },
-        }
-      );
+  //  Thay thế toàn bộ hàm googleLogin
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        const backendRes = await LoginGoogleAPI({
+          accessToken: tokenResponse.access_token,
+        });
 
-      console.log(" Full response:", res); // Debug toàn bộ response
-      
-      //  Check response structure
-      if (!res || !res.data) {
-        throw new Error("Empty response from Google");
+        const { token, userUId, userName, email } = backendRes;
+
+        localStorage.setItem(
+          "user",
+          JSON.stringify({ userUId, userName, email, isGoogleUser: true })
+        );
+        localStorage.setItem("token", token);
+
+        toast.success(`Xin chào ${userName}!`);
+        navigate("/home");
+      } catch (err) {
+        console.error(" Full error:", err);
+        console.error(" Error response:", err.response);
+        toast.error("Không thể lấy thông tin từ Google!");
       }
-
-      const userData = res.data;
-
-      const userInfo = {
-        googleId: userData.id || userData.sub || Date.now().toString(),
-        userName: userData.name || userData.email?.split('@')[0] || "User",
-        email: userData.email || "",
-        picture: userData.picture || "",
-        token: tokenResponse.access_token,
-        isGoogleUser: true,
-      };
-
-      localStorage.setItem("user", JSON.stringify(userInfo));
-      localStorage.setItem("token", tokenResponse.access_token);
-
-      toast.success(`Xin chào ${userInfo.userName}! 🎉`);
-      navigate("/home");
-    } catch (err) {
-      console.error("❌ Full error:", err);
-      console.error("❌ Error response:", err.response);
-      toast.error("Không thể lấy thông tin từ Google!");
-    }
-  },
-  onError: () => toast.error("Đăng nhập Google thất bại!"),
-});
-
-
+    },
+    onError: () => toast.error("Đăng nhập Google thất bại!"),
+  });
 
   // // Logout handler
   // const handleLogout = () => {
@@ -232,9 +214,7 @@ const googleLogin = useGoogleLogin({
   //   }
   // };
 
-
   return (
-
     <div className="antialiased">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50 transition-shadow duration-300">
@@ -247,22 +227,37 @@ const googleLogin = useGoogleLogin({
                 <div className="rounded px-2 py-1">
                   <img src={icon} alt="icon" width="30" height="30" />
                 </div>
-                <span className="text-2xl font-bold text-gray-800 logo-text">Trello</span>
+                <span className="text-2xl font-bold text-gray-800 logo-text">
+                  Trello
+                </span>
               </div>
 
               {/* Menu */}
               <div className="hidden md:flex items-center space-x-8">
-                <a href="#!" className="hover:opacity-80 text-sm font-medium">Features</a>
-                <a href="#!" className="hover:opacity-80 text-sm font-medium">Solutions</a>
-                <a href="#!" className="hover:opacity-80 text-sm font-medium">Plans</a>
-                <a href="#!" className="hover:opacity-80 text-sm font-medium">Pricing</a>
-                <a href="#!" className="hover:opacity-80 text-sm font-medium">Resources</a>
+                <a href="#!" className="hover:opacity-80 text-sm font-medium">
+                  Features
+                </a>
+                <a href="#!" className="hover:opacity-80 text-sm font-medium">
+                  Solutions
+                </a>
+                <a href="#!" className="hover:opacity-80 text-sm font-medium">
+                  Plans
+                </a>
+                <a href="#!" className="hover:opacity-80 text-sm font-medium">
+                  Pricing
+                </a>
+                <a href="#!" className="hover:opacity-80 text-sm font-medium">
+                  Resources
+                </a>
               </div>
             </div>
 
             {/* Right section */}
             <div className="flex items-center">
-              <button onClick={() => navigate("/register")} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-all">
+              <button
+                onClick={() => navigate("/register")}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-all"
+              >
                 Get Trello for free
               </button>
             </div>
@@ -282,7 +277,8 @@ const googleLogin = useGoogleLogin({
                 </h1>
 
                 <p className="text-base sm:text-lg md:text-xl mb-8">
-                  Escape the clutter and chaos—unleash your productivity with Trello.
+                  Escape the clutter and chaos—unleash your productivity with
+                  Trello.
                 </p>
 
                 <div className="bg-white rounded-xl p-6 shadow-lg mx-auto w-full max-w-md lg:max-w-none">
@@ -315,7 +311,9 @@ const googleLogin = useGoogleLogin({
                         <div className="w-full border-t border-gray-200"></div>
                       </div>
                       <div className="relative flex justify-center">
-                        <span className="px-3 bg-white opacity-70 order-text">OR</span>
+                        <span className="px-3 bg-white opacity-70 order-text">
+                          OR
+                        </span>
                       </div>
                     </div>
 
@@ -324,7 +322,11 @@ const googleLogin = useGoogleLogin({
                       className="w-full bg-white hover:bg-gray-50 px-6 py-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-md logins-btn"
                       onClick={() => googleLogin()}
                     >
-                      <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
+                      <svg
+                        className="w-5 h-5"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
                         <path
                           fill="#4285F4"
                           d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -361,7 +363,6 @@ const googleLogin = useGoogleLogin({
               />
             </> */}
 
-
             {/* Right */}
             <div className="lg:col-span-6 flex justify-center relative">
               <img
@@ -383,32 +384,51 @@ const googleLogin = useGoogleLogin({
               Your productivity powerhouse
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl">
-              Stay organized and efficient with Inbox, Boards, and Planner. Every to-do, idea, or
-              responsibility—no matter how small—finds its place, keeping you at the top of your game.
+              Stay organized and efficient with Inbox, Boards, and Planner.
+              Every to-do, idea, or responsibility—no matter how small—finds its
+              place, keeping you at the top of your game.
             </p>
           </div>
 
           <div className="grid lg:grid-cols-12 gap-8">
             <div className="lg:col-span-4 space-y-2">
-              <div className="tab-item active bg-white rounded-lg shadow-sm p-6" data-tab="inbox">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Inbox</h3>
+              <div
+                className="tab-item active bg-white rounded-lg shadow-sm p-6"
+                data-tab="inbox"
+              >
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  Inbox
+                </h3>
                 <p className="text-gray-600 text-sm">
-                  When it's on your mind, it goes in your Inbox. Capture your to-dos from anywhere, anytime.
+                  When it's on your mind, it goes in your Inbox. Capture your
+                  to-dos from anywhere, anytime.
                 </p>
               </div>
 
-              <div className="tab-item bg-white rounded-lg shadow-sm p-6" data-tab="boards">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Boards</h3>
+              <div
+                className="tab-item bg-white rounded-lg shadow-sm p-6"
+                data-tab="boards"
+              >
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  Boards
+                </h3>
                 <p className="text-gray-600 text-sm">
-                  Your to-do list may be long, but it can be manageable! Keep tabs on everything from
-                  "to-dos to tackle" to "mission accomplished!"
+                  Your to-do list may be long, but it can be manageable! Keep
+                  tabs on everything from "to-dos to tackle" to "mission
+                  accomplished!"
                 </p>
               </div>
 
-              <div className="tab-item bg-white rounded-lg shadow-sm p-6" data-tab="planner">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Planner</h3>
+              <div
+                className="tab-item bg-white rounded-lg shadow-sm p-6"
+                data-tab="planner"
+              >
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  Planner
+                </h3>
                 <p className="text-gray-600 text-sm">
-                  Drag, drop, get it done. Snap your top tasks into your calendar and make time for what truly matters.
+                  Drag, drop, get it done. Snap your top tasks into your
+                  calendar and make time for what truly matters.
                 </p>
               </div>
             </div>
@@ -416,13 +436,21 @@ const googleLogin = useGoogleLogin({
             <div className="lg:col-span-8 relative">
               <div id="inbox-preview" className="preview-content">
                 <div className="relative bg-gray-50 rounded-2xl p-6 min-h-[500px]">
-                  <img src={echidna} alt="Inbox Preview" className="w-full h-full object-cover rounded-xl" />
+                  <img
+                    src={echidna}
+                    alt="Inbox Preview"
+                    className="w-full h-full object-cover rounded-xl"
+                  />
                 </div>
               </div>
 
               <div id="boards-preview" className="preview-content hidden">
                 <div className="relative bg-gray-50 rounded-2xl p-6 min-h=[500px]">
-                  <img src={sc} alt="Boards Preview" className="w-full h-full object-cover rounded-xl" />
+                  <img
+                    src={sc}
+                    alt="Boards Preview"
+                    className="w-full h-full object-cover rounded-xl"
+                  />
                 </div>
               </div>
 
@@ -444,42 +472,59 @@ const googleLogin = useGoogleLogin({
       <section className="py-20 gradient-bg-light section-2">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 sec2-title">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">From message to action</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              From message to action
+            </h2>
             <p className="text-xl max-w-3xl mx-auto">
-              Quickly turn communication from your favorite apps into to-dos, keeping all your discussions and tasks
-              organized in one place.
+              Quickly turn communication from your favorite apps into to-dos,
+              keeping all your discussions and tasks organized in one place.
             </p>
           </div>
 
           <div className="grid lg:grid-cols-12 gap-8 mb-12">
             {/* Left tabs */}
             <div className="lg:col-span-4 space-y-2">
-              <div className="feature-tab active bg-white rounded-lg shadow-sm p-6 cursor-pointer transition-all" data-index="0">
+              <div
+                className="feature-tab active bg-white rounded-lg shadow-sm p-6 cursor-pointer transition-all"
+                data-index="0"
+              >
                 <h3 className="text-xl font-semibold mb-2">Inbox</h3>
                 <p className="text-sm">
-                  When it's on your mind, it goes in your Inbox. Capture your to-dos from anywhere, anytime.
+                  When it's on your mind, it goes in your Inbox. Capture your
+                  to-dos from anywhere, anytime.
                 </p>
               </div>
 
-              <div className="feature-tab bg-white rounded-lg shadow-sm p-6 cursor-pointer transition-all" data-index="1">
+              <div
+                className="feature-tab bg-white rounded-lg shadow-sm p-6 cursor-pointer transition-all"
+                data-index="1"
+              >
                 <h3 className="text-xl font-semibold mb-2">Boards</h3>
                 <p className="text-sm">
-                  Your to-do list may be long, but it can be manageable! Keep tabs on everything from
-                  "to-dos to tackle" to "mission accomplished!"
+                  Your to-do list may be long, but it can be manageable! Keep
+                  tabs on everything from "to-dos to tackle" to "mission
+                  accomplished!"
                 </p>
               </div>
 
-              <div className="feature-tab bg-white rounded-lg shadow-sm p-6 cursor-pointer transition-all" data-index="2">
+              <div
+                className="feature-tab bg-white rounded-lg shadow-sm p-6 cursor-pointer transition-all"
+                data-index="2"
+              >
                 <h3 className="text-xl font-semibold mb-2">Planner</h3>
                 <p className="text-sm">
-                  Drag, drop, get it done. Snap your top tasks into your calendar and make time for what truly matters.
+                  Drag, drop, get it done. Snap your top tasks into your
+                  calendar and make time for what truly matters.
                 </p>
               </div>
             </div>
 
             {/* Right slider */}
             <div className="lg:col-span-8">
-              <div className="relative bg-white rounded-2xl shadow-lg overflow-hidden" style={{ minHeight: 500 }}>
+              <div
+                className="relative bg-white rounded-2xl shadow-lg overflow-hidden"
+                style={{ minHeight: 500 }}
+              >
                 {/* indicators */}
                 <div className="absolute top-4 right-4 flex gap-2 z-10 items-center">
                   <div className="slide-indicator rounded-full" />
@@ -522,10 +567,12 @@ const googleLogin = useGoogleLogin({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <p className="text-blue-600 font-semibold mb-2">WORK SMARTER</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Do more with Trello</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+              Do more with Trello
+            </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Customize the way you organize with easy integrations, automation, and mirroring of your to-dos across
-              multiple locations.
+              Customize the way you organize with easy integrations, automation,
+              and mirroring of your to-dos across multiple locations.
             </p>
           </div>
 
@@ -543,9 +590,13 @@ const googleLogin = useGoogleLogin({
                 </div>
               </div>
               <h3 className="text-3xl font-bold text-gray-900 mb-4">
-                Join a community of millions of users globally who are using Trello to get more done.
+                Join a community of millions of users globally who are using
+                Trello to get more done.
               </h3>
-              <button onClick={() => navigate("/register")} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium text-lg mt-4">
+              <button
+                onClick={() => navigate("/register")}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium text-lg mt-4"
+              >
                 Get started - It's free
               </button>
             </div>
@@ -560,59 +611,135 @@ const googleLogin = useGoogleLogin({
             <div>
               <h4 className="text-white font-semibold mb-4">About Trello</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#!" className="hover:text-white">What's behind the boards</a></li>
-                <li><a href="#!" className="hover:text-white">Careers</a></li>
-                <li><a href="#!" className="hover:text-white">News</a></li>
+                <li>
+                  <a href="#!" className="hover:text-white">
+                    What's behind the boards
+                  </a>
+                </li>
+                <li>
+                  <a href="#!" className="hover:text-white">
+                    Careers
+                  </a>
+                </li>
+                <li>
+                  <a href="#!" className="hover:text-white">
+                    News
+                  </a>
+                </li>
               </ul>
             </div>
 
             <div>
               <h4 className="text-white font-semibold mb-4">Resources</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#!" className="hover:text-white">Getting started</a></li>
-                <li><a href="#!" className="hover:text-white">Help</a></li>
-                <li><a href="#!" className="hover:text-white">Developers</a></li>
-                <li><a href="#!" className="hover:text-white">Blog</a></li>
+                <li>
+                  <a href="#!" className="hover:text-white">
+                    Getting started
+                  </a>
+                </li>
+                <li>
+                  <a href="#!" className="hover:text-white">
+                    Help
+                  </a>
+                </li>
+                <li>
+                  <a href="#!" className="hover:text-white">
+                    Developers
+                  </a>
+                </li>
+                <li>
+                  <a href="#!" className="hover:text-white">
+                    Blog
+                  </a>
+                </li>
               </ul>
             </div>
 
             <div>
               <h4 className="text-white font-semibold mb-4">Apps</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#!" className="hover:text-white">Desktop</a></li>
-                <li><a href="#!" className="hover:text-white">iOS</a></li>
-                <li><a href="#!" className="hover:text-white">Android</a></li>
+                <li>
+                  <a href="#!" className="hover:text-white">
+                    Desktop
+                  </a>
+                </li>
+                <li>
+                  <a href="#!" className="hover:text-white">
+                    iOS
+                  </a>
+                </li>
+                <li>
+                  <a href="#!" className="hover:text-white">
+                    Android
+                  </a>
+                </li>
               </ul>
             </div>
 
             <div>
               <h4 className="text-white font-semibold mb-4">Atlassian</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#!" className="hover:text-white">Jira</a></li>
-                <li><a href="#!" className="hover:text-white">Confluence</a></li>
-                <li><a href="#!" className="hover:text-white">View all products</a></li>
+                <li>
+                  <a href="#!" className="hover:text-white">
+                    Jira
+                  </a>
+                </li>
+                <li>
+                  <a href="#!" className="hover:text-white">
+                    Confluence
+                  </a>
+                </li>
+                <li>
+                  <a href="#!" className="hover:text-white">
+                    View all products
+                  </a>
+                </li>
               </ul>
             </div>
 
             <div>
               <h4 className="text-white font-semibold mb-4">Connect</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#!" className="hover:text-white">Twitter</a></li>
-                <li><a href="#!" className="hover:text-white">Facebook</a></li>
-                <li><a href="#!" className="hover:text-white">LinkedIn</a></li>
-                <li><a href="#!" className="hover:text-white">Instagram</a></li>
+                <li>
+                  <a href="#!" className="hover:text-white">
+                    Twitter
+                  </a>
+                </li>
+                <li>
+                  <a href="#!" className="hover:text-white">
+                    Facebook
+                  </a>
+                </li>
+                <li>
+                  <a href="#!" className="hover:text-white">
+                    LinkedIn
+                  </a>
+                </li>
+                <li>
+                  <a href="#!" className="hover:text-white">
+                    Instagram
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
 
           <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-4 mb-4 md:mb-0">
-              <span className="text-sm">Copyright © 2024 Atlassian. All rights reserved.</span>
+              <span className="text-sm">
+                Copyright © 2024 Atlassian. All rights reserved.
+              </span>
             </div>
             <div className="flex space-x-6 text-sm">
-              <a href="#!" className="hover:text-white">Privacy Policy</a>
-              <a href="#!" className="hover:text-white">Terms</a>
-              <a href="#!" className="hover:text-white">Cookie Settings</a>
+              <a href="#!" className="hover:text-white">
+                Privacy Policy
+              </a>
+              <a href="#!" className="hover:text-white">
+                Terms
+              </a>
+              <a href="#!" className="hover:text-white">
+                Cookie Settings
+              </a>
             </div>
           </div>
         </div>
