@@ -7,5 +7,6 @@
         public string? Token { get; set; } // JWT hoặc mock token
         public string? UserName { get; set; }
         public string? Email { get; set; }
+        public string? Bio { get; set; }
     }
 }

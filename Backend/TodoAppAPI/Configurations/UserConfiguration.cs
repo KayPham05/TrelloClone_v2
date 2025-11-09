@@ -42,6 +42,9 @@ namespace TodoAppAPI.Configurations
             builder.Property(x => x.CreatedAt)
                    .HasDefaultValueSql("GETDATE()");
 
+            builder.Property(x => x.Bio)
+                    .HasMaxLength(250);
+
             builder.HasOne(x => x.Role)
                    .WithMany(r => r.Users)
                    .HasForeignKey(x => x.RoleId)

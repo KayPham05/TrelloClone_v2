@@ -42,6 +42,7 @@ namespace TodoAppAPI.Service
                 VerificationTokenExpiresAt = DateTime.UtcNow.AddMinutes(10),
                 IsEmailVerified = false,
                 RoleId = 2
+
             };
 
             _authService.Users.Add(user);
@@ -79,7 +80,8 @@ namespace TodoAppAPI.Service
                 UserUId = user.UserUId,
                 Token = token,
                 UserName = user.UserName,
-                Email = user.Email
+                Email = user.Email,
+                Bio = user.Bio
             };
         }
 
