@@ -184,6 +184,44 @@ namespace TodoAppAPI.Migrations
                     b.ToTable("Cards", (string)null);
                 });
 
+            modelBuilder.Entity("TodoAppAPI.Models.CardMember", b =>
+                {
+                    b.Property<string>("CardMemberUId")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime>("AssignedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<string>("CardUId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValue("Assignee");
+
+                    b.Property<string>("UserUId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.HasKey("CardMemberUId");
+
+                    b.HasIndex("UserUId");
+
+                    b.HasIndex("CardUId", "UserUId")
+                        .IsUnique();
+
+                    b.ToTable("CardMembers", (string)null);
+                });
+
             modelBuilder.Entity("TodoAppAPI.Models.Comment", b =>
                 {
                     b.Property<string>("CommentUId")
@@ -341,10 +379,19 @@ namespace TodoAppAPI.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<bool>("IsEmailVerified")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("RoleId")
                         .HasColumnType("int");
@@ -353,6 +400,13 @@ namespace TodoAppAPI.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("VerificationTokenExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("VerificationTokenHash")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.HasKey("UserUId");
 
@@ -556,6 +610,25 @@ namespace TodoAppAPI.Migrations
                     b.Navigation("List");
                 });
 
+            modelBuilder.Entity("TodoAppAPI.Models.CardMember", b =>
+                {
+                    b.HasOne("TodoAppAPI.Models.Card", "Card")
+                        .WithMany("CardMembers")
+                        .HasForeignKey("CardUId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TodoAppAPI.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserUId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Card");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TodoAppAPI.Models.Comment", b =>
                 {
                     b.HasOne("TodoAppAPI.Models.Card", "Card")
@@ -684,6 +757,8 @@ namespace TodoAppAPI.Migrations
             modelBuilder.Entity("TodoAppAPI.Models.Card", b =>
                 {
                     b.Navigation("Activities");
+
+                    b.Navigation("CardMembers");
 
                     b.Navigation("Comments");
 

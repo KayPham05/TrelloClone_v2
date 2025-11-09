@@ -26,6 +26,18 @@ namespace TodoAppAPI.Configurations
             builder.Property(x => x.PasswordHash)
                    .IsRequired()
                    .HasMaxLength(200);
+            builder.Property(x => x.IsEmailVerified)
+                   .HasDefaultValue(false);
+
+            builder.Property(x => x.VerificationTokenHash)
+                   .HasMaxLength(256)
+                   .IsRequired(false);
+
+            builder.Property(u => u.VerificationTokenExpiresAt)
+                   .IsRequired(false);
+
+            builder.Property(x => x.Provider)
+                   .IsRequired();
 
             builder.Property(x => x.CreatedAt)
                    .HasDefaultValueSql("GETDATE()");
