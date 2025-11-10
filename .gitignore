@@ -112,6 +112,9 @@ wwwroot/lib/           # if using LibMan to restore client libs
 # User secrets & local configs
 appsettings.*.local.json
 
+#migration
+Migrations/
+
 # NuGet
 *.nupkg
 *.snupkg
