@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Mail, UserPlus, AlertCircle } from 'lucide-react';
 import { getUserByEmailAPI } from '../services/UserAPI';
 import { inviteUserToWorkspaceAPI } from '../services/WorkspaceAPI';
+import { addNotificationAPI } from "../services/NotificationAPi";
 
 export default function InviteUserModal({ workspace, onClose, currentUser, onSuccess }) {
   const [email, setEmail] = useState('');
@@ -45,6 +46,21 @@ export default function InviteUserModal({ workspace, onClose, currentUser, onSuc
         role
       );
 
+      // Tạo payload notification ngay sau khi mời thành công
+      const notificationPayload = {
+      recipientId: user.userUId,
+      actorId: currentUser.userUId,
+      type: 5, // Workspace
+      title: "Workspace Invitation",
+      message: `${currentUser.userName} invited you to join workspace '${workspace.name}' as ${role}.`,
+      link: `/workspaces/${workspace.workspaceUId}`,
+      workspaceId: workspace.workspaceUId
+    };
+
+    console.log("Sending notification with payload:", notificationPayload);
+
+    await addNotificationAPI(notificationPayload);
+
       alert(`Đã mời ${email} vào workspace với vai trò ${role}`);
       onSuccess?.();
       onClose();
@@ -64,7 +80,7 @@ export default function InviteUserModal({ workspace, onClose, currentUser, onSuc
   };
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
