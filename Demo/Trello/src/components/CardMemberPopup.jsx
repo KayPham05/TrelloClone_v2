@@ -52,13 +52,13 @@ export default function CardMemberPopup({
         board.boardUId,
         card.cardUId
       );
-      toast.success(" Đã thêm thành viên vào thẻ!");
+      toast.success("Member added to card!");
       const res = await getCardMembersAPI(card.cardUId);
       setCardMembers(Array.isArray(res) ? res : []);
       onChangeCard && onChangeCard(Array.isArray(res) ? res : []);
       onChange && onChange();
     } catch (err) {
-      toast.error("Không thể thêm thành viên!");
+      toast.error("Can't add member :(");
       console.error(err);
     }
   };
@@ -72,13 +72,13 @@ export default function CardMemberPopup({
         board.boardUId,
         card.cardUId
       );
-      toast.info("Đã xóa thành viên khỏi thẻ.");
+      toast.info("Member removed from card.");
       const res = await getCardMembersAPI(card.cardUId);
       setCardMembers(Array.isArray(res) ? res : []);
       onChangeCard && onChangeCard(Array.isArray(res) ? res : []);
       onChange && onChange();
     } catch (err) {
-      toast.error("Không thể xóa thành viên!");
+      toast.error("Can't remove member");
       console.error(err);
     }
   };
@@ -118,7 +118,7 @@ export default function CardMemberPopup({
       <div className="p-3 border-b border-gray-100">
         <input
           type="text"
-          placeholder="Tìm kiếm các thành viên"
+          placeholder="Member searching"
           className="w-full border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-1 focus:ring-blue-500 outline-none"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -128,7 +128,7 @@ export default function CardMemberPopup({
       {/* Thành viên của thẻ */}
       <div className="p-3 border-b border-gray-100">
         <h3 className="text-xs font-semibold text-gray-600 mb-2">
-          Thành viên của thẻ
+          Card's members
         </h3>
         <div className="space-y-1 max-h-36 overflow-y-auto">
           {cardMembers.length > 0 ? (
@@ -160,7 +160,7 @@ export default function CardMemberPopup({
             ))
           ) : (
             <p className="text-gray-500 text-xs italic">
-              Chưa có thành viên nào trong thẻ
+              This card has no member
             </p>
           )}
         </div>
@@ -169,7 +169,7 @@ export default function CardMemberPopup({
       {/* Thành viên của bảng */}
       <div className="p-3">
         <h3 className="text-xs font-semibold text-gray-600 mb-2">
-          Thành viên của bảng
+          Board's members
         </h3>
         <div className="space-y-1 max-h-40 overflow-y-auto">
           {filteredBoardMembers.length > 0 ? (
@@ -192,12 +192,12 @@ export default function CardMemberPopup({
                     {m.userName || m.user?.userName}
                   </span>
                 </div>
-                <span className="text-blue-600 text-xs font-medium">Thêm</span>
+                <span className="text-blue-600 text-xs font-medium">Add</span>
               </div>
             ))
           ) : (
             <p className="text-gray-500 text-xs italic">
-              Không tìm thấy thành viên nào để thêm
+              No member found
             </p>
           )}
         </div>

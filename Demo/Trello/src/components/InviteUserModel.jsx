@@ -13,14 +13,14 @@ export default function InviteUserModal({ workspace, onClose, currentUser, onSuc
     e.preventDefault();
 
     if (!email.trim()) {
-      setError('Vui lòng nhập email');
+      setError('Please enter email');
       return;
     }
 
     // Validate email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setError('Email không hợp lệ');
+      setError('Invalid email');
       return;
     }
 
@@ -32,7 +32,7 @@ export default function InviteUserModal({ workspace, onClose, currentUser, onSuc
       const res = await getUserByEmailAPI(email.trim());
       const user = res.data || res; // tùy backend trả JSON hay object
       if (!user?.userUId) {
-        setError('Không tìm thấy user với email này');
+        setError('No user with this email found');
         setLoading(false);
         return;
       }
@@ -45,7 +45,7 @@ export default function InviteUserModal({ workspace, onClose, currentUser, onSuc
         role
       );
 
-      alert(`Đã mời ${email} vào workspace với vai trò ${role}`);
+      alert(`Invited ${email} into workspace with role: ${role}`);
       onSuccess?.();
       onClose();
 
@@ -53,11 +53,11 @@ export default function InviteUserModal({ workspace, onClose, currentUser, onSuc
       console.error('Error inviting user:', err);
 
       if (err.response?.status === 404)
-        setError('Không tìm thấy user với email này');
+        setError('No user with this email found');
       else if (err.response?.status === 400)
-        setError('User đã là thành viên của workspace');
+        setError('This user is now a member of this workspace');
       else
-        setError('Không thể mời user. Vui lòng thử lại sau');
+        setError('Can\'t invited this user. Please try again later');
     } finally {
       setLoading(false);
     }
@@ -73,7 +73,7 @@ export default function InviteUserModal({ workspace, onClose, currentUser, onSuc
         <div className="flex items-center justify-between p-6 border-b">
           <div>
             <h2 className="text-xl font-semibold text-gray-800">
-              Mời thành viên
+              Invite Member
             </h2>
             <p className="text-sm text-gray-500 mt-1">
               {workspace.name}
@@ -91,7 +91,7 @@ export default function InviteUserModal({ workspace, onClose, currentUser, onSuc
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email thành viên <span className="text-red-500">*</span>
+              Member's email <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
@@ -112,7 +112,7 @@ export default function InviteUserModal({ workspace, onClose, currentUser, onSuc
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Vai trò
+              Role
             </label>
             <select
               value={role}
@@ -120,9 +120,9 @@ export default function InviteUserModal({ workspace, onClose, currentUser, onSuc
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
               disabled={loading}
             >
-              <option value="Member">Member - Thành viên</option>
-              <option value="Admin">Admin - Quản trị viên</option>
-              <option value="Admin">Viewer - Chỉ quan sát</option>
+              <option value="Member">Member</option>
+              <option value="Admin">Admin</option>
+              <option value="Admin">Viewer - View only</option>
             </select>
           </div>
 
@@ -140,14 +140,14 @@ export default function InviteUserModal({ workspace, onClose, currentUser, onSuc
               className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
               disabled={loading}
             >
-              Hủy
+              Cancel
             </button>
             <button
               type="submit"
               className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
             >
-              {loading ? "Đang mời..." : "Mời vào Workspace"}
+              {loading ? "Inviting..." : "Invite into workspace"}
             </button>
           </div>
         </form>

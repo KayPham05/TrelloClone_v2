@@ -143,7 +143,7 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) {
-      toast.error(" Vui lòng nhập đầy đủ email và mật khẩu!");
+      toast.error("Please enter your email and password");
       return;
     }
     try {
@@ -159,14 +159,14 @@ export default function Login() {
             bio: res.bio
           })
         );
-        toast.success("Đăng nhập thành công!");
+        toast.success("Login successfully!");
         navigate("/home");
       } else {
-        toast.error(res?.message || "Đăng nhập thất bại!");
+        toast.error(res?.message || "Login failed!");
       }
     } catch (err) {
       console.log("Loix",err)
-      toast.error("Sai tài khoản hoặc mật khẩu!");
+      toast.error("Wrong username or password!");
     }
   };
 
@@ -204,15 +204,15 @@ const googleLogin = useGoogleLogin({
       localStorage.setItem("user", JSON.stringify(userInfo));
       localStorage.setItem("token", tokenResponse.access_token);
 
-      toast.success(`Xin chào ${userInfo.userName}! 🎉`);
+      toast.success(`Hello ${userInfo.userName}! 🎉`);
       navigate("/home");
     } catch (err) {
       console.error("❌ Full error:", err);
       console.error("❌ Error response:", err.response);
-      toast.error("Không thể lấy thông tin từ Google!");
+      toast.error("Can't get information from Google!");
     }
   },
-  onError: () => toast.error("Đăng nhập Google thất bại!"),
+  onError: () => toast.error("Google login failed!"),
 });
 
 

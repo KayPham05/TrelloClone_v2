@@ -79,7 +79,7 @@ export default function Inbox({ refresh, setRefresh }) {
 
           {!adding ? (
             <button className="add-card-btn" onClick={() => setAdding(true)}>
-              + Thêm thẻ
+              + Add card
             </button>
           ) : (
             <div className="add-card-box">
@@ -96,13 +96,13 @@ export default function Inbox({ refresh, setRefresh }) {
               />
               <div className="btn-row">
                 <button className="add-card-confirm" onClick={handleAdd}>
-                  Thêm
+                  Add
                 </button>
                 <button
                   className="add-card-cancel"
                   onClick={() => setAdding(false)}
                 >
-                  Hủy
+                  Cancel
                 </button>
               </div>
             </div>
@@ -110,7 +110,7 @@ export default function Inbox({ refresh, setRefresh }) {
 
           <ul className="card-list">
             {loading ? (
-              <div className="text-white/50 text-sm p-2">Đang tải...</div>
+              <div className="text-white/50 text-sm p-2">Loading...</div>
             ) : (
               cards.map((card, index) => (
                 <PortalAwareDraggable

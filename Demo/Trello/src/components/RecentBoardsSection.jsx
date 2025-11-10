@@ -24,22 +24,22 @@ export default function RecentBoardsSection({
     <section>
       <div className="flex items-center gap-2 mb-4">
         <Clock className="text-gray-600" size={22} />
-        <h2 className="text-xl font-bold text-gray-800">Đã xem gần đây</h2>
+        <h2 className="text-xl font-bold text-gray-800">Recently Opened</h2>
       </div>
 
       {loading ? (
         <div className="flex items-center gap-3 text-gray-500 py-8">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-          <p className="text-sm italic">Đang tải dữ liệu...</p>
+          <p className="text-sm italic">Data loading...</p>
         </div>
       ) : recentBoards.length === 0 ? (
         <div className="bg-white rounded-xl border-2 border-dashed border-gray-300 p-12 text-center">
           <Clock size={48} className="mx-auto text-gray-300 mb-3" />
           <h3 className="text-gray-700 font-semibold mb-2">
-            Chưa có bảng nào gần đây
+             There is no board yet.
           </h3>
           <p className="text-gray-500 text-sm">
-            Bạn chưa có bảng nào — hãy tạo mới hoặc tham gia workspace!
+            Let's create one or join a workspace !
           </p>
         </div>
       ) : (
@@ -117,7 +117,7 @@ export default function RecentBoardsSection({
                     {board.workspaceUId
                       ? workspaces.find(
                           (ws) => ws.workspaceUId == board.workspaceUId
-                        )?.name || "không tìm thấy"
+                        )?.name || "Not found"
                       : "Personal"}
                   </span>
                 </div>

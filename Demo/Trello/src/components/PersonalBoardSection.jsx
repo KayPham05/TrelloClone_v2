@@ -25,7 +25,7 @@ export default function PersonalBoardSection({
         <div className="flex items-center gap-2">
           <User className="text-gray-600" size={22} />
           <h2 className="text-xl font-bold text-gray-800">
-            Bảng cá nhân
+            Personal board
           </h2>
         </div>
         <button
@@ -33,7 +33,7 @@ export default function PersonalBoardSection({
           className="flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transition"
         >
           <Plus size={18} />
-          Tạo bảng cá nhân
+          Create Personal board
         </button>
       </div>
 
@@ -41,23 +41,23 @@ export default function PersonalBoardSection({
         <div className="flex items-center justify-center py-16">
           <div className="text-center">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600 mx-auto mb-3"></div>
-            <p className="text-gray-500 text-sm">Đang tải bảng cá nhân...</p>
+            <p className="text-gray-500 text-sm">Loading Personal Board...</p>
           </div>
         </div>
       ) : boards.length === 0 ? (
         <div className="bg-white rounded-xl border-2 border-dashed border-gray-300 p-16 text-center">
           <User className="mx-auto text-gray-300 mb-4" size={64} />
           <h3 className="text-gray-700 font-bold mb-2 text-xl">
-            Chưa có bảng cá nhân nào
+            Let's create a personal board
           </h3>
           <p className="text-gray-500 text-sm mb-6 max-w-md mx-auto">
-            Tạo bảng cá nhân để quản lý công việc riêng của bạn một cách hiệu quả
+            Create a personal board to manage your tasks efficiently
           </p>
           <button
             onClick={() => onCreateBoard && onCreateBoard(null)}
             className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition"
           >
-            Tạo bảng đầu tiên
+            Create Your First Board
           </button>
         </div>
       ) : (
@@ -80,7 +80,7 @@ export default function PersonalBoardSection({
                     {board.boardName}
                   </h4>
                   <p className="text-white/90 text-xs font-medium bg-white/20 px-2 py-0.5 rounded-full backdrop-blur-sm w-fit">
-                    Cá nhân
+                    Personal
                   </p>
                 </div>
               </div>
@@ -98,7 +98,7 @@ export default function PersonalBoardSection({
                 />
               </div>
               <span className="text-sm font-semibold group-hover:text-green-600 transition">
-                Tạo bảng mới
+                Create Your New Board
               </span>
             </button>
           </div>
