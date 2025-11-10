@@ -51,26 +51,26 @@ namespace TodoAppAPI.Service
         {
             try
             {
-                //// Kiểm tra người nhận có tồn tại không
-                //var recipientExists = await _context.Users
-                //    .AnyAsync(u => u.UserUId == dto.RecipientId);
-                //if (!recipientExists)
-                //{
-                //    Console.WriteLine($"[ERROR] Recipient not found: {dto.RecipientId}");
-                //    return null;
-                //}
+                // Kiểm tra người nhận có tồn tại không
+                var recipientExists = await _context.Users
+                    .AnyAsync(u => u.UserUId == dto.RecipientId);
+                if (!recipientExists)
+                {
+                    Console.WriteLine($"[ERROR] Recipient not found: {dto.RecipientId}");
+                    return null;
+                }
 
-                //// Kiểm tra actor (nếu có)
-                //if (!string.IsNullOrEmpty(dto.ActorId))
-                //{
-                //    var actorExists = await _context.Users
-                //        .AnyAsync(u => u.UserUId == dto.ActorId);
-                //    if (!actorExists)
-                //    {
-                //        Console.WriteLine($"[WARN] Actor not found: {dto.ActorId}");
-                //        dto.ActorId = null;
-                //    }
-                //}
+                // Kiểm tra actor (nếu có)
+                if (!string.IsNullOrEmpty(dto.ActorId))
+                {
+                    var actorExists = await _context.Users
+                        .AnyAsync(u => u.UserUId == dto.ActorId);
+                    if (!actorExists)
+                    {
+                        Console.WriteLine($"[WARN] Actor not found: {dto.ActorId}");
+                        dto.ActorId = null;
+                    }
+                }
 
                 // Tạo đối tượng Notification
                 var noti = new Notification

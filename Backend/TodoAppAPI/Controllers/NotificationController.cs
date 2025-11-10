@@ -51,6 +51,8 @@ namespace TodoAppAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateNotification([FromBody] NotificationDTO dto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
             var noti = await _notificationService.CreateAsync(dto);
             if (noti == null)
                 return StatusCode(500, new { message = "Failed to create notification" });
