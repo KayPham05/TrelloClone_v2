@@ -37,7 +37,7 @@ export default function CardMenu({
       }}
     >
       <div className="card-menu-header">
-        <span>Thao tác thẻ</span>
+        <span>Card handle</span>
         <button className="menu-close-btn" onClick={onClose}>
           ×
         </button>
@@ -46,12 +46,12 @@ export default function CardMenu({
       <div className="card-menu-section">
         <button className="card-menu-item" onClick={onOpenCard}>
           <CreditCard size={16} />
-          <span>Mở thẻ</span>
+          <span>Open card</span>
         </button>
 
         <button className="card-menu-item" onClick={onEdit}>
           <Edit3 size={16} />
-          <span>Chỉnh sửa</span>
+          <span>Modify</span>
         </button>
 
         {/*  Chỉ hiện nếu có listUId (tức là card đã thuộc 1 list) */}
@@ -67,18 +67,18 @@ export default function CardMenu({
             }}
           >
             <Users size={16} />
-            <span>Thay đổi thành viên</span>
+            <span>Change member</span>
           </button>
         )}
 
         <button className="card-menu-item">
           <Copy size={16} />
-          <span>Sao chép thẻ</span>
+          <span>Duplicate card</span>
         </button>
 
         <button className="card-menu-item">
           <ArrowRight size={16} />
-          <span>Di chuyển</span>
+          <span>Move</span>
         </button>
       </div>
 
@@ -87,12 +87,12 @@ export default function CardMenu({
       <div className="card-menu-section">
         <button className="card-menu-item">
           <Archive size={16} />
-          <span>Lưu trữ</span>
+          <span>Archive</span>
         </button>
 
         <button className="card-menu-item danger" onClick={onDelete}>
           <Trash2 size={16} />
-          <span>Xóa thẻ</span>
+          <span>Delete card</span>
         </button>
       </div>
     </div>

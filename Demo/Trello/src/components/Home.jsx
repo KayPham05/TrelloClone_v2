@@ -50,7 +50,7 @@ export default function Home() {
       const personalPromise = getBoardsAPI(userUId)
         .then((res) => (Array.isArray(res) ? res : []))
         .catch(() => {
-          toast.error("Lỗi khi lấy danh sách bảng cá nhân");
+          toast.error("Error occurs when getting personal list");
           return [];
         });
 
@@ -63,14 +63,14 @@ export default function Home() {
       )
         .then((arr) => arr.flat())
         .catch(() => {
-          toast.error("Lỗi khi lấy danh sách bảng trong workspace");
+          toast.error("Error occurs when getting table list in workspace");
           return [];
         });
 
       const recentPromise = getRecentBoardsAPI(userUId)
         .then((res) => (Array.isArray(res) ? res : []))
         .catch(() => {
-          toast.error("Lỗi khi lấy danh sách bảng gần đây");
+          toast.error("Error occurs when getting recent table list");
           return [];
         });
 
@@ -87,7 +87,7 @@ export default function Home() {
         recent: recentBoardsData.length,
       });
     } catch (err) {
-      console.error("Lỗi khi tải dữ liệu boards:", err);
+      console.error("Board-Data Loading Error", err);
       setBoardsPersonal([]);
       setBoardsWorkspace([]);
       setRecentBoards([]);
@@ -106,7 +106,7 @@ export default function Home() {
       console.log("Workspaces loaded:", workspacesData.length);
       return workspacesData;
     } catch (err) {
-      console.error("Lỗi khi tải workspaces:", err);
+      console.error("Loading workspace error", err);
       setWorkspaces([]);
       return [];
     }
@@ -122,7 +122,7 @@ export default function Home() {
             membersData[board.boardUId] = Array.isArray(res) ? res : [];
           } catch (err) {
             console.error(
-              `Lỗi khi lấy member cho board ${board.boardName}`,
+              `Error occurs when getting members for board ${board.boardName}`,
               err
             );
             membersData[board.boardUId] = [];
@@ -132,7 +132,7 @@ export default function Home() {
       setBoardMembers(membersData);
       console.log("👥 Board members loaded:", membersData);
     } catch (err) {
-      console.error("Lỗi khi tải toàn bộ member:", err);
+      console.error("Error occurs when getting all board members:", err);
     }
   }, []);
 
@@ -180,12 +180,12 @@ export default function Home() {
         name.trim(),
         description?.trim() || ""
       );
-      toast.success("Tạo workspace thành công");
+      toast.success("Create workspace successfully");
       await refreshAllData();
       setShowCreateWorkspaceModal(false);
     } catch (err) {
-      console.error("Lỗi khi tạo workspace:", err);
-      toast.error("Không thể tạo workspace");
+      console.error("Create workspace error", err);
+      toast.error("Can't create workspace right now :(");
     }
   };
 
@@ -199,7 +199,7 @@ export default function Home() {
     try {
       await saveRecentBoardAPI(user.userUId, board.boardUId);
     } catch (err) {
-      console.error("Lỗi khi lưu recent board:", err);
+      console.error("Recent board saving error:", err);
     }
     navigate("/dashboard");
   };
@@ -272,13 +272,13 @@ export default function Home() {
         >
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
             <h2 className="text-xl font-semibold text-gray-800 mb-5">
-              Tạo Workspace mới
+              New Workspace
             </h2>
 
             <form onSubmit={handleCreateWorkspace} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tên Workspace <span className="text-red-500">*</span>
+                  Workspace name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -292,12 +292,12 @@ export default function Home() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Mô tả (tùy chọn)
+                  Description (Optional)
                 </label>
                 <textarea
                   name="description"
                   rows="3"
-                  placeholder="VD: Quản lý dự án phát triển sản phẩm"
+                  placeholder="Ex: Product Development Project Management"
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none transition"
                 ></textarea>
               </div>
@@ -308,13 +308,13 @@ export default function Home() {
                   onClick={() => setShowCreateWorkspaceModal(false)}
                   className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
                 >
-                  Hủy
+                  Cancel
                 </button>
                 <button
                   type="submit"
                   className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm transition"
                 >
-                  Tạo Workspace
+                  Create Workspace
                 </button>
               </div>
             </form>

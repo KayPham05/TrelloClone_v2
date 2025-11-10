@@ -114,7 +114,7 @@ const loadData = async (boardId) => {
 
                 <div className="list-cards">
                   {loading ? (
-                    <div className="text-white/50 text-sm p-2">Đang tải...</div>
+                    <div className="text-white/50 text-sm p-2">Loading...</div>
                   ) : (
                     cards
                       .filter((c) => c.listUId === list.listUId)
@@ -150,14 +150,14 @@ const loadData = async (boardId) => {
             type="text"
             value={newListName}
             onChange={(e) => setNewListName(e.target.value)}
-            placeholder="Nhập tên danh sách..."
+            placeholder="List name..."
             className="add-list-input"
             onKeyDown={(e) => {
               if (e.key === "Enter") handleAddList();
             }}
           />
           <button onClick={handleAddList} className="add-list-btn">
-            <Plus size={18} /> Thêm danh sách
+            <Plus size={18} /> Add list
           </button>
         </div>
       </div>

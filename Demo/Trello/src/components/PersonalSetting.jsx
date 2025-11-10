@@ -79,7 +79,7 @@ export default function PersonalSettings({
   const handleSaveProfile = useCallback(async (form) => {
     const { userUId } = getAuthUser();
     if (!userUId) {
-      console.warn("Missing userUId -> không thể save.");
+      console.warn("Missing userUId -> Can't save.");
       return;
     }
     setLoading(true);
@@ -144,7 +144,7 @@ export default function PersonalSettings({
             aria-label="Close"
             className="absolute right-3 top-3 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-800"
           >
-            <X size={18} />
+            <X size={18} className ="dark:!text-gray-300" />
           </button>
         </div>
       </div>

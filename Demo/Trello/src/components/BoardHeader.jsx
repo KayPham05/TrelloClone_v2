@@ -74,7 +74,7 @@ export default function BoardHeader({ board, boardMembers }) {
           <Users size={18} />
         </button>
         <button className="header-share-btn">
-          <Share2 size={16} /> Chia sẻ
+          <Share2 size={16} /> Share
         </button>
       </div>
     </div>

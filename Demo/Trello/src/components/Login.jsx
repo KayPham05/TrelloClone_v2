@@ -145,7 +145,7 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) {
-      toast.error(" Vui lòng nhập đầy đủ email và mật khẩu!");
+      toast.error("Please enter your email and password");
       return;
     }
     try {
@@ -161,19 +161,18 @@ export default function Login() {
             bio: res.bio
           })
         );
-        toast.success("Đăng nhập thành công!");
+        toast.success("Login successfully!");
         navigate("/home");
       } else {
-        toast.error(res?.message || "Đăng nhập thất bại!");
+        toast.error(res?.message || "Login failed!");
       }
     } catch (err) {
-      console.log("Loix", err);
-      toast.error("Sai tài khoản hoặc mật khẩu!");
+      console.log("Loix",err)
+      toast.error("Wrong username or password!");
     }
   };
 
-  //  Thay thế toàn bộ hàm googleLogin
-  const googleLogin = useGoogleLogin({
+const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
         const backendRes = await LoginGoogleAPI({
@@ -198,6 +197,8 @@ export default function Login() {
     },
     onError: () => toast.error("Đăng nhập Google thất bại!"),
   });
+
+
 
   // // Logout handler
   // const handleLogout = () => {

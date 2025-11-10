@@ -43,14 +43,14 @@ export default function WorkspaceSection({
     <section>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold text-gray-800">
-          Các không gian làm việc của bạn
+           Your workspaces
         </h2>
         <button
           onClick={onCreateWorkspace}
           className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transition"
         >
           <Plus size={18} />
-          Tạo Workspace
+          Create workspace
         </button>
       </div>
 
@@ -127,13 +127,13 @@ export default function WorkspaceSection({
                   </div>
 
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    {/* Nút mời thành viên */}
+                    {/* Nút Invite thành viên */}
                     <button
                       onClick={() => onInviteUser(workspace)}
                       className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg transition text-sm"
                     >
                       <UserPlus size={16} />
-                      <span className="font-medium">Mời</span>
+                      <span className="font-medium">Invite</span>
                     </button>
 
                     <button
@@ -256,7 +256,7 @@ export default function WorkspaceSection({
                           />
                         </div>
                         <span className="text-sm font-semibold group-hover:text-blue-600 transition">
-                          Tạo bảng mới
+                          Create New Board
                         </span>
                       </button>
                     </div>
@@ -265,7 +265,7 @@ export default function WorkspaceSection({
                     {(!workspace.boards || workspace.boards.length === 0) && (
                       <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
                         <p className="text-gray-500 text-sm mb-3">
-                          Workspace này chưa có bảng nào
+                          Workspace has no board yet
                         </p>
                         <button
                           onClick={() =>
@@ -275,7 +275,7 @@ export default function WorkspaceSection({
                           className="text-blue-600 hover:text-blue-700 text-sm font-semibold hover:underline inline-flex items-center gap-2"
                         >
                           <Plus size={16} />
-                          Tạo bảng đầu tiên
+                          Create first board
                         </button>
                       </div>
                     )}

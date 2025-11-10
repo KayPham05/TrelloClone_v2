@@ -13,8 +13,8 @@ export default function SettingsContent({ tab, currentUser, onSaveProfile, loadi
 
 function Placeholder({ title }) {
   return (
-    <div className="h-full flex flex-col">
-      <Header title={title} subtitle="Bạn có thể tự triển khai nội dung tab này sau." />
+    <div className="h-full flex flex-col dark:!text-gray-300">
+      <Header title={title} subtitle="Developing..." />
       <div className="px-8 pb-8 overflow-auto">
         <div className="text-sm text-gray-600 dark:!text-gray-300">
           Layour border is ready
