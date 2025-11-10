@@ -43,14 +43,14 @@ export default function WorkspaceSection({
     <section>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold text-gray-800">
-          Các không gian làm việc của bạn
+           Your workspaces
         </h2>
         <button
           onClick={onCreateWorkspace}
           className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transition"
         >
           <Plus size={18} />
-          Tạo Workspace
+          Create workspace
         </button>
       </div>
 
