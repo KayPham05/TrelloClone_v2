@@ -29,6 +29,7 @@ builder.Services.AddScoped<IBoardMemberService, BoardMemberService>();
 builder.Services.AddScoped<ICardMemberService, CardMemberService>();
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
