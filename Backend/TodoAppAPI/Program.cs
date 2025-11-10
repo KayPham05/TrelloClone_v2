@@ -27,6 +27,7 @@ builder.Services.AddScoped<IUserRecentBoardService, UserBoardRecentService>();
 builder.Services.AddScoped<ITodoItemService, TodoItemService>();
 builder.Services.AddScoped<IBoardMemberService, BoardMemberService>();
 builder.Services.AddScoped<ICardMemberService, CardMemberService>();
+builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -41,8 +42,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+            ClockSkew = TimeSpan.Zero
         };
+
     });
 
 builder.Services.AddAuthorization();

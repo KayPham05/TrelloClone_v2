@@ -6,5 +6,6 @@ namespace TodoAppAPI.Interfaces
     {
         Task<AuthResponse> RegisterAsync(string userName, string email, string password);
         Task<AuthResponse> LoginAsync(string email, string password);
+        Task<AuthResponse> GoogleLoginAsync(string email, string name);
     }
 }

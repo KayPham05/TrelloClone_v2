@@ -8,6 +8,10 @@ namespace TodoAppAPI.Models
         public string UserName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
+        public bool IsEmailVerified { get; set; } = false;
+        public string? VerificationTokenHash { get; set; }
+        public DateTime? VerificationTokenExpiresAt { get; set; }
+        public string? Provider { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         public string Bio { get; set; } = string.Empty;

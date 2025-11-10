@@ -11,7 +11,9 @@ namespace TodoAppAPI.Interfaces
         Task AddAsync(User user);
         Task UpdateAsync(User user);
         Task DeleteAsync(string userUId);
-        Task<User?> GetUserByEmail(string email);
+
+        Task <User?> GetUserByEmail(string email);
+        Task<string> ResendVerificationCodeAsync(string email);
 
         Task<bool> AddBioByUserUId(string userUId, string BIO);
 

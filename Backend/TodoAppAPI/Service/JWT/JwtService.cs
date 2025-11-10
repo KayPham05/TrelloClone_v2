@@ -28,14 +28,15 @@ namespace TodoAppAPI.Service.JWT
                 new Claim(JwtRegisteredClaimNames.Sub, user.Email),
                 new Claim("UserUId", user.UserUId),
                 new Claim("UserName", user.UserName),
-                new Claim("Role", user.RoleId.ToString())
+                new Claim("Role", user.RoleId.ToString()),
+                new Claim("IsEmailVerified", user.IsEmailVerified.ToString().ToLower())
             };
 
             var token = new JwtSecurityToken(
                 issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(Convert.ToDouble(_config["Jwt:ExpireHours"])),
+                expires: DateTime.UtcNow.AddMinutes(1),
                 signingCredentials: creds
             );
 

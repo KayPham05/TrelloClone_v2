@@ -12,3 +12,7 @@ export const registerAPI = (user) => {
 export const loginAPI = (user) => {
   return axiosClient.post(`${END_POINT.AUTH}/login`, user);
 };
+
+export const LoginGoogleAPI = (accessToken) => {
+  return axiosClient.post(`${END_POINT.AUTH}/Google-login`,accessToken);
+};
