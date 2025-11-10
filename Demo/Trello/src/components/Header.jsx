@@ -66,7 +66,7 @@ export default function Header({ className = "" }) {
           <Search className="text-gray-500" size={18} />
           <input
             type="text"
-            placeholder="Tìm kiếm bảng, thành viên..."
+            placeholder="Search Boards, Members..."
             className="bg-transparent border-none outline-none text-sm w-full px-3 text-gray-700 placeholder:text-gray-500"
           />
         </div>
@@ -74,7 +74,7 @@ export default function Header({ className = "" }) {
         {/* Create Button */}
         <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm">
           <Plus size={16} />
-          Tạo mới
+          Create New
         </button>
 
         {/* User Actions */}

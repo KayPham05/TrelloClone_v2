@@ -85,7 +85,7 @@ export default function Inbox({ refresh, setRefresh }) {
             <div className="add-card-box">
               <input
                 className="add-card-input"
-                placeholder="Nhập tiêu đề..."
+                placeholder="Title..."
                 value={newCard}
                 onChange={(e) => setNewCard(e.target.value)}
                 autoFocus

@@ -37,7 +37,7 @@ export default function InviteUserModal({ workspace, onClose, currentUser, onSuc
         return;
       }
 
-      //  Mời user bằng userId
+      //  Invite user bằng userId
       await inviteUserToWorkspaceAPI(
         workspace.workspaceUId,
         user.userUId,

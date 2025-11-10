@@ -281,7 +281,7 @@ export default function CardModal({ card, onClose, onSave }) {
             <div className="modal-section">
               <div className="section-header">
                 <AlignLeft size={20} />
-                <h3>Mô tả</h3>
+                <h3>Description</h3>
               </div>
               {!isEditingDesc ? (
                 <div

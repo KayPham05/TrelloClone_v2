@@ -186,7 +186,7 @@ export default function CreateBoardModal({
                           {m.userName || m.email}
                           {isOwner && (
                             <span className="ml-2 text-xs text-blue-600 font-medium">
-                              (Chủ sở hữu)
+                              (Owner)
                             </span>
                           )}
                         </span>
@@ -197,7 +197,7 @@ export default function CreateBoardModal({
                             value="Owner"
                             className="border border-gray-200 bg-gray-100 rounded-md text-sm px-2 py-1 text-gray-500 cursor-not-allowed"
                           >
-                            <option>Chủ sở hữu</option>
+                            <option>Owner</option>
                           </select>
                         ) : (
                           <select
@@ -207,7 +207,7 @@ export default function CreateBoardModal({
                             }
                             className="border border-gray-300 rounded-md text-sm px-2 py-1 text-gray-700 cursor-pointer"
                           >
-                            <option value="">Không tham gia</option>
+                            <option value="">Not participating in</option>
                             <option value="Admin" title="🔱 Quản trị viên có thể quản lý board và điều chỉnh thành viên">
                               Admin
                             </option>
