@@ -1,4 +1,5 @@
-﻿using TodoAppAPI.Models;
+﻿using TodoAppAPI.DTOs;
+using TodoAppAPI.Models;
 
 namespace TodoAppAPI.Interfaces
 {
@@ -7,5 +8,6 @@ namespace TodoAppAPI.Interfaces
         Task<IEnumerable<Notification>> GetNotificationsAsync(string userId, int page, int pageSize);
         Task<bool> MarkAsReadAsync(string notiId);
         Task<int> MarkAllAsReadAsync(string userId);
+        Task<Notification> CreateAsync(NotificationDTO dto);
     }
 }
