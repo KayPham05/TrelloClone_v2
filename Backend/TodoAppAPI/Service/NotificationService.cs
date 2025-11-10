@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TodoAppAPI.Data;
+using TodoAppAPI.DTOs;
 using TodoAppAPI.Interfaces;
 using TodoAppAPI.Models;
 
@@ -38,18 +39,66 @@ namespace TodoAppAPI.Service
 
         public async Task<int> MarkAllAsReadAsync(string userId)
         {
-            var unread = await _context.Notifications
-                .Where(n => n.RecipientId == userId && !n.Read)
-                .ToListAsync();
+            var count = await _context.Notifications
+        .Where(n => n.RecipientId == userId && !n.Read)
+        .ExecuteUpdateAsync(setter => setter
+            .SetProperty(n => n.Read, true)
+            .SetProperty(n => n.ReadAt, DateTime.UtcNow));
+            return count;
+        }
 
-            foreach (var n in unread)
+        public async Task<Notification> CreateAsync(NotificationDTO dto)
+        {
+            try
             {
-                n.Read = true;
-                n.ReadAt = DateTime.UtcNow;
-            }
+                //// Kiểm tra người nhận có tồn tại không
+                //var recipientExists = await _context.Users
+                //    .AnyAsync(u => u.UserUId == dto.RecipientId);
+                //if (!recipientExists)
+                //{
+                //    Console.WriteLine($"[ERROR] Recipient not found: {dto.RecipientId}");
+                //    return null;
+                //}
 
-            await _context.SaveChangesAsync();
-            return unread.Count;
+                //// Kiểm tra actor (nếu có)
+                //if (!string.IsNullOrEmpty(dto.ActorId))
+                //{
+                //    var actorExists = await _context.Users
+                //        .AnyAsync(u => u.UserUId == dto.ActorId);
+                //    if (!actorExists)
+                //    {
+                //        Console.WriteLine($"[WARN] Actor not found: {dto.ActorId}");
+                //        dto.ActorId = null;
+                //    }
+                //}
+
+                // Tạo đối tượng Notification
+                var noti = new Notification
+                {
+                    NotiId = Guid.NewGuid().ToString(),
+                    RecipientId = dto.RecipientId,
+                    ActorId = dto.ActorId,
+                    Type = dto.Type,
+                    Title = dto.Title,
+                    Message = dto.Message,
+                    Link = dto.Link,
+                    BoardId = dto.BoardId,
+                    ListId = dto.ListId,
+                    CardId = dto.CardId,
+                    CreatedAt = DateTime.UtcNow,
+                    Read = false
+                };
+
+                _context.Notifications.Add(noti);
+                await _context.SaveChangesAsync();
+
+                return noti;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Failed to create notification: {ex.Message}");
+                return null;
+            }
         }
     }
 }

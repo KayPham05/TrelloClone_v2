@@ -31,21 +31,18 @@ namespace TodoAppAPI.Configurations
                    .HasPrincipalKey(u => u.UserUId)
                    .OnDelete(DeleteBehavior.NoAction).IsRequired(false);
 
-            // ===== Quan hệ ngữ cảnh (Board / List / Card) =====
-            builder.HasOne(n => n.Board)
-                   .WithMany()
-                   .HasForeignKey(n => n.BoardId)
-                   .OnDelete(DeleteBehavior.NoAction);
+            // ===== Liên kết ngữ cảnh (chỉ lưu ID) =====
+            builder.Property(x => x.WorkspaceId)
+                   .HasMaxLength(128);
 
-            builder.HasOne(n => n.List)
-                   .WithMany()
-                   .HasForeignKey(n => n.ListId)
-                   .OnDelete(DeleteBehavior.NoAction);
+            builder.Property(x => x.BoardId)
+                   .HasMaxLength(128);
 
-            builder.HasOne(n => n.Card)
-                   .WithMany()
-                   .HasForeignKey(n => n.CardId)
-                   .OnDelete(DeleteBehavior.NoAction);
+            builder.Property(x => x.ListId)
+                   .HasMaxLength(128);
+
+            builder.Property(x => x.CardId)
+                   .HasMaxLength(128);
 
             // ===== Enum & dữ liệu =====
             builder.Property(x => x.Type).IsRequired();

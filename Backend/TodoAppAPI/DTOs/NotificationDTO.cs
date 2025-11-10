@@ -5,7 +5,7 @@ namespace TodoAppAPI.DTOs
     public class NotificationDTO
     {
         public string RecipientId { get; set; } = default!;
-        public string? ActorId { get; set; }
+        public string? ActorId { get; set; } = default!;
         public NotificationType Type { get; set; }
 
         public string Title { get; set; } = default!;

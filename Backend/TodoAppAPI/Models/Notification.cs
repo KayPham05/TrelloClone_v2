@@ -4,33 +4,31 @@
     {
         public string NotiId { get; set; } = Guid.NewGuid().ToString();
 
-        // Recipient (người nhận)
+        // Người nhận thông báo
         public string RecipientId { get; set; } = default!;
-        public User Recipient { get; set; }
+        public User Recipient { get; set; } = default!;
 
-        // Actor (ai tạo ra) - tùy chọn
+        // Người gửi thông báo
         public string? ActorId { get; set; }
-        public User Actor { get; set; }
+        public User? Actor { get; set; }
 
-        // Phân loại
-        public NotificationType Type { get; set; } = NotificationType.Comment;
+        // Loại thông báo
+        public NotificationType Type { get; set; }
 
         // Nội dung
         public string Title { get; set; } = default!;
         public string Message { get; set; } = default!;
-        public string? Link { get; set; }   // deep-link tới UI
+        public string? Link { get; set; }
 
-        // Ngữ cảnh (tùy chọn)
+        // Liên kết đến các thực thể liên quan (nếu có)
+        public string? WorkspaceId { get; set; }
         public string? BoardId { get; set; }
-        public virtual Board? Board { get; set; }
         public string? ListId { get; set; }
-        public virtual List? List { get; set; }
         public string? CardId { get; set; }
-        public virtual Card? Card { get; set; }
 
         // Trạng thái
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? ReadAt { get; set; }
         public bool Read { get; set; } = false;
+        public DateTime? ReadAt { get; set; }
     }
 }

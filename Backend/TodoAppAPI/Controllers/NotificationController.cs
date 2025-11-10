@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TodoAppAPI.DTOs;
 using TodoAppAPI.Interfaces;
 
 namespace TodoAppAPI.Controllers
@@ -14,11 +15,9 @@ namespace TodoAppAPI.Controllers
             _notificationService = notificationService;
         }
 
-        /// <summary>
-        /// Lấy danh sách thông báo gần đây của người dùng
-        /// </summary>
+        // Lấy danh sách thông báo gần đây của người dùng
         [HttpGet]
-        public async Task<IActionResult> GetNotifications([FromQuery] string userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetNotifications([FromQuery] string userId, [FromQuery] int page, [FromQuery] int pageSize)
         {
             if (string.IsNullOrEmpty(userId))
                 return BadRequest(new { message = "userId is required" });
@@ -27,9 +26,7 @@ namespace TodoAppAPI.Controllers
             return Ok(items);
         }
 
-        /// <summary>
-        /// Đánh dấu 1 thông báo là đã đọc
-        /// </summary>
+        // Đánh dấu 1 thông báo là đã đọc
         [HttpPatch("{notiId}/read")]
         public async Task<IActionResult> MarkAsRead(string notiId)
         {
@@ -39,9 +36,7 @@ namespace TodoAppAPI.Controllers
             return Ok(new { message = "Marked as read" });
         }
 
-        /// <summary>
-        /// Đánh dấu tất cả thông báo là đã đọc cho người dùng
-        /// </summary>
+        // Đánh dấu tất cả thông báo là đã đọc cho người dùng
         [HttpPatch("read-all")]
         public async Task<IActionResult> MarkAllAsRead([FromQuery] string userId)
         {
@@ -51,5 +46,17 @@ namespace TodoAppAPI.Controllers
             var count = await _notificationService.MarkAllAsReadAsync(userId);
             return Ok(new { message = $"Marked {count} notifications as read" });
         }
+
+        // Tạo thông báo mới
+        [HttpPost]
+        public async Task<IActionResult> CreateNotification([FromBody] NotificationDTO dto)
+        {
+            var noti = await _notificationService.CreateAsync(dto);
+            if (noti == null)
+                return StatusCode(500, new { message = "Failed to create notification" });
+
+            return Ok(noti);
+        }
+
     }
 }

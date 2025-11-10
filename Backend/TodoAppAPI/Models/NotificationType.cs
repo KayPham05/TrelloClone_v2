@@ -7,6 +7,7 @@
         Move = 2,
         Due = 3,
         Mention = 4,
-        Board = 5
+        Workspace = 5,
+        Board = 6
     }
 }
