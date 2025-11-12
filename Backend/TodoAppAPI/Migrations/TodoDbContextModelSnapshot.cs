@@ -395,7 +395,6 @@ namespace TodoAppAPI.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("Provider")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("RoleId")

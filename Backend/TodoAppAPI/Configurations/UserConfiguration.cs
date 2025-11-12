@@ -37,7 +37,7 @@ namespace TodoAppAPI.Configurations
                    .IsRequired(false);
 
             builder.Property(x => x.Provider)
-                   .IsRequired();
+                   .IsRequired(false);
 
             builder.Property(x => x.CreatedAt)
                    .HasDefaultValueSql("GETDATE()");
