@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { loginAPI, LoginGoogleAPI } from "../services/LoginAPI";
-import { useGoogleLogin, googleLogout } from "@react-oauth/google";
+import { useGoogleLogin} from "@react-oauth/google";
 import "../components/css/login_v2.css";
 import echidna from "../assets/echidna.jpg";
 import sc from "../assets/sc.jpg";
@@ -145,7 +145,7 @@ export default function Login() {
     e.preventDefault();
 
     if (!email || !password) {
-      toast.error("Vui lòng nhập đầy đủ email và mật khẩu!");
+      toast.error("Please enter your email and password");
       return;
     }
 
@@ -177,8 +177,7 @@ export default function Login() {
     }
   };
 
-  //  Thay thế toàn bộ hàm googleLogin
-  const googleLogin = useGoogleLogin({
+const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
         const backendRes = await LoginGoogleAPI({
@@ -202,6 +201,8 @@ export default function Login() {
     },
     onError: () => toast.error("Đăng nhập Google thất bại!"),
   });
+
+
 
   // // Logout handler
   // const handleLogout = () => {

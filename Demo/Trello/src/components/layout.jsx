@@ -47,7 +47,7 @@ export default function Layout() {
         source.droppableId.startsWith("list-") &&
         destination.droppableId === "inbox"
       );
-      console.log(" Cập nhật card:", draggableId, "→List:", newListUId);
+      console.log("Update card:", draggableId, "→List:", newListUId);
       await updateCardListAPI(draggableId, newListUId, user.userUId);
       // Kích hoạt reload dữ liệu UI
       setRefresh((r) => !r);
@@ -126,7 +126,7 @@ export default function Layout() {
                 }}
               >
                 <InboxIcon size={16} />
-                <span>Hộp thư đến</span>
+                <span>Inbox</span>
                 {showInbox ? (
                   <ChevronDown size={14} className="ml-1" />
                 ) : (
@@ -143,7 +143,7 @@ export default function Layout() {
                 onClick={() => setActiveTab("plan")}
               >
                 <LayoutGrid size={16} />
-                <span>Trình lập kế hoạch</span>
+                <span>Project Planner</span>
               </button>
 
               <button
@@ -155,7 +155,7 @@ export default function Layout() {
                 onClick={() => setActiveTab("info")}
               >
                 <Info size={16} />
-                <span>Bảng thông tin</span>
+                <span>Information board</span>
               </button>
             </div>
           </div>

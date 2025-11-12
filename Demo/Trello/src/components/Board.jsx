@@ -5,6 +5,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import PortalAwareDraggable from "./PortalAwareDraggable";
 import Card from "./Card";
 import BoardHeader from "./BoardHeader";
+import { useNavigate } from "react-router-dom";
 import {
   getListsByBoardIdAPI,
   createListAPI,
@@ -22,6 +23,8 @@ export default function Board({ refresh, setRefresh }) {
   const [newListName, setNewListName] = useState("");
   const [loading, setLoading] = useState(false);
   const [boardMembers, setBoardMembers] = useState([]);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     const stored = localStorage.getItem("currentBoard");
@@ -32,26 +35,41 @@ export default function Board({ refresh, setRefresh }) {
     }
   }, [refresh]);
 
-const loadData = async (boardId) => {
-  setLoading(true);
-  try {
-    // Gọi 3 API song song
-    const [listsData, cardsData, membersData] = await Promise.all([
-      getListsByBoardIdAPI(boardId),
-      getCardsAPI(boardId),
-      getBoardMembersAPI(boardId),
-    ]);
+  const loadData = async (boardId) => {
+    setLoading(true);
+    try {
+      // Gọi 3 API song song
+      const [listsData, cardsData, membersData] = await Promise.all([
+        getListsByBoardIdAPI(boardId),
+        getCardsAPI(boardId),
+        getBoardMembersAPI(boardId),
+      ]);
 
-    setLists(listsData);
-    setCards(cardsData);
-    setBoardMembers(membersData || []);
-    console.log("✅ Board members loaded:", membersData);
-  } catch (err) {
-    console.error("❌ Error loading data:", err);
-  } finally {
-    setLoading(false);
-  }
-};
+      setLists(listsData);
+      setCards(cardsData);
+      setBoardMembers(membersData || []);
+      console.log("✅ Board members loaded:", membersData);
+    } catch (err) {
+      console.error("❌ Error loading data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBoardUpdated = (nextBoard) => {
+    if (nextBoard?.type === "delete") {
+      try { localStorage.removeItem("currentBoard"); } catch {}
+      navigate("/home");
+      return;
+    }
+    if (nextBoard){
+      setBoard(nextBoard);
+      try {
+        localStorage.setItem("currentBoard", JSON.stringify(nextBoard));
+      } catch {}
+      setRefresh && setRefresh((r) => !r);
+    }
+  };
 
   const handleAddList = async () => {
     if (!newListName.trim()) return;
@@ -85,6 +103,7 @@ const loadData = async (boardId) => {
       <BoardHeader
         board={board}
         boardMembers={boardMembers} 
+        onBoardUpdated={handleBoardUpdated}
       />
 
       <div className="flex gap-4 p-4 flex-1 overflow-x-auto">
@@ -114,7 +133,7 @@ const loadData = async (boardId) => {
 
                 <div className="list-cards">
                   {loading ? (
-                    <div className="text-white/50 text-sm p-2">Đang tải...</div>
+                    <div className="text-white/50 text-sm p-2">Loading...</div>
                   ) : (
                     cards
                       .filter((c) => c.listUId === list.listUId)
@@ -150,14 +169,14 @@ const loadData = async (boardId) => {
             type="text"
             value={newListName}
             onChange={(e) => setNewListName(e.target.value)}
-            placeholder="Nhập tên danh sách..."
+            placeholder="List name..."
             className="add-list-input"
             onKeyDown={(e) => {
               if (e.key === "Enter") handleAddList();
             }}
           />
           <button onClick={handleAddList} className="add-list-btn">
-            <Plus size={18} /> Thêm danh sách
+            <Plus size={18} /> Add list
           </button>
         </div>
       </div>

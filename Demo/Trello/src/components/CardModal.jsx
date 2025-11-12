@@ -58,7 +58,7 @@ export default function CardModal({ card, onClose, onSave }) {
       const res = await getCardMembersAPI(cardUId);
       setCardMembers(Array.isArray(res) ? res : []);
     } catch (err) {
-      console.error("Không thể tải card members:", err);
+      console.error("Can't load card member:", err);
       setCardMembers([]);
     } finally {
       setIsLoadingMembers(false);
@@ -71,7 +71,7 @@ export default function CardModal({ card, onClose, onSave }) {
       const data = await getCommentsAPI(id);
       setComments(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("Lỗi khi lấy comments:", err);
+      console.error("Error occurs when getting comments: ", err);
     }
   };
 
@@ -87,7 +87,7 @@ export default function CardModal({ card, onClose, onSave }) {
       setComments((prev) => [added, ...prev]);
       setNewComment("");
     } catch (err) {
-      console.error("Lỗi khi thêm comment:", err);
+      console.error("Add comment error:", err);
     }
   };
 
@@ -96,7 +96,7 @@ export default function CardModal({ card, onClose, onSave }) {
       await deleteCommentAPI(id);
       setComments((prev) => prev.filter((c) => c.commentUId !== id));
     } catch (err) {
-      console.error("Lỗi khi xóa comment:", err);
+      console.error("Delete comment error:", err);
     }
   };
 
@@ -106,7 +106,7 @@ export default function CardModal({ card, onClose, onSave }) {
       const data = await getTodoItemsAPI(cardUId);
       setTodoItems(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("Lỗi khi lấy todo items:", err);
+      console.error("Get Todo-items error:", err);
     }
   };
 
@@ -117,7 +117,7 @@ export default function CardModal({ card, onClose, onSave }) {
       setNewTodo("");
       fetchTodos(card.cardUId);
     } catch (err) {
-      console.error("Lỗi khi thêm todo item:", err);
+      console.error("Add todo item errors:", err);
     }
   };
 
@@ -127,7 +127,7 @@ export default function CardModal({ card, onClose, onSave }) {
       await updateStatusTodoItemAPI(item.todoItemUId, newStatus);
       fetchTodos(card.cardUId);
     } catch (err) {
-      console.error("Lỗi khi cập nhật trạng thái todo:", err);
+      console.error("Update todo state error:", err);
     }
   };
 
@@ -136,7 +136,7 @@ export default function CardModal({ card, onClose, onSave }) {
       await deleteTodoItemAPI(id);
       fetchTodos(card.cardUId);
     } catch (err) {
-      console.error("Lỗi khi xóa todo item:", err);
+      console.error("Delete Todo-Items error:", err);
     }
   };
 
@@ -183,7 +183,7 @@ export default function CardModal({ card, onClose, onSave }) {
                 rows="1"
               />
               <p className="header-subtitle">
-                trong danh sách <span>Inbox</span>
+                In list <span>Inbox</span>
               </p>
             </div>
           </div>
@@ -281,7 +281,7 @@ export default function CardModal({ card, onClose, onSave }) {
             <div className="modal-section">
               <div className="section-header">
                 <AlignLeft size={20} />
-                <h3>Mô tả</h3>
+                <h3>Description</h3>
               </div>
               {!isEditingDesc ? (
                 <div
@@ -323,7 +323,7 @@ export default function CardModal({ card, onClose, onSave }) {
             <div className="modal-section">
               <div className="section-header">
                 <CheckSquare size={20} />
-                <h3>Việc cần làm</h3>
+                <h3>To-do jobs</h3>
                 {todoItems.length > 0 && (
                   <div className="section-actions">
                     <button
@@ -332,7 +332,7 @@ export default function CardModal({ card, onClose, onSave }) {
                         setTodoItems(todoItems.filter((t) => !t.isCompleted))
                       }
                     >
-                      Ẩn các mục đã chọn
+                      Hide selected sections
                     </button>
                     <button
                       className="btn-secondary btn-sm"
@@ -343,7 +343,7 @@ export default function CardModal({ card, onClose, onSave }) {
                           );
                       }}
                     >
-                      Xóa
+                      Delete
                     </button>
                   </div>
                 )}
@@ -385,7 +385,7 @@ export default function CardModal({ card, onClose, onSave }) {
                   onKeyDown={(e) => e.key === "Enter" && handleAddTodo()}
                 />
                 <button className="btn-primary btn-sm" onClick={handleAddTodo}>
-                  Thêm
+                  Add
                 </button>
               </div>
 
@@ -422,7 +422,7 @@ export default function CardModal({ card, onClose, onSave }) {
           {/* RIGHT - COMMENT */}
           <div className="cardmodal-right">
             <div className="sidebar-section">
-              <h4>Nhận xét và hoạt động</h4>
+              <h4>Activity and Comment</h4>
               <div className="comment-input">
                 <div className="comment-avatar">KP</div>
                 <div className="comment-box">
@@ -437,7 +437,7 @@ export default function CardModal({ card, onClose, onSave }) {
                       className="btn-primary btn-sm"
                       onClick={handleAddComment}
                     >
-                      Lưu
+                      Save
                     </button>
                   )}
                 </div>
@@ -466,7 +466,7 @@ export default function CardModal({ card, onClose, onSave }) {
                         className="comment-delete"
                         onClick={() => handleDeleteComment(c.commentUId)}
                       >
-                        Xóa
+                        Delete
                       </button>
                     </div>
                   </div>
@@ -475,7 +475,7 @@ export default function CardModal({ card, onClose, onSave }) {
             </div>
 
             <button className="btn-save" onClick={handleSave}>
-              💾 Lưu thay đổi
+              💾 Save changes
             </button>
           </div>
         </div>

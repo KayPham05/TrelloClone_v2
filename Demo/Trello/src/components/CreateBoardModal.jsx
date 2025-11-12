@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { X, Globe, Lock } from "lucide-react";
 import { toast } from "react-toastify";
 import { createBoardAPI } from "../services/BoardAPI";
+import { addNotificationAPI } from "../services/NotificationAPi";
 
 export default function CreateBoardModal({
   currentUser,
@@ -28,12 +29,12 @@ export default function CreateBoardModal({
     const selectedWs = workspaces.find((ws) => ws.workspaceUId === workspaceId);
     if (selectedWs && Array.isArray(selectedWs.members)) {
       setMembers(selectedWs.members);
-      
+
       // TỰ ĐỘNG THÊM OWNER VÀO selectedMembers
       const ownerMember = selectedWs.members.find(
         m => m.userUId === currentUser?.userUId && m.role === "Owner"
       );
-      
+
       if (ownerMember) {
         setSelectedMembers([{
           userUId: ownerMember.userUId,
@@ -55,7 +56,7 @@ export default function CreateBoardModal({
           return prev.filter(m => m.userUId !== userUId);
         }
         // Cập nhật role
-        return prev.map((m) => 
+        return prev.map((m) =>
           m.userUId === userUId ? { ...m, BoardRole: role } : m // ← Đổi role thành BoardRole
         );
       } else {
@@ -90,6 +91,29 @@ export default function CreateBoardModal({
     try {
       setIsLoading(true);
       const createdBoard = await createBoardAPI(newBoard);
+
+      // Tạo thông báo cho tất cả thành viên được thêm vào board (trừ chủ board)
+      const notificationPromises = selectedMembers
+        .filter(member => member.userUId !== currentUser.userUId) // Loại trừ chủ board
+        .map(member => {
+          const notificationPayload = {
+            recipientId: member.userUId,
+            actorId: currentUser.userUId,
+            type: 6, //  Invitation
+            title: "Board Invitation",
+            message: `${currentUser.userName} invited you to join board '${boardName}' as ${member.BoardRole}.`,
+            link: `/boards/${createdBoard?.board?.boardUId}`,
+            workspaceId: workspaceId || null,
+            boardId: createdBoard?.board?.boardUId
+          };
+
+          console.log("Sending notification with payload:", notificationPayload);
+          return addNotificationAPI(notificationPayload);
+        });
+
+      // Chờ tất cả notification gửi xong
+      await Promise.all(notificationPromises);
+
       if (createdBoard?.board?.boardUId) {
         toast.success("Tạo board thành công!");
         onSuccess?.();
@@ -120,19 +144,19 @@ export default function CreateBoardModal({
           <X size={20} />
         </button>
 
-        <h2 className="text-xl font-bold text-gray-800 mb-6">Tạo Board mới</h2>
+        <h2 className="text-xl font-bold text-gray-800 mb-6">Create new board</h2>
 
         <form onSubmit={handleCreate} className="space-y-5">
           {/* Tên board */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tên board <span className="text-red-500">*</span>
+              Board name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={boardName}
               onChange={(e) => setBoardName(e.target.value)}
-              placeholder="VD: Dự án Website, Kế hoạch Marketing..."
+              placeholder="Ex: Website Project, Marketing Plan"
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
               required
               autoFocus
@@ -142,14 +166,14 @@ export default function CreateBoardModal({
           {/* Workspace */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Thuộc Workspace
+              From workspace
             </label>
             <select
               value={workspaceId || ""}
               onChange={(e) => setWorkspaceId(e.target.value || null)}
               className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-gray-700"
             >
-              <option value="">(Không - Board cá nhân)</option>
+              <option value="">(None - Personal board)</option>
               {workspaces.map((ws) => (
                 <option key={ws.workspaceUId} value={ws.workspaceUId}>
                   {ws.name}
@@ -186,7 +210,7 @@ export default function CreateBoardModal({
                           {m.userName || m.email}
                           {isOwner && (
                             <span className="ml-2 text-xs text-blue-600 font-medium">
-                              (Chủ sở hữu)
+                              (Owner)
                             </span>
                           )}
                         </span>
@@ -197,7 +221,7 @@ export default function CreateBoardModal({
                             value="Owner"
                             className="border border-gray-200 bg-gray-100 rounded-md text-sm px-2 py-1 text-gray-500 cursor-not-allowed"
                           >
-                            <option>Chủ sở hữu</option>
+                            <option>Owner</option>
                           </select>
                         ) : (
                           <select
@@ -207,7 +231,7 @@ export default function CreateBoardModal({
                             }
                             className="border border-gray-300 rounded-md text-sm px-2 py-1 text-gray-700 cursor-pointer"
                           >
-                            <option value="">Không tham gia</option>
+                            <option value="">Not participating in</option>
                             <option value="Admin" title="🔱 Quản trị viên có thể quản lý board và điều chỉnh thành viên">
                               Admin
                             </option>
@@ -224,7 +248,7 @@ export default function CreateBoardModal({
                   })
                 ) : (
                   <p className="text-sm text-gray-500 text-center">
-                    Không có thành viên nào trong workspace này.
+                    There is no member in this workspace.
                   </p>
                 )}
               </div>
@@ -234,17 +258,16 @@ export default function CreateBoardModal({
           {/* Quyền truy cập */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Quyền truy cập
+              Permissions
             </label>
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setVisibility("Public")}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition ${
-                  visibility === "Public"
-                    ? "bg-blue-100 border-blue-500 text-blue-700"
-                    : "border-gray-300 hover:bg-gray-50 text-gray-700"
-                }`}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition ${visibility === "Public"
+                  ? "bg-blue-100 border-blue-500 text-blue-700"
+                  : "border-gray-300 hover:bg-gray-50 text-gray-700"
+                  }`}
               >
                 <Globe size={16} />
                 Public
@@ -252,11 +275,10 @@ export default function CreateBoardModal({
               <button
                 type="button"
                 onClick={() => setVisibility("Private")}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition ${
-                  visibility === "Private"
-                    ? "bg-blue-100 border-blue-500 text-blue-700"
-                    : "border-gray-300 hover:bg-gray-50 text-gray-700"
-                }`}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition ${visibility === "Private"
+                  ? "bg-blue-100 border-blue-500 text-blue-700"
+                  : "border-gray-300 hover:bg-gray-50 text-gray-700"
+                  }`}
               >
                 <Lock size={16} />
                 Private
@@ -264,8 +286,8 @@ export default function CreateBoardModal({
             </div>
             <p className="text-xs text-gray-500 mt-1">
               {visibility === "Public"
-                ? "Tất cả thành viên trong workspace có thể xem board này."
-                : "Chỉ những người được mời mới có quyền truy cập board này."}
+                ? "All workspace members can view this board"
+                : "Only one who invited can access this board"}
             </p>
           </div>
 
@@ -276,18 +298,17 @@ export default function CreateBoardModal({
               onClick={onClose}
               className="px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
             >
-              Hủy
+              Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className={`px-4 py-2.5 rounded-lg text-white font-medium shadow-sm transition ${
-                isLoading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
-              }`}
+              className={`px-4 py-2.5 rounded-lg text-white font-medium shadow-sm transition ${isLoading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+                }`}
             >
-              {isLoading ? "Đang tạo..." : "Tạo Board"}
+              {isLoading ? "Creating..." : "Create Board"}
             </button>
           </div>
         </form>

@@ -39,7 +39,7 @@ export default function WorkspaceSettingModal({
   const currentMember = members.find(
     (m) => m.userUId === currentUser?.userUId
   );
-  const currentRole = currentMember?.role || "Không xác định";
+  const currentRole = currentMember?.role || "Undefined";
 
   const handleRoleChange = async (member, newRole) => {
     try {
@@ -58,19 +58,19 @@ export default function WorkspaceSettingModal({
         )
       );
 
-      toast.success(`Đã cập nhật quyền của ${member.userName} thành ${newRole}`);
+      toast.success(`Set role of ${member.userName} to ${newRole} successfully`);
       
       // Gọi onSuccess để refresh data bên ngoài
       onSuccess();
     } catch (err) {
-      toast.error("Không thể cập nhật quyền!");
+      toast.error("Can't change role!");
       console.error(err);
     }
   };
 
   // Xử lý xóa thành viên
   const handleRemoveMember = async (member) => {
-    if (!window.confirm(`Bạn có chắc muốn xóa ${member.userName} khỏi workspace?`))
+    if (!window.confirm(`Do you want to remove ${member.userName} from workspace?`))
       return;
     try {
       await removeMemberFromWorkspaceAPI(
@@ -84,10 +84,10 @@ export default function WorkspaceSettingModal({
         prevMembers.filter((m) => m.userUId !== member.userUId)
       );
 
-      toast.success(`🗑️ Đã xóa ${member.userName} khỏi workspace`);
+      toast.success(`🗑️ Removed ${member.userName} from workspace`);
       onSuccess();
     } catch (err) {
-      toast.error(" Bạn không có quyền xóa thành viên này!");
+      toast.error("You don't have permission to do this!");
       console.error(err);
     }
   };
@@ -95,7 +95,7 @@ export default function WorkspaceSettingModal({
   // Xử lý cập nhật thông tin workspace
   const handleUpdateWorkspace = async () => {
     if (!workspaceName.trim()) {
-      toast.error("Tên workspace không được để trống!");
+      toast.error("Workspace name must not be empty!");
       return;
     }
 
@@ -107,11 +107,11 @@ export default function WorkspaceSettingModal({
         currentUser.userUId
       );
 
-      toast.success(" Đã cập nhật thông tin workspace!");
+      toast.success("Workspace information updated!");
       setIsEditingInfo(false);
       onSuccess(); // Refresh data bên ngoài
     } catch (err) {
-      toast.error(" Không thể cập nhật workspace!");
+      toast.error("Can't update workspace!");
       console.error(err);
     }
   };
@@ -140,12 +140,12 @@ export default function WorkspaceSettingModal({
         </button>
 
         <h2 className="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
-          Cài đặt Workspace
+          Workspace Settings
         </h2>
 
         {/* Vai trò hiện tại */}
         <p className="text-sm text-gray-600 mb-6">
-          <span className="font-medium text-gray-800">Vai trò của bạn:</span>{" "}
+          <span className="font-medium text-gray-800">Your role:</span>{" "}
           <span
             className={`font-semibold ${
               currentRole === "Owner"
@@ -167,7 +167,7 @@ export default function WorkspaceSettingModal({
           <div className="sm:col-span-2">
             <div className="flex items-center justify-between mb-2">
               <label className="text-sm font-semibold text-gray-600">
-                Tên Workspace
+                Workspace name
               </label>
               {(currentRole === "Owner" || currentRole === "Admin") && !isEditingInfo && (
                 <button
@@ -175,7 +175,7 @@ export default function WorkspaceSettingModal({
                   className="flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm transition"
                 >
                   <Edit2 size={14} />
-                  Chỉnh sửa
+                  Modify
                 </button>
               )}
             </div>
@@ -186,7 +186,7 @@ export default function WorkspaceSettingModal({
                 value={workspaceName}
                 onChange={(e) => setWorkspaceName(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                placeholder="Nhập tên workspace..."
+                placeholder="Workspace name..."
                 autoFocus
               />
             ) : (
@@ -196,18 +196,18 @@ export default function WorkspaceSettingModal({
 
           {/* Mô tả - Có thể chỉnh sửa */}
           <div className="sm:col-span-2">
-            <label className="text-sm font-semibold text-gray-600">Mô tả</label>
+            <label className="text-sm font-semibold text-gray-600">Description</label>
             {isEditingInfo ? (
               <textarea
                 value={workspaceDescription}
                 onChange={(e) => setWorkspaceDescription(e.target.value)}
                 rows="3"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
-                placeholder="Nhập mô tả workspace..."
+                placeholder="Workspace description..."
               />
             ) : (
               <p className="text-gray-700 mt-1">
-                {workspaceDescription || "Chưa có mô tả"}
+                {workspaceDescription || "No description yet"}
               </p>
             )}
           </div>
@@ -220,20 +220,20 @@ export default function WorkspaceSettingModal({
                 className="flex items-center gap-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition shadow-sm"
               >
                 <Check size={16} />
-                Lưu thay đổi
+                Save changes
               </button>
               <button
                 onClick={handleCancelEdit}
                 className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm transition"
               >
-                Hủy
+                Cancel
               </button>
             </div>
           )}
 
           {/* Trạng thái */}
           <div>
-            <label className="text-sm font-semibold text-gray-600">Trạng thái</label>
+            <label className="text-sm font-semibold text-gray-600">State</label>
             <p
               className={`inline-block mt-1 px-2 py-1 rounded-md text-xs font-medium ${
                 workspace.status === "Active"
@@ -249,7 +249,7 @@ export default function WorkspaceSettingModal({
         {/* --- Danh sách thành viên --- */}
         <div className="mb-8">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">
-            Danh sách thành viên ({members.length || 0})
+            Member list({members.length || 0})
           </h3>
 
           {members.length > 0 ? (
@@ -292,7 +292,7 @@ export default function WorkspaceSettingModal({
                         </select>
                       )
                     ) : (
-                      <span className="text-gray-400 text-sm">Không có quyền</span>
+                      <span className="text-gray-400 text-sm">Permission Required</span>
                     )}
 
                     {/* Nút xóa thành viên */}
@@ -304,7 +304,7 @@ export default function WorkspaceSettingModal({
                         <button
                           onClick={() => handleRemoveMember(m)}
                           className="p-2 hover:bg-red-100 text-red-600 rounded-lg transition"
-                          title="Xóa thành viên"
+                          title="Delete member"
                         >
                           <UserMinus size={18} />
                         </button>
@@ -314,7 +314,7 @@ export default function WorkspaceSettingModal({
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-sm">Chưa có thành viên nào</p>
+            <p className="text-gray-500 text-sm">No member yet</p>
           )}
         </div>
 
@@ -324,26 +324,26 @@ export default function WorkspaceSettingModal({
             onClick={onClose}
             className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
           >
-            Đóng
+            Close
           </button>
 
           {currentRole === "Owner" && (
             <button
               onClick={async () => {
-                if (!window.confirm("Bạn có chắc muốn xóa workspace này?")) return;
+                if (!window.confirm("Do you want to remove this workspace?")) return;
                 try {
                   await deleteWorkspaceAPI(workspace.workspaceUId, currentUser.userUId);
-                  toast.success("🗑️ Đã xóa workspace thành công!");
+                  toast.success("🗑️ Workspace deleted");
                   onSuccess();
                   onClose();
                 } catch {
-                  toast.error("Không thể xóa workspace!");
+                  toast.error("Can't remove this");
                 }
               }}
               className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-sm flex items-center gap-2 transition"
             >
               <Trash2 size={16} />
-              Xóa Workspace
+              Remove workspace
             </button>
           )}
         </div>

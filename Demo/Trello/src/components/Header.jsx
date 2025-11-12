@@ -2,6 +2,8 @@ import React from "react";
 import { Bell, Search, UserCircle, Grid3x3, Plus } from "lucide-react";
 import Profile from "./AccountMenu";
 import PersonalSettings from "./PersonalSetting";
+import Notification from "../components/Notification.jsx";
+
 export default function Header({ className = "" }) {
   const [isProfileOpen, setIsProfileOpen] = React.useState(false);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
@@ -66,7 +68,7 @@ export default function Header({ className = "" }) {
           <Search className="text-gray-500" size={18} />
           <input
             type="text"
-            placeholder="Tìm kiếm bảng, thành viên..."
+            placeholder="Search Boards, Members..."
             className="bg-transparent border-none outline-none text-sm w-full px-3 text-gray-700 placeholder:text-gray-500"
           />
         </div>
@@ -74,18 +76,13 @@ export default function Header({ className = "" }) {
         {/* Create Button */}
         <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm">
           <Plus size={16} />
-          Tạo mới
+          Create New
         </button>
 
         {/* User Actions */}
         <div className="flex items-center gap-3" ref = {profileWrapRef}>
           {/* Notification */}
-          <button className="p-2 hover:bg-gray-100 rounded-lg transition relative">
-            <Bell className="text-gray-600" size={22} />
-            <span className="absolute top-1 right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center font-bold">
-              3
-            </span>
-          </button>
+          <Notification />
 
           {/* User Profile */}
           <button aria-haspopup="menu" 

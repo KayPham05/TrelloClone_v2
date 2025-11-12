@@ -213,7 +213,9 @@ namespace TodoAppAPI.Service
                 var boardUpdate = _context.Boards.FirstOrDefault(b => b.BoardUId == board.BoardUId);
                 if (boardUpdate == null) return false;
                 boardUpdate.BoardName = board.BoardName;
-                boardUpdate.CreatedAt = DateTime.UtcNow;
+                boardUpdate.Visibility = string.IsNullOrEmpty(board.Visibility) 
+                    ? boardUpdate.Visibility
+                    : board.Visibility;
                 _context.Boards.Update(boardUpdate);
                 await _context.SaveChangesAsync();
                 return true;

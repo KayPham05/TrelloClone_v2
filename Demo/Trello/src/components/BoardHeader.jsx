@@ -1,9 +1,16 @@
-import React from "react";
-import { ChevronDown, Users, Share2, Star, Filter } from "lucide-react";
+import React, {useState} from "react";
+import { ChevronDown, Users, Share2, Star, Filter, Settings } from "lucide-react";
 import "./css/BoardHeaderStyle.css";
+import EditBoardModal from "./EditBoardModal";
 
 
-export default function BoardHeader({ board, boardMembers }) {
+export default function BoardHeader({ board, boardMembers, onBoardUpdated }) {
+   const [editing, setEditing] = useState(false);
+
+  const handleSaved = (nextBoard) => {
+    if (nextBoard && onBoardUpdated) onBoardUpdated(nextBoard);
+    setEditing(false);
+  };
   return (
     <div className="board-header-container">
       {/* LEFT - Board name */}
@@ -16,7 +23,7 @@ export default function BoardHeader({ board, boardMembers }) {
 
       {/* RIGHT - Actions */}
       <div className="board-header-right flex items-center gap-3">
-        {boardMembers.length > 0 && (
+        {(boardMembers?.length ?? 0) > 0 && (
           <div className="flex -space-x-2">
             {boardMembers
               .filter((m) => ["Owner", "Admin", "Member"].includes(m.role))
@@ -73,10 +80,21 @@ export default function BoardHeader({ board, boardMembers }) {
         <button className="header-btn">
           <Users size={18} />
         </button>
+        <button className="header-btn" onClick={() => setEditing(true)} title="Board settings">
+          <Settings size={18} />
+        </button>
         <button className="header-share-btn">
-          <Share2 size={16} /> Chia sẻ
+          <Share2 size={16} /> Share
         </button>
       </div>
+      {editing && (
+        <EditBoardModal
+          open={editing}
+          board={board}
+          onClose={() => setEditing(false)}
+          onSaved={handleSaved}
+        />
+      )}
     </div>
   );
 }

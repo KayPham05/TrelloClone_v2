@@ -21,7 +21,7 @@ export default function RightSidebar({
 
   // Group boards by workspace
   const workspaceGroups = recentBoards.reduce((acc, board) => {
-    const wsName = board.workspaceName || "Cá nhân";
+    const wsName = board.workspaceName || "Personal";
     if (!acc[wsName]) acc[wsName] = [];
     acc[wsName].push(board);
     return acc;
@@ -35,12 +35,12 @@ export default function RightSidebar({
         <div className="mb-6">
           <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
             <TrendingUp size={16} className="text-gray-600" />
-            Không gian làm việc của tôi
+            My workspace
           </h3>
           
           {Object.keys(workspaceGroups).length === 0 ? (
             <div className="text-xs text-gray-500 italic bg-gray-50 p-4 rounded-lg border border-gray-200">
-              Bạn chưa có bảng nào trong workspace.
+              You have no board yet.
             </div>
           ) : (
             <div className="space-y-2">
@@ -71,7 +71,7 @@ export default function RightSidebar({
           <div className="flex items-center gap-2 mb-3">
             <Clock size={18} className="text-gray-600" />
             <h3 className="text-sm font-semibold text-gray-800">
-              Đã xem gần đây
+              Recently Viewed
             </h3>
           </div>
 
@@ -79,10 +79,10 @@ export default function RightSidebar({
             <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-8 text-center border-2 border-dashed border-gray-300">
               <Clock size={36} className="mx-auto text-gray-400 mb-3" />
               <p className="text-sm text-gray-500 font-medium">
-                Chưa có bảng nào gần đây
+                There is no board yet
               </p>
               <p className="text-xs text-gray-400 mt-1">
-                Các bảng bạn truy cập sẽ hiển thị ở đây
+                Your accessed boards are showed here.
               </p>
             </div>
           ) : (
@@ -103,7 +103,7 @@ export default function RightSidebar({
                       {board.boardName}
                     </p>
                     <p className="text-xs text-gray-500 truncate">
-                      {board.workspaceUId ? board.workspaceName || "Workspace" : "Cá nhân"}
+                      {board.workspaceUId ? board.workspaceName || "Workspace" : "Personal"}
                     </p>
                   </div>
                 </div>
@@ -115,7 +115,7 @@ export default function RightSidebar({
         {/* Hành động nhanh */}
         <div>
           <h3 className="text-sm font-semibold text-gray-800 mb-3">
-            Hành động nhanh
+            Fast action
           </h3>
           <div className="space-y-3">
             <button
@@ -126,7 +126,7 @@ export default function RightSidebar({
                 <Plus size={20} className="text-white" />
               </div>
               <span className="text-sm font-semibold text-blue-700 group-hover:text-blue-800 transition">
-                Tạo bảng mới
+                Create New Board
               </span>
             </button>
           </div>
@@ -135,20 +135,20 @@ export default function RightSidebar({
         {/* Tips */}
         <div className="mt-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-200">
           <h4 className="text-sm font-semibold text-purple-900 mb-2 flex items-center gap-2">
-            💡 Mẹo sử dụng
+            💡 Use Tips
           </h4>
           <ul className="text-xs text-purple-700 space-y-1.5">
             <li className="flex items-start gap-2">
               <span className="text-purple-500 font-bold">•</span>
-              <span>Tạo workspace để quản lý theo nhóm</span>
+              <span>Create workspace for group management</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-purple-500 font-bold">•</span>
-              <span>Mời đồng nghiệp cộng tác trên bảng</span>
+              <span>Add collaborators to the board</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-purple-500 font-bold">•</span>
-              <span>Dùng label để phân loại công việc</span>
+              <span>User labels for task classification</span>
             </li>
           </ul>
         </div>
