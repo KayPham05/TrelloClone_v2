@@ -15,30 +15,30 @@ import Layout from "./components/layout.jsx";
 import "./index.css";
 import { applyTheme, getInitialTheme } from "./components/Theme";
 
-function checkTokenExpiration() {
-  const token = localStorage.getItem("token");
-  if (token) {
-    try {
-      const decoded = jwtDecode(token);
-      const exp = decoded.exp * 1000; // exp là giây → đổi sang mili giây
-      if (Date.now() >= exp) {
-        // Token đã hết hạn
-        toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        window.location.href = "/";
-      }
-    } catch (err) {
-      console.error(" Token decode error:", err);
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      window.location.href = "/";
-    }
-  }
-}
+// function checkTokenExpiration() {
+//   const token = localStorage.getItem("token");
+//   if (token) {
+//     try {
+//       const decoded = jwtDecode(token);
+//       const exp = decoded.exp * 1000; // exp là giây → đổi sang mili giây
+//       if (Date.now() >= exp) {
+//         // Token đã hết hạn
+//         toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+//         localStorage.removeItem("token");
+//         localStorage.removeItem("user");
+//         window.location.href = "/";
+//       }
+//     } catch (err) {
+//       console.error(" Token decode error:", err);
+//       localStorage.removeItem("token");
+//       localStorage.removeItem("user");
+//       window.location.href = "/";
+//     }
+//   }
+// }
 
 
-checkTokenExpiration();
+// checkTokenExpiration();
 const CLIENT_ID = "687329356395-b7o51dhg1e35906kvmdivu0hf9ure9q9.apps.googleusercontent.com";
 applyTheme(getInitialTheme());
 

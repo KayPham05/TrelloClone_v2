@@ -210,7 +210,7 @@ export default function Home() {
   }));
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 home">
+    <div className="flex flex-col min-h-screen bg-gray-50 home ">
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
           workspaces={workspacesWithBoards}
@@ -220,7 +220,7 @@ export default function Home() {
         />
 
         <main className="flex-1 p-8 overflow-y-auto">
-          <div className="max-w-7xl mx-auto space-y-10">
+          <div className="max-w-7xl mx-auto space-y-10 ">
             <RecentBoardsSection
               recentBoards={recentBoards}
               workspaces={workspaces}
