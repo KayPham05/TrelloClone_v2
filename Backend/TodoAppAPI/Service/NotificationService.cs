@@ -82,6 +82,7 @@ namespace TodoAppAPI.Service
                     Title = dto.Title,
                     Message = dto.Message,
                     Link = dto.Link,
+                    WorkspaceId = dto.WorkspaceId,
                     BoardId = dto.BoardId,
                     ListId = dto.ListId,
                     CardId = dto.CardId,
@@ -100,5 +101,27 @@ namespace TodoAppAPI.Service
                 return null;
             }
         }
+
+        public async Task<bool> DeleteAsync(string notiId)
+        {
+            if (string.IsNullOrWhiteSpace(notiId))
+                return false;
+
+            var noti = await _context.Notifications
+                .AsNoTracking()
+                .FirstOrDefaultAsync(n => n.NotiId == notiId);
+
+            if (noti == null)
+            {
+                Console.WriteLine($"[WARN] Notification not found for deletion: {notiId}");
+                return false;
+            }
+
+            _context.Notifications.Remove(new Notification { NotiId = notiId });
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
     }
 }

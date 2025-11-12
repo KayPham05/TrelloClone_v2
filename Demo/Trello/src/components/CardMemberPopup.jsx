@@ -5,6 +5,8 @@ import {
   removeCardMemberAPI,
   addCardMemberAPI,
 } from "../services/CardMemberAPI";
+import { addNotificationAPI } from "../services/NotificationAPi";
+
 import { toast } from "react-toastify";
 
 export default function CardMemberPopup({
@@ -15,6 +17,7 @@ export default function CardMemberPopup({
   position, // vị trí popup (truyền từ Card.jsx)
   boardMembers,
   board,
+  list,
   onChangeCard,
 }) {
   const [cardMembers, setCardMembers] = useState([]);
@@ -57,6 +60,24 @@ export default function CardMemberPopup({
       setCardMembers(Array.isArray(res) ? res : []);
       onChangeCard && onChangeCard(Array.isArray(res) ? res : []);
       onChange && onChange();
+
+      // Tạo notification cho thành viên được thêm vào card
+      const notificationPayload = {
+        recipientId: userUId,
+        actorId: requester.userUId,
+        type: 1, // Assignment
+        title: "Card Assignment",
+        message: `${requester.userName} assigned you to card '${card.title}' in board '${board.boardName}'.`,
+        link: `/boards/${board.boardUId}`,
+        workspaceId: board.workspaceUId || null, 
+        boardId: board.boardUId,
+        listId: list?.listUId || null,
+        cardId: card.cardUId,
+      };
+
+      console.log("Sending card assignment notification:", notificationPayload);
+      await addNotificationAPI(notificationPayload);
+
     } catch (err) {
       toast.error("Can't add member :(");
       console.error(err);

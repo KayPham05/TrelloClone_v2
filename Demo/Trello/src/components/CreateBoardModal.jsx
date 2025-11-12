@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { X, Globe, Lock } from "lucide-react";
 import { toast } from "react-toastify";
 import { createBoardAPI } from "../services/BoardAPI";
+import { addNotificationAPI } from "../services/NotificationAPi";
 
 export default function CreateBoardModal({
   currentUser,
@@ -28,12 +29,12 @@ export default function CreateBoardModal({
     const selectedWs = workspaces.find((ws) => ws.workspaceUId === workspaceId);
     if (selectedWs && Array.isArray(selectedWs.members)) {
       setMembers(selectedWs.members);
-      
+
       // TỰ ĐỘNG THÊM OWNER VÀO selectedMembers
       const ownerMember = selectedWs.members.find(
         m => m.userUId === currentUser?.userUId && m.role === "Owner"
       );
-      
+
       if (ownerMember) {
         setSelectedMembers([{
           userUId: ownerMember.userUId,
@@ -55,7 +56,7 @@ export default function CreateBoardModal({
           return prev.filter(m => m.userUId !== userUId);
         }
         // Cập nhật role
-        return prev.map((m) => 
+        return prev.map((m) =>
           m.userUId === userUId ? { ...m, BoardRole: role } : m // ← Đổi role thành BoardRole
         );
       } else {
@@ -90,6 +91,29 @@ export default function CreateBoardModal({
     try {
       setIsLoading(true);
       const createdBoard = await createBoardAPI(newBoard);
+
+      // Tạo thông báo cho tất cả thành viên được thêm vào board (trừ chủ board)
+      const notificationPromises = selectedMembers
+        .filter(member => member.userUId !== currentUser.userUId) // Loại trừ chủ board
+        .map(member => {
+          const notificationPayload = {
+            recipientId: member.userUId,
+            actorId: currentUser.userUId,
+            type: 6, //  Invitation
+            title: "Board Invitation",
+            message: `${currentUser.userName} invited you to join board '${boardName}' as ${member.BoardRole}.`,
+            link: `/boards/${createdBoard?.board?.boardUId}`,
+            workspaceId: workspaceId || null,
+            boardId: createdBoard?.board?.boardUId
+          };
+
+          console.log("Sending notification with payload:", notificationPayload);
+          return addNotificationAPI(notificationPayload);
+        });
+
+      // Chờ tất cả notification gửi xong
+      await Promise.all(notificationPromises);
+
       if (createdBoard?.board?.boardUId) {
         toast.success("Tạo board thành công!");
         onSuccess?.();
@@ -240,11 +264,10 @@ export default function CreateBoardModal({
               <button
                 type="button"
                 onClick={() => setVisibility("Public")}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition ${
-                  visibility === "Public"
-                    ? "bg-blue-100 border-blue-500 text-blue-700"
-                    : "border-gray-300 hover:bg-gray-50 text-gray-700"
-                }`}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition ${visibility === "Public"
+                  ? "bg-blue-100 border-blue-500 text-blue-700"
+                  : "border-gray-300 hover:bg-gray-50 text-gray-700"
+                  }`}
               >
                 <Globe size={16} />
                 Public
@@ -252,11 +275,10 @@ export default function CreateBoardModal({
               <button
                 type="button"
                 onClick={() => setVisibility("Private")}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition ${
-                  visibility === "Private"
-                    ? "bg-blue-100 border-blue-500 text-blue-700"
-                    : "border-gray-300 hover:bg-gray-50 text-gray-700"
-                }`}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition ${visibility === "Private"
+                  ? "bg-blue-100 border-blue-500 text-blue-700"
+                  : "border-gray-300 hover:bg-gray-50 text-gray-700"
+                  }`}
               >
                 <Lock size={16} />
                 Private
@@ -281,11 +303,10 @@ export default function CreateBoardModal({
             <button
               type="submit"
               disabled={isLoading}
-              className={`px-4 py-2.5 rounded-lg text-white font-medium shadow-sm transition ${
-                isLoading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
-              }`}
+              className={`px-4 py-2.5 rounded-lg text-white font-medium shadow-sm transition ${isLoading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+                }`}
             >
               {isLoading ? "Creating..." : "Create Board"}
             </button>

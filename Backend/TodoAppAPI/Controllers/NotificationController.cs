@@ -60,5 +60,21 @@ namespace TodoAppAPI.Controllers
             return Ok(noti);
         }
 
+
+        // Xóa thông báo
+        [HttpDelete("{notiId}")]
+        public async Task<IActionResult> DeleteNotification(string notiId)
+        {
+            if (string.IsNullOrWhiteSpace(notiId))
+                return BadRequest(new { message = "notiId is required" });
+
+            var deleted = await _notificationService.DeleteAsync(notiId);
+            if (!deleted)
+                return NotFound(new { message = "Notification not found or already deleted" });
+
+            return Ok(new { message = "Notification deleted successfully" });
+        }
+
+
     }
 }

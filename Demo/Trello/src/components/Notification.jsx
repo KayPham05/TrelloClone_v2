@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { Bell, MessageSquareText, UserPlus, ArrowLeftRight, CalendarCheck2, AtSign, KanbanSquare } from "lucide-react";
-import { getNotificationsAPI, markAsReadAPI, markAllAsReadAPI } from "../services/NotificationAPI";
+import { useNavigate } from "react-router-dom";
+
+import { Bell, MessageSquareText, UserPlus, ArrowLeftRight, CalendarCheck2, AtSign, KanbanSquare, Trash2, X } from "lucide-react";
+import { getNotificationsAPI, markAsReadAPI, markAllAsReadAPI, deleteNotificationAPI } from "../services/NotificationAPI";
+import { saveRecentBoardAPI } from "../services/RecentBoardAPI";
 
 // === utilities ===
 const timeAgo = (iso) => {
@@ -24,7 +27,11 @@ const TypeIcon = ({ type }) => {
         board: KanbanSquare
     };
     const Icon = map[type] || MessageSquareText;
-    return <Icon size={18} strokeWidth={2} className="text-gray-700" />;
+    return (
+        <div className="p-2 bg-blue-50 rounded-lg">
+            <Icon size={16} strokeWidth={2.5} className="text-blue-600" />
+        </div>
+    );
 };
 
 // === component ===
@@ -35,16 +42,18 @@ export default function Notification() {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const ref = useRef(null);
+    const navigate = useNavigate();
 
     const unread = items.reduce((n, i) => n + (i.read ? 0 : 1), 0);
     const user = JSON.parse(localStorage.getItem("user"));
 
+    // Lấy danh sách thông báo
     const fetchPage = async (p = 1) => {
         if (!user?.userUId) return;
         setLoading(true);
         try {
             const data = await getNotificationsAPI(user.userUId, p, 10);
-            const list = Array.isArray(data) ? data : data.items || [];        
+            const list = Array.isArray(data) ? data : data.items || [];
             setItems((prev) => (p === 1 ? list : [...prev, ...list]));
             setHasMore(list.length === 10);
             setPage(p);
@@ -57,37 +66,77 @@ export default function Notification() {
     };
     useEffect(() => { fetchPage(1); }, [user?.userUId]);
 
+    // Đóng popup khi click ra ngoài
     useEffect(() => {
         const onClick = (e) => ref.current && !ref.current.contains(e.target) && setOpen(false);
         document.addEventListener("mousedown", onClick);
         return () => document.removeEventListener("mousedown", onClick);
     }, []);
 
+    // Đánh dấu đã đọc và chuyển hướng
     const onItemClick = async (n) => {
+        // Đánh dấu đã đọc
         if (!n.read) {
-            await markAsReadAPI(n.notiId);
-            setItems((prev) => prev.map((i) => (i.notiId === n.notiId ? { ...i, read: true } : i)));
+            try {
+                await markAsReadAPI(n.notiId);
+                setItems((prev) => prev.map((i) => (i.notiId === n.notiId ? { ...i, read: true } : i)));
+            } catch (err) {
+                console.error("Mark as read error:", err);
+            }
         }
-        if (n.link) window.location.href = n.link;
+
+        // Nếu notification chứa board hoặc boardId thì mở dashboard
+        if (n.board || n.boardId) {
+            const board = n.board || { boardUId: n.boardId, boardName: n.title || "" };
+            localStorage.setItem("currentBoard", JSON.stringify(board));
+            try {
+                await saveRecentBoardAPI(user.userUId, board.boardUId);
+            } catch (err) {
+                console.error("Recent board saving error:", err);
+            }
+            navigate("/dashboard");
+            setOpen(false);
+            return;
+        }
+
         setOpen(false);
     };
 
+    // Đánh dấu tất cả đã đọc
     const onMarkAll = async () => {
-        await markAllAsReadAPI(user.userUId);
-        setItems((prev) => prev.map((i) => ({ ...i, read: true })));
+        try {
+            await markAllAsReadAPI(user.userUId);
+            setItems((prev) => prev.map((i) => ({ ...i, read: true })));
+        } catch (err) {
+            console.error("Mark all as read error:", err);
+        }
+    };
+
+    // Xóa một thông báo
+    const onDelete = async (e, notiId) => {
+        e.stopPropagation(); // Ngăn click vào nút xóa không trigger onItemClick
+        if (!window.confirm("Are you sure you want to delete this notification?")) {
+            return;
+        }
+        try {
+            await deleteNotificationAPI(notiId);
+            setItems((prev) => prev.filter((i) => i.notiId !== notiId));
+        } catch (err) {
+            console.error("Delete notification error:", err);
+        }
     };
 
     return (
         <div className="relative" ref={ref}>
-            {/* Bell */}
+            {/* Bell Button */}
             <button
                 onClick={() => setOpen((v) => !v)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition relative"
+                className="relative p-2.5 hover:bg-gray-200 rounded-xl transition-all duration-200"
                 aria-label="Notifications"
             >
-                <Bell className="text-gray-700" size={22} strokeWidth={2.4} />
+                <Bell className="text-gray-700" size={20} strokeWidth={2} />
                 {unread > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] min-w-4 h-4 px-1 rounded-full flex items-center justify-center font-bold">
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center shadow">
                         {unread > 9 ? "9+" : unread}
                     </span>
                 )}
@@ -95,43 +144,112 @@ export default function Notification() {
 
             {/* Popup */}
             {open && (
-                <div className="absolute right-0 mt-2 w-96 bg-white border shadow-xl rounded-xl overflow-hidden z-50">
-                    <div className="flex items-center justify-between px-3 py-2 bg-gray-50">
-                        <div className="text-sm font-semibold">Notifications</div>
-                        <button onClick={onMarkAll} className="text-xs text-blue-600 hover:underline">
-                            Mark all as read
-                        </button>
+                <div className="absolute right-0 mt-3 w-[420px] bg-white border border-gray-200 shadow-2xl rounded-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                    {/* Header */}
+                    <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-white">
+                        <div className="flex items-center gap-2">
+                            <Bell size={18} className="text-blue-600" strokeWidth={2.5} />
+                            <h3 className="text-base font-bold text-gray-800">Notifications</h3>
+                            {unread > 0 && (
+                                <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+                                    {unread}
+                                </span>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                            {unread > 0 && (
+                                <button
+                                    onClick={onMarkAll}
+                                    className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline transition"
+                                >
+                                    Mark all read
+                                </button>
+                            )}
+                            <button
+                                onClick={() => setOpen(false)}
+                                className="p-1 hover:bg-gray-100 rounded-lg transition"
+                            >
+                                <X size={16} className="text-gray-500" />
+                            </button>
+                        </div>
                     </div>
 
-                    <div className="max-h-96 overflow-auto divide-y">
+                    {/* Content */}
+                    <div className="max-h-[480px] overflow-y-auto">
                         {!loading && items.length === 0 && (
-                            <div className="p-4 text-sm text-gray-500">No notifications</div>
+                            <div className="flex flex-col items-center justify-center py-12 px-4">
+                                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                                    <Bell size={28} className="text-gray-400" strokeWidth={1.5} />
+                                </div>
+                                <p className="text-sm font-medium text-gray-600">No notifications yet</p>
+                                <p className="text-xs text-gray-400 mt-1">We'll notify you when something arrives</p>
+                            </div>
                         )}
 
                         {items.map((n) => (
-                            <button
+                            <div
                                 key={n.notiId}
-                                onClick={() => onItemClick(n)}
-                                className={`w-full text-left p-3 hover:bg-gray-50 transition flex gap-3 ${n.read ? "opacity-85" : "bg-blue-50/70"
+                                className={`group relative border-b border-gray-100 last:border-b-0 transition-all duration-200 ${!n.read
+                                        ? "bg-blue-50/50 hover:bg-blue-100/80"
+                                        : "bg-white hover:bg-gray-200"
                                     }`}
                             >
-                                <TypeIcon type={n.type} />
-                                <div className="min-w-0">
-                                    <div className="text-sm font-semibold text-gray-800 truncate">{n.title}</div>
-                                    <div className="text-xs text-gray-600 line-clamp-2">{n.message}</div>
-                                    <div className="text-[11px] text-gray-400 mt-1">{timeAgo(n.createdAt)}</div>
+                                <div
+                                    className="flex gap-3 p-4 cursor-pointer"
+                                    onClick={() => onItemClick(n)}
+                                >
+                                    {/* Icon */}
+                                    <div className="flex-shrink-0 mt-0.5">
+                                        <TypeIcon type={n.type} />
+                                    </div>
+
+                                    {/* Content */}
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-start justify-between gap-2 mb-1">
+                                            <h4 className="text-sm font-bold text-gray-900 line-clamp-1">
+                                                {n.title}
+                                            </h4>
+                                            {!n.read && (
+                                                <span className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-1.5"></span>
+                                            )}
+                                        </div>
+                                        <p className="text-xs text-gray-600 line-clamp-2 mb-2 leading-relaxed">
+                                            {n.message}
+                                        </p>
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-[11px] font-medium text-gray-400">
+                                                {timeAgo(n.createdAt)}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Delete Button */}
+                                    <button
+                                        onClick={(e) => onDelete(e, n.notiId)}
+                                        className="absolute top-3 right-3 p-1.5 bg-white hover:bg-red-50 border border-gray-200 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-sm hover:shadow hover:border-red-200"
+                                        aria-label="Delete notification"
+                                    >
+                                        <Trash2 size={13} className="text-red-500" strokeWidth={2.5} />
+                                    </button>
                                 </div>
-                                {!n.read && <span className="ml-auto w-2 h-2 bg-blue-600 rounded-full self-center" />}
-                            </button>
+                            </div>
                         ))}
 
-                        {hasMore && (
+                        {/* Load More */}
+                        {hasMore && !loading && items.length > 0 && (
                             <button
                                 onClick={() => fetchPage(page + 1)}
-                                className="w-full py-2 text-sm text-blue-600 hover:bg-gray-50"
+                                className="w-full py-3 text-sm font-medium text-blue-600 hover:bg-blue-50 transition-colors duration-200"
                             >
-                                Load more
+                                Load more notifications
                             </button>
+                        )}
+
+                        {/* Loading */}
+                        {loading && (
+                            <div className="flex items-center justify-center py-8">
+                                <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                            </div>
                         )}
                     </div>
                 </div>
