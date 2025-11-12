@@ -9,5 +9,6 @@ namespace TodoAppAPI.Interfaces
         Task<bool> MarkAsReadAsync(string notiId);
         Task<int> MarkAllAsReadAsync(string userId);
         Task<Notification> CreateAsync(NotificationDTO dto);
+        Task<bool> DeleteAsync(string notiId);
     }
 }

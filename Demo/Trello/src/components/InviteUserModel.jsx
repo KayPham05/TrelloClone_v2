@@ -55,10 +55,10 @@ export default function InviteUserModal({ workspace, onClose, currentUser, onSuc
       title: "Workspace Invitation",
       message: `${currentUser.userName} invited you to join workspace '${workspace.name}' as ${role}.`,
       link: null,
-      workspaceId: workspace.workspaceUId
+      workspaceId: workspace.workspaceUId,
     };
 
-    console.log("Sending notification with payload:", notificationPayload);
+    console.log("Workspace payload:", notificationPayload);
 
     await addNotificationAPI(notificationPayload);
 

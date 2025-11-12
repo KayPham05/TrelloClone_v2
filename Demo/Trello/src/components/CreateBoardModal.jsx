@@ -99,10 +99,11 @@ export default function CreateBoardModal({
           const notificationPayload = {
             recipientId: member.userUId,
             actorId: currentUser.userUId,
-            type: 6, // Board Invitation
+            type: 6, //  Invitation
             title: "Board Invitation",
             message: `${currentUser.userName} invited you to join board '${boardName}' as ${member.BoardRole}.`,
-            link: null,
+            link: `/boards/${createdBoard?.board?.boardUId}`,
+            workspaceId: workspaceId || null,
             boardId: createdBoard?.board?.boardUId
           };
 

@@ -25,8 +25,13 @@ export const markAllAsReadAPI = (userId) => {
 
 // === Dành cho trường hợp muốn tạo notification thủ công ===
 export const addNotificationAPI = (payload) => {
-  // payload gồm: recipientId, actorId, type, title, message, link, boardId?, workspaceId?
+  // payload gồm: recipientId, actorId, type, title, message, link, boardId?, workspaceId?, ...
   return axiosClient.post(`${END_POINT.NOTIFICATIONS}`, payload);
+};
+
+// === 🗑️ Xóa một thông báo theo ID ===
+export const deleteNotificationAPI = (notiId) => {
+  return axiosClient.delete(`${END_POINT.NOTIFICATIONS}/${notiId}`);
 };
 
 
