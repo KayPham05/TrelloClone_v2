@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TodoAppAPI.Interfaces;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -7,6 +8,7 @@ namespace TodoAppAPI.Controllers
 {
     [Route("v1/api/RecentBoard")]
     [ApiController]
+    [Authorize]
     public class UserRecentCotroller : ControllerBase
     {
         private readonly IUserRecentBoardService _userRecentBoardService;

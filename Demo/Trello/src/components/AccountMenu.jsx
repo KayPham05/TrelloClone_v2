@@ -1,22 +1,28 @@
-
-import React, {useState, useEffect, useRef, useLayoutEffect} from "react";
-import {ChevronRight, ExternalLink, Section} from "lucide-react";
-import {createPortal} from "react-dom";
+import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
+import { ChevronRight, ExternalLink, Section } from "lucide-react";
+import { createPortal } from "react-dom";
 import { applyTheme, getInitialTheme } from "../components/Theme.ts";
-import { getUsernameByUserUIdAPI, getBioByUserUIdAPI } from "../services/UserAPI.jsx";
+import {
+  getUsernameByUserUIdAPI,
+  getBioByUserUIdAPI,
+} from "../services/UserAPI.jsx";
+import { logoutAPI } from "../services/LoginAPI.jsx";
 export default function AccountMenu({ open, onClose, onOpenSettings }) {
   if (!open) return null;
   const [user, setUser] = useState(null);
   const [themeOpen, setThemeOpen] = useState(false);
   const [settingOpen, setSettingOpen] = useState(false);
   const themeRef = useRef(null);
-  
-    useEffect(() => {
+
+  useEffect(() => {
     if (!open) return;
     let cancel = false;
     (async () => {
       const auth = JSON.parse(localStorage.getItem("user") || "{}");
-      if (!auth?.userUId) { setUser(null); return; }
+      if (!auth?.userUId) {
+        setUser(null);
+        return;
+      }
       // tự gọi API để lấy bản mới nhất
       const [uRes, bRes] = await Promise.all([
         getUsernameByUserUIdAPI(auth.userUId),
@@ -25,12 +31,9 @@ export default function AccountMenu({ open, onClose, onOpenSettings }) {
       const userName =
         typeof uRes === "string"
           ? uRes
-          : (uRes?.userName ?? uRes?.username ?? "");
+          : uRes?.userName ?? uRes?.username ?? "";
 
-      const bio =
-        typeof bRes === "string"
-          ? bRes
-          : (bRes?.bio ?? "");
+      const bio = typeof bRes === "string" ? bRes : bRes?.bio ?? "";
 
       const next = {
         userUId: auth.userUId,
@@ -43,8 +46,23 @@ export default function AccountMenu({ open, onClose, onOpenSettings }) {
     // lắng nghe cập nhật từ modal
     const h = (e) => setUser(e.detail);
     window.addEventListener("user:updated", h);
-    return () => { cancel = true; window.removeEventListener("user:updated", h); };
+    return () => {
+      cancel = true;
+      window.removeEventListener("user:updated", h);
+    };
   }, [open]);
+
+  const handleLogout = async () => {
+    try {
+      await logoutAPI(user?.userUId); // gọi API xóa refreshToken cookie
+    } catch (err) {
+      console.error("Logout failed:", err);
+    } finally {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "/";
+    }
+  };
 
   return (
     <div
@@ -53,7 +71,7 @@ export default function AccountMenu({ open, onClose, onOpenSettings }) {
       className={[
         "absolute right-0 top-full mt-2 w-72 rounded-xl border shadow-xl z-50",
         "bg-white text-gray-900 border-gray-200",
-        "dark:!bg-neutral-900 dark:!text-gray-100 dark:!border-neutral-700"
+        "dark:!bg-neutral-900 dark:!text-gray-100 dark:!border-neutral-700",
       ].join(" ")}
     >
       {/* Header */}
@@ -66,7 +84,11 @@ export default function AccountMenu({ open, onClose, onOpenSettings }) {
                     dark:bg-amber-300 dark:!text-gray-900
                     ring-1 ring-amber-300/70 dark:ring-amber-200/50"
         >
-          {user?.userName?.split(" ").map(n => n[0]).join("").toUpperCase()}
+          {user?.userName
+            ?.split(" ")
+            .map((n) => n[0])
+            .join("")
+            .toUpperCase()}
         </div>
         <div className="min-w-0">
           <div className="font-semibold truncate">{user?.userName}</div>
@@ -81,7 +103,11 @@ export default function AccountMenu({ open, onClose, onOpenSettings }) {
         <MenuItem
           text={
             <span className="inline-flex items-center gap-2">
-              Manage account <ExternalLink size={14} className="opacity-70 text-gray-600 dark:!text-gray-300" />
+              Manage account{" "}
+              <ExternalLink
+                size={14}
+                className="opacity-70 text-gray-600 dark:!text-gray-300"
+              />
             </span>
           }
           onClick={onClose}
@@ -94,10 +120,10 @@ export default function AccountMenu({ open, onClose, onOpenSettings }) {
       <ul className="py-1">
         <MenuItem
           text="Profile and visibility"
-          keepOpen                 // <-- giữ mở để onClick kịp chạy
+          keepOpen // <-- giữ mở để onClick kịp chạy
           onClick={() => onOpenSettings?.("profile")}
         />
-         <MenuItem
+        <MenuItem
           text="Activity"
           keepOpen
           onClick={() => onOpenSettings?.("activity")}
@@ -121,12 +147,15 @@ export default function AccountMenu({ open, onClose, onOpenSettings }) {
           className={[
             "px-3 py-2 cursor-pointer outline-none text-sm flex items-center justify-between",
             "hover:bg-gray-100 focus:bg-gray-100",
-            "dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+            "dark:hover:bg-neutral-800 dark:focus:bg-neutral-800",
           ].join(" ")}
-          onClick={() => setThemeOpen(v => !v)}
+          onClick={() => setThemeOpen((v) => !v)}
         >
           <span>Theme</span>
-          <ChevronRight size={16} className="text-gray-500 dark:!text-gray-300"  />
+          <ChevronRight
+            size={16}
+            className="text-gray-500 dark:!text-gray-300"
+          />
         </li>
       </ul>
 
@@ -144,7 +173,13 @@ export default function AccountMenu({ open, onClose, onOpenSettings }) {
       <Divider />
 
       <ul className="py-1">
-        <MenuItem text="Log out" onClick={onClose} />
+        <MenuItem
+          text="Log out"
+          onClick={() => {
+            onClose();
+            handleLogout();
+          }}
+        />
       </ul>
 
       <ThemeSubmenu
@@ -161,7 +196,7 @@ function MenuItem({ icon, text, onClick, keepOpen = false }) {
     <li>
       <button
         role="menuitem"
-        onPointerDown={e => {
+        onPointerDown={(e) => {
           if (keepOpen) e.currentTarget.dataset.profileKeepopen = "";
         }}
         onClick={onClick}
@@ -175,7 +210,7 @@ function MenuItem({ icon, text, onClick, keepOpen = false }) {
   );
 }
 
-function SectionTitle({children}) {
+function SectionTitle({ children }) {
   return (
     <div
       className="w-full flex items-center gap-2 px-4 py-2 text-sm
@@ -190,14 +225,22 @@ function Divider({ children }) {
     <div className="my-2">
       <div className="h-px bg-gray-200 dark:bg-neutral-700" />
       {children}
-      {children ? <div className="h-px bg-gray-200 dark:bg-neutral-700 mt-2" /> : null}
+      {children ? (
+        <div className="h-px bg-gray-200 dark:bg-neutral-700 mt-2" />
+      ) : null}
     </div>
   );
 }
 
-function ThemeSubmenu({anchorEl, open, onClose, onEnter, onLeave}) {
+function ThemeSubmenu({ anchorEl, open, onClose, onEnter, onLeave }) {
   const menuRef = useRef(null);
-  const [style, setStyle] = useState({ top: 0, left: 0, position: "fixed", zIndex: 9999, opacity: 0 });
+  const [style, setStyle] = useState({
+    top: 0,
+    left: 0,
+    position: "fixed",
+    zIndex: 9999,
+    opacity: 0,
+  });
   const [theme, setTheme] = useState(getInitialTheme());
 
   useEffect(() => {
@@ -312,13 +355,17 @@ function ThemeOption({ value, label, selected, onSelect, Preview }) {
           "w-full flex items-center gap-3 px-3 py-2 text-left outline-none",
           "hover:bg-gray-50 focus:bg-gray-50",
           "dark:hover:bg-neutral-800 dark:focus:bg-neutral-800",
-          selected ? "bg-blue-50 ring-1 ring-inset ring-blue-400 dark:bg-blue-950/30 dark:ring-blue-600/60" : ""
+          selected
+            ? "bg-blue-50 ring-1 ring-inset ring-blue-400 dark:bg-blue-950/30 dark:ring-blue-600/60"
+            : "",
         ].join(" ")}
       >
         <span
           className={[
             "inline-block w-4 h-4 rounded-full border grid place-items-center",
-            selected ? "border-blue-500 dark:border-blue-500" : "border-gray-300 dark:border-neutral-600",
+            selected
+              ? "border-blue-500 dark:border-blue-500"
+              : "border-gray-300 dark:border-neutral-600",
           ].join(" ")}
           aria-hidden
         >
@@ -334,7 +381,9 @@ function ThemeOption({ value, label, selected, onSelect, Preview }) {
           <Preview />
         </div>
 
-        <span className="text-sm text-gray-800 dark:!text-gray-100">{label}</span>
+        <span className="text-sm text-gray-800 dark:!text-gray-100">
+          {label}
+        </span>
       </button>
     </li>
   );

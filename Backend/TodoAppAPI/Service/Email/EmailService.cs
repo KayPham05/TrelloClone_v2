@@ -19,7 +19,7 @@ namespace TodoAppAPI.Service
             <h2>Xác thực tài khoản Trello Clone</h2>
             <p>Mã xác thực của bạn là:</p>
             <h3 style='color:blue;font-size:22px;'>{code}</h3>
-            <p>Mã này sẽ hết hạn sau 10 phút.</p>"
+            <p>Mã này sẽ hết hạn sau 5 phút.</p>"
             };
 
             using var client = new SmtpClient();

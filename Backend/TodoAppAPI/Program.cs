@@ -58,13 +58,16 @@ builder.Services.AddDbContext<TodoDbContext>(option =>
 {
     option.UseSqlServer(builder.Configuration.GetConnectionString("TodosDatabase"));
 });
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReactApp",
-        policy => policy
-            .AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader());
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173") // React chạy ở đây
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials(); // Cho phép gửi cookie
+    });
 });
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -79,25 +82,14 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.UseCors("AllowReactApp");
 }
+
 
 //cấu hình CROSS
-app.UseCors(builder =>
-{
-    builder.
-    AllowAnyOrigin().
-    AllowAnyMethod().
-    AllowAnyHeader();
-}
-);
+app.UseCors("AllowFrontend");
 
-app.UseHttpsRedirection();
-
+//app.UseHttpsRedirection();
 app.UseAuthentication();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

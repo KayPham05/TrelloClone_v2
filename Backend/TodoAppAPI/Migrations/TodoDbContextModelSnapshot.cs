@@ -389,6 +389,9 @@ namespace TodoAppAPI.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
+                    b.Property<bool>("IsTwoFactorEnabled")
+                        .HasColumnType("bit");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -399,6 +402,11 @@ namespace TodoAppAPI.Migrations
 
                     b.Property<int?>("RoleId")
                         .HasColumnType("int");
+
+                    b.Property<string>("StatusAccount")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -444,6 +452,25 @@ namespace TodoAppAPI.Migrations
                     b.ToTable("UserInboxCards", (string)null);
                 });
 
+            modelBuilder.Entity("TodoAppAPI.Models.UserOtp", b =>
+                {
+                    b.Property<string>("UserUId")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("OtpCode")
+                        .IsRequired()
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)");
+
+                    b.HasKey("UserUId");
+
+                    b.ToTable("UserOtps", (string)null);
+                });
+
             modelBuilder.Entity("TodoAppAPI.Models.UserRecentBoard", b =>
                 {
                     b.Property<string>("UserRecentBoardUId")
@@ -472,6 +499,41 @@ namespace TodoAppAPI.Migrations
                     b.HasIndex("UserUId");
 
                     b.ToTable("UserRecentBoard", (string)null);
+                });
+
+            modelBuilder.Entity("TodoAppAPI.Models.UserSession", b =>
+                {
+                    b.Property<string>("UserUId")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Device")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(45)
+                        .HasColumnType("nvarchar(45)");
+
+                    b.Property<bool>("IsRevoked")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("RefreshToken")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.HasKey("UserUId");
+
+                    b.ToTable("UserSessions", (string)null);
                 });
 
             modelBuilder.Entity("TodoAppAPI.Models.Workspace", b =>
@@ -702,6 +764,17 @@ namespace TodoAppAPI.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("TodoAppAPI.Models.UserOtp", b =>
+                {
+                    b.HasOne("TodoAppAPI.Models.User", "User")
+                        .WithOne("UserOtp")
+                        .HasForeignKey("TodoAppAPI.Models.UserOtp", "UserUId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TodoAppAPI.Models.UserRecentBoard", b =>
                 {
                     b.HasOne("TodoAppAPI.Models.Board", "Board")
@@ -717,6 +790,17 @@ namespace TodoAppAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Board");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TodoAppAPI.Models.UserSession", b =>
+                {
+                    b.HasOne("TodoAppAPI.Models.User", "User")
+                        .WithOne("Session")
+                        .HasForeignKey("TodoAppAPI.Models.UserSession", "UserUId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -794,6 +878,10 @@ namespace TodoAppAPI.Migrations
                     b.Navigation("OwnedBoards");
 
                     b.Navigation("OwnedWorkspaces");
+
+                    b.Navigation("Session");
+
+                    b.Navigation("UserOtp");
 
                     b.Navigation("WorkspaceMemberships");
                 });

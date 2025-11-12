@@ -1,7 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { verificodeAPI, resendCodeAPI } from "../services/UserAPI";
+import {
+  verificodeAPI,
+  resendCodeAPI,
+  getVerificationStatusAPI,
+} from "../services/UserAPI";
+import { Mail, Clock, ArrowLeft, Shield } from "lucide-react";
 
 export default function VerifyCode() {
   const location = useLocation();
@@ -11,14 +16,69 @@ export default function VerifyCode() {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(300); // 5 phút = 300 giây
+  const [canResend, setCanResend] = useState(false);
 
-  // Nếu không có email (vào thẳng /verify-code mà không đăng ký trước)
-  if (!email) {
-    navigate("/register");
-    return null;
-  }
+  // Nếu không có email => quay về đăng ký
+  useEffect(() => {
+    if (!email) navigate("/register");
+  }, [email, navigate]);
 
-  //  Gửi mã xác thực lên server
+  // Đồng bộ và đếm ngược
+  useEffect(() => {
+    let timerId;
+
+    const syncTimer = async () => {
+      try {
+        const res = await getVerificationStatusAPI(email);
+        const { verified, remainingSeconds } = res;
+
+        if (verified) {
+          toast.success("Tài khoản đã được xác thực!");
+          navigate("/");
+          return;
+        }
+
+        // Nếu server trả về null => mặc định 0
+        const initialTime = Math.max(0, remainingSeconds || 0);
+        setTimeLeft(initialTime);
+
+        // Nếu đã hết hạn
+        if (initialTime <= 0) {
+          setCanResend(true);
+          return;
+        }
+
+        // Tạo bộ đếm ngược
+        timerId = setInterval(() => {
+          setTimeLeft((prev) => {
+            if (prev <= 1) {
+              clearInterval(timerId);
+              setCanResend(true);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      } catch (err) {
+        console.error("Sync verify timer error:", err);
+      }
+    };
+
+    syncTimer();
+    return () => clearInterval(timerId);
+  }, [email, navigate]);
+
+  // Format mm:ss
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
+  // Xác thực mã
   const handleVerify = async () => {
     if (!code.trim()) {
       toast.error("Vui lòng nhập mã xác thực!");
@@ -29,24 +89,42 @@ export default function VerifyCode() {
       setLoading(true);
       const res = await verificodeAPI(email, code);
       toast.success(res.data || "Xác thực thành công!");
-      // Chuyển sang trang đăng nhập
-      navigate("/login");
+      navigate("/");
     } catch (err) {
-      console.error(" Verify error:", err);
+      console.error("Verify error:", err);
       toast.error(err.response?.data || "Mã không hợp lệ hoặc đã hết hạn!");
     } finally {
       setLoading(false);
     }
   };
 
-  //  Gửi lại mã mới
+  // Gửi lại mã
   const handleResend = async () => {
+    if (!canResend && timeLeft > 0) {
+      toast.warning(`Vui lòng đợi ${formatTime(timeLeft)} để gửi lại mã!`);
+      return;
+    }
+
     try {
       setResending(true);
       const res = await resendCodeAPI(email);
       toast.success(res.data || "Mã xác thực mới đã được gửi!");
+      setTimeLeft(300);
+      setCanResend(false);
+
+      // Sau khi gửi lại, khởi động lại đồng hồ
+      const newTimer = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(newTimer);
+            setCanResend(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
     } catch (err) {
-      console.error(" Resend error:", err);
+      console.error("Resend error:", err);
       toast.error(err.response?.data || "Không thể gửi lại mã!");
     } finally {
       setResending(false);
@@ -54,44 +132,130 @@ export default function VerifyCode() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-      <div className="bg-white shadow-lg p-8 rounded-lg w-96 text-center">
-        <h2 className="text-2xl font-bold mb-4 text-gray-800">🔐 Xác thực tài khoản</h2>
-
-        <p className="text-gray-600 mb-6">
-          Mã xác thực đã được gửi tới <span className="text-blue-600 font-semibold">{email}</span>
-        </p>
-
-        <input
-          type="text"
-          placeholder="Nhập mã 6 chữ số"
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded mb-4 text-center tracking-widest text-lg"
-        />
-
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+      <div className="max-w-md w-full">
+        {/* Nút quay lại */}
         <button
-          onClick={handleVerify}
-          disabled={loading}
-          className={`w-full py-2 rounded text-white font-medium transition ${
-            loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-          }`}
+          onClick={() => navigate("/")}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors group"
         >
-          {loading ? "Đang xác thực..." : "Xác thực ngay"}
+          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+          <span>Quay về trang chủ</span>
         </button>
 
-        <div className="mt-4">
+        {/* Card */}
+        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+          <div className="flex flex-col items-center mb-6">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+              <Shield className="w-8 h-8 text-blue-600" />
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              Xác thực tài khoản
+            </h2>
+            <p className="text-gray-500 text-center">
+              Nhập mã 6 chữ số đã được gửi đến email của bạn
+            </p>
+          </div>
+
+          <div className="bg-blue-50 rounded-lg p-4 mb-6 flex items-center gap-3">
+            <Mail className="w-5 h-5 text-blue-600 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-gray-600 mb-1">Mã đã được gửi tới:</p>
+              <p className="text-blue-700 font-semibold truncate">{email}</p>
+            </div>
+          </div>
+
+          {/* Input mã */}
+          <div className="mb-6">
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="000000"
+              value={code}
+              onChange={(e) =>
+                setCode(e.target.value.replace(/\D/g, "").slice(0, 6))
+              }
+              onKeyPress={(e) => e.key === "Enter" && code.length === 6 && handleVerify()}
+              maxLength={6}
+              className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-center text-2xl font-bold tracking-[0.5em] focus:border-blue-500 focus:outline-none transition-colors"
+            />
+            <p className="text-xs text-gray-500 text-center mt-2">
+              {code.length}/6 chữ số
+            </p>
+          </div>
+
+          {/* Đồng hồ */}
+          <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-lg p-4 mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Clock className="w-5 h-5 text-orange-600" />
+              <span className="text-sm text-gray-700">Mã hết hạn sau:</span>
+            </div>
+            <div
+              className={`font-mono text-xl font-bold ${
+                timeLeft <= 60 ? "text-red-600" : "text-orange-600"
+              }`}
+            >
+              {formatTime(timeLeft)}
+            </div>
+          </div>
+
+          {/* Nút xác thực */}
           <button
-            onClick={handleResend}
-            disabled={resending}
-            className={`w-full py-2 rounded font-medium transition ${
-              resending
-                ? "bg-gray-300 text-gray-600"
-                : "bg-gray-100 hover:bg-gray-200 text-blue-600"
+            onClick={handleVerify}
+            disabled={loading || code.length !== 6}
+            className={`w-full py-4 rounded-xl text-white font-semibold text-lg transition-all transform ${
+              loading || code.length !== 6
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:shadow-lg active:scale-95"
             }`}
           >
-            {resending ? "Đang gửi lại..." : "Gửi lại mã xác thực"}
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                Đang xác thực...
+              </span>
+            ) : (
+              "Xác thực ngay"
+            )}
           </button>
+
+          {/* Divider */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-white text-gray-500">
+                Không nhận được mã?
+              </span>
+            </div>
+          </div>
+
+          {/* Nút gửi lại */}
+          <button
+            onClick={handleResend}
+            disabled={resending || (!canResend && timeLeft > 0)}
+            className={`w-full py-3 rounded-xl font-medium transition-all ${
+              resending || (!canResend && timeLeft > 0)
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-gray-50 hover:bg-gray-100 text-blue-600 hover:text-blue-700 border-2 border-gray-200 hover:border-blue-300"
+            }`}
+          >
+            {resending ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></span>
+                Đang gửi...
+              </span>
+            ) : canResend || timeLeft <= 0 ? (
+              "Gửi lại mã xác thực"
+            ) : (
+              `Gửi lại sau ${formatTime(timeLeft)}`
+            )}
+          </button>
+
+          <p className="text-xs text-gray-500 text-center mt-6">
+            Nếu bạn không thấy email, vui lòng kiểm tra thư mục spam hoặc rác
+          </p>
         </div>
       </div>
     </div>

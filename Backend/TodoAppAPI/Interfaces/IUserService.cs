@@ -11,7 +11,7 @@ namespace TodoAppAPI.Interfaces
         Task AddAsync(User user);
         Task UpdateAsync(User user);
         Task DeleteAsync(string userUId);
-
+        Task UpdateStatusAccount(string userUId, string status);
         Task <User?> GetUserByEmail(string email);
         Task<string> ResendVerificationCodeAsync(string email);
 
@@ -22,5 +22,7 @@ namespace TodoAppAPI.Interfaces
         Task<bool> AddUserUSerName(String userUId, string username);
 
         Task<string?> GetUserUserName(string userUId);
+
+        Task<bool> ToggleTwoFactorAsync(string userUId, bool enabled);
     }
 }

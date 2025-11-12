@@ -1,9 +1,12 @@
-﻿using TodoAppAPI.Models;
+﻿using System.Security.Claims;
+using TodoAppAPI.Models;
 
 namespace TodoAppAPI.Interfaces
 {
     public interface IJwtService
     {
-        string GenerateToken(User user);
+        string GenerateAccessToken(User user);
+        string GenerateRefreshToken();
+        ClaimsPrincipal? GetPrincipalFromExpiredToken(string token);
     }
 }

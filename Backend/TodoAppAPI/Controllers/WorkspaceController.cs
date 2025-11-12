@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TodoAppAPI.DTOs;
 using TodoAppAPI.Interfaces;
 
@@ -8,6 +9,7 @@ namespace TodoAppAPI.Controllers
 {
     [Route("v1/api/workspace")]
     [ApiController]
+    [Authorize]
     public class WorkspaceController : ControllerBase
     {
         private readonly IWorkspaceService _workspaceService;
