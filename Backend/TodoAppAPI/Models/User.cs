@@ -12,13 +12,18 @@ namespace TodoAppAPI.Models
         public string? VerificationTokenHash { get; set; }
         public DateTime? VerificationTokenExpiresAt { get; set; }
         public string? Provider { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public string Bio { get; set; } = string.Empty;
 
+        public string StatusAccount { get; set; } = string.Empty;
+        public bool IsTwoFactorEnabled { get; set; } = false;
         // FK - Role
         public int? RoleId { get; set; }
         public Role? Role { get; set; }
+
+        public UserSession? Session { get; set; } 
+        public UserOtp? UserOtp { get; set; }
 
         // Navigation Properties
         public ICollection<Board>? OwnedBoards { get; set; } // ← Changed from UserOwnerBoards

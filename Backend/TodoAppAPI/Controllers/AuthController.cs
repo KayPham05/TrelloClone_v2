@@ -1,13 +1,11 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using TodoAppAPI.Data;
 using TodoAppAPI.DTOs;
 using TodoAppAPI.Interfaces;
-
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace TodoAppAPI.Controllers
 {
@@ -16,12 +14,18 @@ namespace TodoAppAPI.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
-        public AuthController(IAuthService authService)
+        private readonly IUserService _userService;
+        private readonly ILogger<AuthController> _logger;
+
+        public AuthController(IAuthService authService, IUserService userService, ILogger<AuthController> logger)
         {
             _authService = authService;
+            _userService = userService;
+            _logger = logger;
         }
 
-        // POST api/<UserController>
+        //  AllowAnonymous cho register
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
@@ -29,31 +33,139 @@ namespace TodoAppAPI.Controllers
             return Ok(result);
         }
 
+        //  AllowAnonymous cho login
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             var result = await _authService.LoginAsync(request.Email, request.Password);
+
+            if (!string.IsNullOrEmpty(result.Token))
+                await SetRefreshCookie(result.UserUId);
+
             return Ok(result);
         }
 
+        //  AllowAnonymous cho Google login
+        [AllowAnonymous]
         [HttpPost("Google-login")]
         public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest request)
         {
             if (string.IsNullOrEmpty(request.AccessToken))
                 return BadRequest("Thiếu access_token từ google");
-            var httpClient = new HttpClient();
-            var googleRespone = await httpClient.GetAsync($"https://www.googleapis.com/oauth2/v2/userinfo?access_token={request.AccessToken}");
 
-            if (!googleRespone.IsSuccessStatusCode)
+            var httpClient = new HttpClient();
+            var googleResponse = await httpClient.GetAsync($"https://www.googleapis.com/oauth2/v2/userinfo?access_token={request.AccessToken}");
+
+            if (!googleResponse.IsSuccessStatusCode)
                 return BadRequest("Access token Google không hợp lệ.");
-            var json = await googleRespone.Content.ReadAsStringAsync();
+
+            var json = await googleResponse.Content.ReadAsStringAsync();
             var googleUser = JsonConvert.DeserializeObject<GoogleUserInfo>(json);
 
             if (googleUser == null || string.IsNullOrEmpty(googleUser.Email))
                 return BadRequest("Không thể lấy thông tin người dùng Google.");
 
             var user = await _authService.GoogleLoginAsync(googleUser.Email, googleUser.Name);
+
+            if (!string.IsNullOrEmpty(user.Token))
+                await SetRefreshCookie(user.UserUId);
+
             return Ok(user);
+        }
+
+        // AllowAnonymous cho refresh-token
+        [AllowAnonymous]
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken()
+        {
+            _logger.LogInformation(" Refresh token request received");
+
+            var refreshToken = Request.Cookies["refreshToken"];
+
+            _logger.LogInformation($"Cookies: {string.Join(", ", Request.Cookies.Keys)}");
+            _logger.LogInformation($"RefreshToken exists: {!string.IsNullOrEmpty(refreshToken)}");
+
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                _logger.LogWarning(" No refresh token in cookies");
+                return Unauthorized(new { message = "Không có refresh token." });
+            }
+
+            var accessToken = await _authService.RefreshAccessTokenAsync(refreshToken);
+
+            if (accessToken == null)
+            {
+                _logger.LogWarning(" Refresh token invalid or expired");
+                return Unauthorized(new { message = "Refresh token không hợp lệ hoặc đã hết hạn." });
+            }
+
+            _logger.LogInformation(" New access token generated successfully");
+            return Ok(new { accessToken });
+        }
+
+        // QUAN TRỌNG: AllowAnonymous cho logout
+        [AllowAnonymous]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout([FromQuery] string userUId)
+        {
+            _logger.LogInformation($" Logout attempt - UserUId: {userUId}");
+
+            var refreshToken = Request.Cookies["refreshToken"];
+            _logger.LogInformation($" RefreshToken exists: {!string.IsNullOrEmpty(refreshToken)}");
+
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                _logger.LogWarning(" No refresh token found, but continuing logout");
+                // Vẫn xóa localStorage ở frontend
+                return Ok(new { message = "Đã đăng xuất (không có refresh token)." });
+            }
+
+            try
+            {
+                await _userService.UpdateStatusAccount(userUId, "Logout");
+                await _authService.LogoutAsync(refreshToken);
+                Response.Cookies.Delete("refreshToken");
+
+                _logger.LogInformation("✅ Logout successful");
+                return Ok(new { message = "Đã đăng xuất thành công." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($" Logout error: {ex.Message}");
+                return Ok(new { message = "Đã đăng xuất (có lỗi khi xóa session)." });
+            }
+        }
+
+        // ✅ AllowAnonymous cho verify-otp
+        [AllowAnonymous]
+        [HttpPost("verify-otp")]
+        public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpRequest req)
+        {
+            var result = await _authService.VerifyOtpAsync(req.Email, req.Otp);
+
+            if (!string.IsNullOrEmpty(result.Token))
+                await SetRefreshCookie(result.UserUId);
+
+            return Ok(result);
+        }
+
+        private async Task SetRefreshCookie(string userUId)
+        {
+            var session = await _authService.GetUserSessionByUserId(userUId);
+            if (session != null)
+            {
+                Response.Cookies.Append("refreshToken", session.RefreshToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = false,                // false khi local HTTP
+                    SameSite = SameSiteMode.Lax,   // Lax cho môi trường local
+                    Path = "/",
+                    Expires = session.ExpiresAt
+                });
+
+                _logger.LogInformation($" Set refreshToken cookie for user: {userUId}");
+            }
         }
     }
 }

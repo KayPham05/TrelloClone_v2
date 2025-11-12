@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TodoAppAPI.Interfaces;
 using TodoAppAPI.Models;
 
@@ -6,6 +7,7 @@ namespace TodoAppAPI.Controllers
 {
     [Route("v1/api/boards")]
     [ApiController]
+    [Authorize]
     public class BoardController : ControllerBase
     {
         private readonly IBoardService _boardService;

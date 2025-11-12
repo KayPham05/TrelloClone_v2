@@ -8,5 +8,7 @@
         public string? UserName { get; set; }
         public string? Email { get; set; }
         public string? Bio { get; set; }
+        public bool Requires2FA { get; set; }
+        public bool RequiresVerification { get; set; }
     }
 }

@@ -20,6 +20,6 @@
         public ICollection<TodoItem>? TodoItems { get; set; }
         public ICollection<Comment>? Comments { get; set; }
         public ICollection<UserInboxCard>? UserInboxCards { get; set; } // ← Changed to nullable
-        public virtual ICollection<CardMember> CardMembers { get; set; }
+        public virtual ICollection<CardMember>? CardMembers { get; set; }
     }
 }

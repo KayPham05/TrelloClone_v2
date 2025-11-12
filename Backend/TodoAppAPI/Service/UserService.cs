@@ -75,7 +75,8 @@ namespace TodoAppAPI.Service
 
             //  Cập nhật mã hash và thời gian hết hạn
             user.VerificationTokenHash = BCrypt.Net.BCrypt.HashPassword(code);
-            user.VerificationTokenExpiresAt = DateTime.UtcNow.AddMinutes(10);
+            user.VerificationTokenExpiresAt = DateTime.UtcNow.AddMinutes(5);
+
 
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
@@ -150,6 +151,25 @@ namespace TodoAppAPI.Service
             {
                 Console.WriteLine(ex.Message);
                 return null;
+            }
+        }
+
+        public async Task<bool> ToggleTwoFactorAsync(string userUId, bool enabled)
+        {
+            var user = await _context.Users.FindAsync(userUId);
+            if (user == null) return false;
+            user.IsTwoFactorEnabled = enabled;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task UpdateStatusAccount(string userUId, string status)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserUId == userUId);
+            if (user != null)
+            {
+                user.StatusAccount = "Logout";
+                await _context.SaveChangesAsync();
             }
         }
     }

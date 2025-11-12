@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TodoAppAPI.DTOs;
 using TodoAppAPI.Interfaces;
 using TodoAppAPI.Models;
@@ -9,6 +10,7 @@ namespace TodoAppAPI.Controllers
 {
     [Route("v1/api/cards")]
     [ApiController]
+    [Authorize]
     public class TodosController : ControllerBase
     {
         private readonly ICardsService _cardService;

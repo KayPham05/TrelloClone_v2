@@ -20,6 +20,8 @@ import {
 } from "../services/RecentBoardAPI";
 import CreateBoardModal from "./CreateBoardModal";
 import { getBoardMembersAPI } from "../services/BoardMemberAPI";
+import { logoutAPI } from "../services/LoginAPI";
+import { Ping } from "../services/PingPoinAPI";
 import "../components/css/home.css";
 
 export default function Home() {
@@ -152,18 +154,50 @@ export default function Home() {
     }
     setUser(storedUser);
 
+    // Cải thiện: Không logout nếu chỉ là lỗi network/timeout thông thường
     (async () => {
-      const workspacesData = await fetchWorkspaces(storedUser);
-      await fetchBoards(storedUser, workspacesData);
-      setLoading(false);
+      try {
+        await Ping(); // Trigger refresh token nếu accessToken hết hạn
+        const workspacesData = await fetchWorkspaces(storedUser);
+        await fetchBoards(storedUser, workspacesData);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error during initial load:", err);
+        console.log("Error details:", {
+          status: err.response?.status,
+          message: err.message,
+          code: err.code,
+        });
+        // CHỈ LOGOUT KHI LÀ LỖI AUTHENTICATION (401/403)
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          console.error("Authentication failed, logging out...");
+          handleLogout();
+        } else {
+          // Các lỗi khác (network, timeout, 500...) vẫn cho phép dùng app
+          console.warn("Non-auth error, keeping session active");
+          setLoading(false);
+        }
+      }
     })();
   }, [fetchBoards, fetchWorkspaces]);
 
+  const handleLogout = async () => {
+    try {
+      await logoutAPI(user.userUId); // gọi API xóa refreshToken cookie
+    } catch (err) {
+      console.error("Logout failed:", err);
+    } finally {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "/";
+    }
+  };
+
   useEffect(() => {
-  if (boardsWorkspace.length > 0) {
-    fetchBoardMembers(boardsWorkspace);
-  }
-}, [boardsWorkspace, fetchBoardMembers]);
+    if (boardsWorkspace.length > 0) {
+      fetchBoardMembers(boardsWorkspace);
+    }
+  }, [boardsWorkspace, fetchBoardMembers]);
   const handleCreateWorkspace = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -250,7 +284,7 @@ export default function Home() {
                 setSelectedWorkspaceSetting(ws);
                 setShowSettingModal(true);
               }}
-              boardMembers={boardMembers} 
+              boardMembers={boardMembers}
             />
           </div>
         </main>

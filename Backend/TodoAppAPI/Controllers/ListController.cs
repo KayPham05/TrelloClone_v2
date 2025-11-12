@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TodoAppAPI.Interfaces;
 using TodoAppAPI.Models;
 using TodoAppAPI.Service;
@@ -9,6 +10,7 @@ namespace TodoAppAPI.Controllers
 {
     [Route("v1/api/lists")]
     [ApiController]
+    [Authorize]
     public class ListController : ControllerBase
     {
         private readonly IListService _listService;

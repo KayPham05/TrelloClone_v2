@@ -50,4 +50,8 @@ const normalizeUser = (raw) => ({
   bio: raw?.bio ?? ""
 });
 
+export const getVerificationStatusAPI = (email) => {
+  return axiosClient.get("users/get-verification-status", { params: { email } });
+};
+
 export { normalizeUser };

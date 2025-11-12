@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { jwtDecode } from "jwt-decode";
 import { loginAPI, LoginGoogleAPI } from "../services/LoginAPI";
 import { useGoogleLogin, googleLogout } from "@react-oauth/google";
 import "../components/css/login_v2.css";
@@ -18,6 +16,8 @@ export default function Login() {
   // Form state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const [loading, setLoading] = useState(false); // thêm state loading ở đầu
 
   // ---- Effects: sticky header, typewriter, tabs, slider ----
   useEffect(() => {
@@ -141,34 +141,39 @@ export default function Login() {
     };
   }, []);
 
-  // ---- Handle Login ----
   const handleLogin = async (e) => {
     e.preventDefault();
+
     if (!email || !password) {
-      toast.error(" Vui lòng nhập đầy đủ email và mật khẩu!");
+      toast.error("Vui lòng nhập đầy đủ email và mật khẩu!");
       return;
     }
+
     try {
+      setLoading(true);
+
       const res = await loginAPI({ email, password });
-      if (res?.token) {
-        localStorage.setItem("token", res.token);
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            userUId: res.userUId,
-            userName: res.userName,
-            email: res.email,
-            bio: res.bio
-          })
-        );
+      const data = res.data || res;
+
+      if (data.requiresVerification) {
+        toast.info("Tài khoản chưa xác thực, vui lòng xác thực email!");
+        navigate("/VerifyCode", { state: { email } });
+        return;
+      }
+
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data));
         toast.success("Đăng nhập thành công!");
         navigate("/home");
       } else {
-        toast.error(res?.message || "Đăng nhập thất bại!");
+        toast.error(data.message || "Đăng nhập thất bại!");
       }
     } catch (err) {
-      console.log("Loix", err);
+      console.log(err);
       toast.error("Sai tài khoản hoặc mật khẩu!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -182,18 +187,17 @@ export default function Login() {
 
         const { token, userUId, userName, email } = backendRes;
 
+        localStorage.setItem("token", token);
         localStorage.setItem(
           "user",
           JSON.stringify({ userUId, userName, email, isGoogleUser: true })
         );
-        localStorage.setItem("token", token);
 
         toast.success(`Xin chào ${userName}!`);
         navigate("/home");
       } catch (err) {
-        console.error(" Full error:", err);
-        console.error(" Error response:", err.response);
-        toast.error("Không thể lấy thông tin từ Google!");
+        console.error("Google login failed:", err);
+        toast.error("Không thể đăng nhập bằng Google!");
       }
     },
     onError: () => toast.error("Đăng nhập Google thất bại!"),
@@ -300,12 +304,24 @@ export default function Login() {
                       className="w-full px-4 py-3 rounded-lg border border-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all password-tb"
                     />
 
-                    <button
-                      type="submit"
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all logins-btn"
-                    >
-                      Sign In
-                    </button>
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className={`w-full px-6 py-3 rounded-lg shadow-md font-medium transition-all logins-btn
+                          ${loading
+                            ? "bg-gray-300 cursor-not-allowed"
+                            : "bg-blue-600 hover:bg-blue-700 text-white hover:shadow-lg"
+                          }`}
+                      >
+                        {loading ? (
+                          <span className="flex items-center justify-center gap-2">
+                            <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                            Đang đăng nhập...
+                          </span>
+                        ) : (
+                          "Sign In"
+                        )}
+                      </button>
 
                     <div className="relative my-6">
                       <div className="absolute inset-0 flex items-center">

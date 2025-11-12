@@ -37,7 +37,7 @@ namespace TodoAppAPI.Configurations
                    .IsRequired(false);
 
             builder.Property(x => x.Provider)
-                   .IsRequired();
+                   .IsRequired(false);
 
             builder.Property(x => x.CreatedAt)
                    .HasDefaultValueSql("GETDATE()");
@@ -45,10 +45,24 @@ namespace TodoAppAPI.Configurations
             builder.Property(x => x.Bio)
                     .HasMaxLength(250);
 
+            builder.Property(x => x.StatusAccount)
+                    .HasMaxLength(100)
+                    .IsRequired(true);
+
             builder.HasOne(x => x.Role)
                    .WithMany(r => r.Users)
                    .HasForeignKey(x => x.RoleId)
                    .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(u => u.Session)
+                   .WithOne(s => s.User)
+                   .HasForeignKey<UserSession>(s => s.UserUId)
+                   .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(u => u.UserOtp)
+                   .WithOne(o => o.User)
+                   .HasForeignKey<UserOtp>(o => o.UserUId)
+                   .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasIndex(x => x.Email).IsUnique();
         }

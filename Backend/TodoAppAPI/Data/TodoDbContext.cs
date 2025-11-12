@@ -35,6 +35,8 @@ namespace TodoAppAPI.Data
             modelBuilder.ApplyConfiguration(new WorkspaceMemberConfiguration());
             modelBuilder.ApplyConfiguration(new UserRecentBoardConfiguaration());
             modelBuilder.ApplyConfiguration(new CardMemberConfiguration());
+            modelBuilder.ApplyConfiguration(new UserSessionConfiguration());
+            modelBuilder.ApplyConfiguration(new UserOtpConfiguration());
             DatabaseSeeder.SeedData(modelBuilder);
         }
 
@@ -52,6 +54,8 @@ namespace TodoAppAPI.Data
         public DbSet<WorkspaceMember> WorkspaceMembers { get; set; }
         public DbSet<UserRecentBoard> UserRecentBoards { get; set; }
         public DbSet<CardMember> CardMembers { get; set; }
+        public DbSet<UserSession> UserSessions { get; set; }
+        public DbSet<UserOtp> UserOtps { get; set; }
 
 
     }

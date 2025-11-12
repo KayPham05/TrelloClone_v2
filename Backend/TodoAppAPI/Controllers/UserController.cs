@@ -2,9 +2,6 @@
 using TodoAppAPI.DTOs;
 using TodoAppAPI.Interfaces;
 
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace TodoAppAPI.Controllers
 {
     [Route("v1/api/users")]
@@ -110,7 +107,7 @@ namespace TodoAppAPI.Controllers
             user.IsEmailVerified = true;
             user.VerificationTokenHash = null;
             user.VerificationTokenExpiresAt = null;
-
+            user.StatusAccount = "Isverified";
             await _userService.UpdateAsync(user);
 
             return Ok(" Xác thực thành công! Bạn có thể đăng nhập ngay bây giờ.");
@@ -133,6 +130,26 @@ namespace TodoAppAPI.Controllers
             {
                 return NotFound(ex.Message);
             }
+        }
+
+        [HttpGet("get-verification-status")]
+        public async Task<IActionResult> GetVerificationStatus([FromQuery] string email)
+        {
+            var user = await _userService.GetUserByEmail(email);
+            if (user == null) return NotFound("Không tìm thấy tài khoản.");
+
+            if (user.IsEmailVerified)
+                return Ok(new { verified = true });
+
+            if (user.VerificationTokenExpiresAt == null)
+                return Ok(new { verified = false, remainingSeconds = 0 });
+
+            var remaining = (int)(user.VerificationTokenExpiresAt.Value - DateTime.UtcNow).TotalSeconds;
+            return Ok(new
+            {
+                verified = false,
+                remainingSeconds = Math.Max(0, remaining)
+            });
         }
 
     }
