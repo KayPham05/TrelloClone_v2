@@ -27,7 +27,7 @@ namespace TodoAppAPI.Controllers
             var success = await _todoItemService.AddTodoItem(request.CardUId, request.Content);
             if (success)
                 return Ok(new { message = "Thêm todo item thành công" });
-
+            
             return StatusCode(500, "Lỗi khi thêm todo item.");
         }
 

@@ -11,10 +11,11 @@ namespace TodoAppAPI.Controllers
     public class CardMemberController : ControllerBase
     {
         private readonly ICardMemberService _cardMemberService;
-
-        public CardMemberController(ICardMemberService cardMemberService)
+        private readonly IActivity _activity;
+        public CardMemberController(ICardMemberService cardMemberService, IActivity activity)
         {
             _cardMemberService = cardMemberService;
+            _activity = activity;
         }
 
         [HttpGet("{cardUId}")]
@@ -42,7 +43,7 @@ namespace TodoAppAPI.Controllers
 
             if (!result)
                 return Forbid("Không thể thêm thành viên (không có quyền hoặc dữ liệu không hợp lệ).");
-
+            _ = _activity.AddActivity(requesterUId, $"added user '{userUId}' to card '{cardUId}'");
             return Ok(new { message = "Thêm thành viên vào card thành công." });
         }
 
@@ -57,7 +58,7 @@ namespace TodoAppAPI.Controllers
 
             if (!result)
                 return Forbid("Không thể xóa thành viên (không có quyền hoặc không tồn tại).");
-
+            _ = _activity.AddActivity(requesterUId, $"removed user '{userUId}' from card '{cardUId}'");
             return Ok(new { message = "Xóa thành viên khỏi card thành công." });
         }
     }
