@@ -5,6 +5,7 @@ const END_POINT = {
 };
 
 export const registerAPI = (user) => {
+  console.log(`${END_POINT.AUTH}/register`);
   return axiosClient.post(`${END_POINT.AUTH}/register`, user);
 };
 
