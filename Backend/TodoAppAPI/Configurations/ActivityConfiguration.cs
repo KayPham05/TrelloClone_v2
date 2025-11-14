@@ -10,29 +10,26 @@ namespace TodoAppAPI.Configurations
         {
             builder.ToTable("Activities");
 
-            builder.HasKey(x => x.ActivUId);
-            builder.Property(x => x.ActivUId)
+            builder.HasKey(x => x.ActivityUId);
+            builder.Property(x => x.ActivityUId)
                    .IsRequired()
                    .HasMaxLength(128);
 
             builder.Property(x => x.Action)
                    .IsRequired()
+                   .IsRequired(false)
                    .HasMaxLength(200);
 
             builder.Property(x => x.CreatedAt)
-                   .HasDefaultValueSql("GETDATE()");
+                    .HasDefaultValueSql("GETUTCDATE()");
 
-            // Card → Activity: CASCADE
-            builder.HasOne(x => x.Card)
-                   .WithMany(c => c.Activities)
-                   .HasForeignKey(x => x.CardUId)
-                   .OnDelete(DeleteBehavior.Cascade); // ← CASCADE: Xóa card → xóa activities
 
             // User → Activity: NoAction
             builder.HasOne(x => x.User)
                    .WithMany(u => u.Activities)
                    .HasForeignKey(x => x.UserUId)
-                   .OnDelete(DeleteBehavior.NoAction); // ← NoAction: Tránh conflict
+                   .IsRequired(false)
+                   .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }
