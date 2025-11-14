@@ -17,6 +17,7 @@ export default function Card({
   boardMembers,
   board,
   provided,
+  list,
   snapshot,
   onRefresh,
 }) {
@@ -36,6 +37,20 @@ export default function Card({
   const [cardMembers, setCardMembers] = useState([]);
   const [isLoadingMembers, setIsLoadingMembers] = useState(false);
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        !e.target.closest(".card-menu-floating") &&
+        !e.target.closest(".card-member-popup")
+      ) {
+        setMenuState({ open: false, position: { top: 0, left: 0 } });
+        setMemberPopup({ open: false, position: { top: 0, left: 0 } });
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
   // Load card members khi card thay đổi hoặc sau khi refresh
   useEffect(() => {
     const fetchCardMembers = async () => {
@@ -109,6 +124,9 @@ export default function Card({
 
   const handleCloseMenu = () => {
     setMenuState({ open: false, position: { top: 0, left: 0 } });
+
+    // ✔ Tắt luôn popup thành viên nếu đang mở
+    setMemberPopup({ open: false, position: { top: 0, left: 0 } });
   };
 
   // Mở modal chi tiết
@@ -152,102 +170,85 @@ export default function Card({
       : "#86EFAC"; // xanh
 
   return (
-    <>
-  <div
-    ref={provided.innerRef}
-    {...provided.draggableProps}
-    {...provided.dragHandleProps}
-    className={`
-      card-item 
-      rounded-lg border-2 p-3 mb-2 cursor-pointer select-none
-      transition-all duration-300
+  <>
+    <div
+      ref={provided.innerRef}
+      {...provided.draggableProps}
+      {...provided.dragHandleProps}
+      className={`
+        card-item transition-all duration-300 rounded-lg
+        border border-gray-200 bg-white
+        dark:bg-[#1E1F22] dark:border-[#2C2D30]
+        px-3 py-2 shadow-sm
+        hover:shadow-md cursor-pointer
+        ${snapshot.isDragging ? "rotate-2 scale-[1.02] shadow-lg" : ""}
+        ${isCompleted ? "opacity-80" : ""}
+      `}
+    >
+      {/* ROW */}
+      <div className="flex items-start gap-2">
+        {/* COMPLETE BUTTON */}
+        <button
+          className="mt-0.5"
+          onClick={handleToggleComplete}
+        >
+          {isCompleted ? (
+            <i className="bi bi-check-circle-fill text-green-500 text-lg"></i>
+          ) : (
+            <i className="bi bi-circle text-gray-400 text-lg"></i>
+          )}
+        </button>
 
-      bg-white border-gray-300
-      hover:bg-gray-100
+        {/* TITLE */}
+        <div
+          className={`
+            flex-1 text-sm leading-snug
+            ${isCompleted ? "line-through text-gray-500 dark:text-gray-400" : "text-gray-800 dark:text-gray-200"}
+          `}
+          onClick={handleOpenCard}
+        >
+          {card.title}
+        </div>
 
-      dark:bg-[#2B2D31] dark:border-white/60
-      dark:hover:bg-[#3A3C42]
+        {/* EDIT BUTTON */}
+        <button
+          onClick={handleOpenMenu}
+          className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+        >
+          <i className="bi bi-pencil-square"></i>
+        </button>
 
-      ${snapshot.isDragging ? "rotate-2 shadow-xl scale-[1.02]" : ""}
-      ${isCompleted ? "opacity-80" : ""}
-    `}
-  >
-    {/* ROW TOP */}
-    <div className="flex items-start gap-2">
-
-      {/* COMPLETE BUTTON */}
-      <button
-        className="
-          mt-0.5 text-gray-500 hover:text-green-400
-          dark:text-[#B5BAC1] dark:hover:text-green-400
-          transition
-        "
-        onClick={handleToggleComplete}
-      >
-        {isCompleted ? (
-          <i className="bi bi-check-circle-fill text-green-500"></i>
-        ) : (
-          <i className="bi bi-circle"></i>
-        )}
-      </button>
-
-      {/* TITLE */}
-      <div
-        className={`
-          flex-1 text-sm font-medium 
-          text-gray-800 dark:text-[#F2F3F5]
-          ${isCompleted ? "line-through text-gray-500 dark:text-[#8E9297]" : ""}
-        `}
-        onClick={handleOpenCard}
-      >
-        {card.title}
+        {/* MENU */}
+        {menuState.open &&
+          createPortal(
+            <>
+              <div
+                className="menu-overlay fixed inset-0"
+                onClick={handleCloseMenu}
+              ></div>
+              <CardMenu
+                position={menuState.position}
+                onOpenCard={() => {
+                  handleOpenCard();
+                  handleCloseMenu();
+                }}
+                onEdit={() => {
+                  handleOpenCard();
+                  handleCloseMenu();
+                }}
+                onDelete={handleDelete}
+                onManageMembers={handleManageMembers}
+                onClose={handleCloseMenu}
+                listUId={card.listUId}
+              />
+            </>,
+            document.body
+          )}
       </div>
 
-      {/* EDIT BTN */}
-      <button
-        onClick={handleOpenMenu}
-        className="
-          text-gray-600 hover:text-blue-500
-          dark:text-[#B5BAC1] dark:hover:text-blue-400
-          transition
-        "
-      >
-        <i className="bi bi-pencil-square"></i>
-      </button>
-
-      {/* MENU */}
-      {menuState.open &&
-        createPortal(
-          <>
-            <div className="menu-overlay" onClick={handleCloseMenu}></div>
-            <CardMenu
-              position={menuState.position}
-              onOpenCard={() => {
-                handleOpenCard();
-                handleCloseMenu();
-              }}
-              onEdit={() => {
-                handleOpenCard();
-                handleCloseMenu();
-              }}
-              onDelete={handleDelete}
-              onManageMembers={handleManageMembers}
-              onClose={handleCloseMenu}
-              listUId={card.listUId}
-            />
-          </>,
-          document.body
-        )}
-    </div>
-
-    {/* MEMBERS */}
-    {isLoadingMembers ? (
-      <div className="flex items-center gap-1 mt-2 px-1">
-        <div className="w-6 h-6 bg-gray-300 dark:bg-[#3F4147] animate-pulse rounded-full"></div>
-      </div>
-    ) : (
-      cardMembers.length > 0 && (
-        <div className="flex items-center gap-1 mt-2 px-1">
+      {/* MEMBERS */}
+      {!isLoadingMembers && cardMembers.length > 0 && (
+        <div className="flex items-center gap-1 mt-2">
           {cardMembers.slice(0, 3).map((member, index) => {
             const colors = [
               "bg-blue-700",
@@ -265,7 +266,7 @@ export default function Card({
             return (
               <div
                 key={member.userUId}
-                className={`w-6 h-6 ${color} text-white text-xs flex items-center justify-center rounded-full font-semibold flex-shrink-0`}
+                className={`w-6 h-6 ${color} text-white text-xs flex items-center justify-center rounded-full font-semibold`}
                 title={member.user?.userName}
               >
                 {member.user?.userName
@@ -279,75 +280,68 @@ export default function Card({
           })}
 
           {cardMembers.length > 3 && (
-            <div className="
-              w-6 h-6 bg-gray-400 dark:bg-[#4A4D54]
-              text-white text-xs flex items-center justify-center rounded-full flex-shrink-0
-            ">
+            <div className="w-6 h-6 bg-gray-400 dark:bg-gray-600 text-white text-xs flex items-center justify-center rounded-full">
               +{cardMembers.length - 3}
             </div>
           )}
         </div>
-      )
-    )}
+      )}
 
-    {/* DUE DATE */}
-    {card.dueDate && (
-      <div
-        className={`
-          due-date flex items-center gap-1 mt-2
-          text-xs font-semibold px-2 py-0.5 rounded-full w-fit
-          transition-all duration-300
+      {/* DUE DATE */}
+      {card.dueDate && (
+        <div
+          className={`
+            flex items-center gap-1 mt-2 text-xs font-medium w-fit px-2 py-0.5 rounded-full
+            ${isCompleted ? "bg-green-500 text-white" : ""}
+          `}
+          style={
+            !isCompleted
+              ? {
+                  backgroundColor: dueColor,
+                  color: "#1E293B",
+                }
+              : {}
+          }
+        >
+          <i className="bi bi-clock me-1"></i>
+          {new Date(card.dueDate).toLocaleDateString("vi-VN", {
+            day: "numeric",
+            month: "short",
+          })}
+        </div>
+      )}
+    </div>
 
-          ${isCompleted ? "bg-green-500 text-white" : ""}
-        `}
-        style={
-          !isCompleted
-            ? {
-                backgroundColor: dueColor,
-                color: "#1E293B",
-              }
-            : {}
-        }
-      >
-        <i className="bi bi-clock"></i>
-        {new Date(card.dueDate).toLocaleDateString("vi-VN", {
-          day: "numeric",
-          month: "short",
-        })}
-      </div>
-    )}
-  </div>
+    {/* MODAL */}
+    {showModal &&
+      createPortal(
+        <CardModal
+          card={card}
+          cardMembers={cardMembers}
+          onClose={handleCloseModal}
+          onSave={handleSaveModal}
+        />,
+        document.body
+      )}
 
-  {/* CARD MODAL */}
-  {showModal &&
-    createPortal(
-      <CardModal
-        card={card}
-        cardMembers={cardMembers}
-        onClose={handleCloseModal}
-        onSave={handleSaveModal}
-      />,
-      document.body
-    )}
+    {/* MEMBERS POPUP */}
+    {memberPopup.open &&
+      createPortal(
+        <CardMemberPopup
+          card={card}
+          requester={JSON.parse(localStorage.getItem("user"))}
+          onClose={() =>
+            setMemberPopup({ open: false, position: { top: 0, left: 0 } })
+          }
+          position={memberPopup.position}
+          boardMembers={boardMembers}
+          board={board}
+          list={list}
+          onChangeCard={handleCardMembersChange}
+        />,
+        document.body
+      )}
+  </>
+);
 
-  {/* MEMBER POPUP */}
-  {memberPopup.open &&
-    createPortal(
-      <CardMemberPopup
-        card={card}
-        requester={JSON.parse(localStorage.getItem("user"))}
-        onClose={() =>
-          setMemberPopup({ open: false, position: { top: 0, left: 0 } })
-        }
-        onChange={onRefresh}
-        position={memberPopup.position}
-        boardMembers={boardMembers}
-        board={board}
-        onChangeCard={handleCardMembersChange}
-      />,
-      document.body
-    )}
-</>
-
-  );
 }

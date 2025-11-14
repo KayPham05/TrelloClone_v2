@@ -5,7 +5,7 @@ import {
   removeCardMemberAPI,
   addCardMemberAPI,
 } from "../services/CardMemberAPI";
-import { addNotificationAPI } from "../services/NotificationAPi";
+import { addNotificationAPI } from "../services/NotificationAPI";
 
 import { toast } from "react-toastify";
 
@@ -13,7 +13,7 @@ export default function CardMemberPopup({
   card,
   requester,
   onClose,
-  onChange,
+  // onChange,
   position, // vị trí popup (truyền từ Card.jsx)
   boardMembers,
   board,
@@ -48,6 +48,7 @@ export default function CardMemberPopup({
 
   // Thêm thành viên vào card
   const handleAddMember = async (userUId) => {
+    console.log("addCard")
     try {
       await addCardMemberAPI(
         userUId,
@@ -59,7 +60,7 @@ export default function CardMemberPopup({
       const res = await getCardMembersAPI(card.cardUId);
       setCardMembers(Array.isArray(res) ? res : []);
       onChangeCard && onChangeCard(Array.isArray(res) ? res : []);
-      onChange && onChange();
+      // onChange && onChange();
 
       // Tạo notification cho thành viên được thêm vào card
       const notificationPayload = {
@@ -69,7 +70,7 @@ export default function CardMemberPopup({
         title: "Card Assignment",
         message: `${requester.userName} assigned you to card '${card.title}' in board '${board.boardName}'.`,
         link: `/boards/${board.boardUId}`,
-        workspaceId: board.workspaceUId || null, 
+        workspaceId: board.workspaceUId || null,
         boardId: board.boardUId,
         listId: list?.listUId || null,
         cardId: card.cardUId,
@@ -77,7 +78,6 @@ export default function CardMemberPopup({
 
       console.log("Sending card assignment notification:", notificationPayload);
       await addNotificationAPI(notificationPayload);
-
     } catch (err) {
       toast.error("Can't add member :(");
       console.error(err);
@@ -97,7 +97,7 @@ export default function CardMemberPopup({
       const res = await getCardMembersAPI(card.cardUId);
       setCardMembers(Array.isArray(res) ? res : []);
       onChangeCard && onChangeCard(Array.isArray(res) ? res : []);
-      onChange && onChange();
+      // onChange && onChange();
     } catch (err) {
       toast.error("Can't remove member");
       console.error(err);
@@ -115,80 +115,94 @@ export default function CardMemberPopup({
 
   console.log("cardMembers", cardMembers);
 
+
   return (
   <div
     className="
-      absolute z-[9999] 
-      bg-white dark:bg-[#1E1F22] 
-      rounded-lg shadow-xl 
-      border border-gray-200 dark:border-[#3F4147] 
-      w-72
+      absolute z-[9999] w-72 rounded-lg border shadow-xl 
+      bg-white border-gray-200 
+      dark:bg-[#1E1F22] dark:border-[#2C2D30] 
+      card-member-popup
     "
-    style={{
-      top: position?.top || 0,
-      left: position?.left || 0,
-    }}
+    style={{ top: position?.top, left: position?.left }}
+    onClick={(e) => e.stopPropagation()}
   >
-    {/* Header */}
-    <div className="
-      flex justify-between items-center 
-      border-b border-gray-100 dark:border-[#3F4147] 
-      px-3 py-2
-    ">
+    {/* HEADER */}
+    <div
+      className="
+        flex justify-between items-center px-3 py-2 
+        border-b border-gray-100 
+        dark:border-[#2C2D30]
+      "
+    >
       <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
         Thay đổi thành viên
       </h2>
       <button
         onClick={onClose}
         className="
-          p-1 rounded-md transition
-          hover:bg-gray-100 dark:hover:bg-white/10
-          text-gray-600 dark:text-gray-300
+          p-1 rounded-md 
+          hover:bg-gray-100 dark:hover:bg-[#2A2B2E] 
+          transition
         "
       >
-        <X size={16} />
+        <X size={16} className="text-gray-700 dark:text-gray-300" />
       </button>
     </div>
 
-    {/* Search */}
-    <div className="p-3 border-b border-gray-100 dark:border-[#3F4147]">
+    {/* SEARCH */}
+    <div
+      className="
+        p-3 border-b border-gray-100 
+        dark:border-[#2C2D30]
+      "
+    >
       <input
         type="text"
         placeholder="Member searching"
         className="
-          w-full px-2 py-1 text-sm rounded-md 
-          border border-gray-300 dark:border-[#4A4D52]
-          bg-white dark:bg-[#2B2D31]
-          text-gray-800 dark:text-gray-200
-          placeholder:text-gray-400 dark:placeholder:text-gray-500
+          w-full px-2 py-1 text-sm rounded-md
+          border border-gray-300 
+          bg-white text-gray-800
           focus:ring-1 focus:ring-blue-500 outline-none
+
+          dark:bg-[#2A2B2E] dark:border-[#3A3B3D]
+          dark:text-gray-200 dark:placeholder:text-gray-400
         "
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
     </div>
 
-    {/* Card Members */}
-    <div className="p-3 border-b border-gray-100 dark:border-[#3F4147]">
+    {/* CARD MEMBERS */}
+    <div
+      className="
+        p-3 border-b border-gray-100 
+        dark:border-[#2C2D30]
+      "
+    >
       <h3 className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">
         Card's members
       </h3>
 
-      <div className="space-y-1 max-h-36 overflow-y-auto">
+      <div className="space-y-1 max-h-36 overflow-y-auto custom-scroll">
         {cardMembers.length > 0 ? (
           cardMembers.map((m) => (
             <div
               key={m.userUId}
               className="
-                flex items-center justify-between p-1.5 rounded-md 
-                hover:bg-gray-50 dark:hover:bg-white/5
+                flex items-center justify-between p-1.5 rounded-md
+                hover:bg-gray-50 dark:hover:bg-[#2A2B2E]
+                transition
               "
             >
               <div className="flex items-center gap-2">
-                <div className="
-                  w-7 h-7 rounded-full bg-blue-600 text-white 
-                  text-xs flex items-center justify-center font-semibold
-                ">
+                <div
+                  className="
+                    w-7 h-7 rounded-full bg-blue-600 text-white 
+                    flex items-center justify-center text-xs font-semibold
+                  "
+                >
                   {m.user?.userName
                     ?.split(" ")
                     .map((n) => n[0])
@@ -204,8 +218,8 @@ export default function CardMemberPopup({
               <button
                 onClick={() => handleRemoveMember(m.userUId)}
                 className="
-                  text-red-500 dark:text-red-400 
-                  hover:text-red-700 dark:hover:text-red-300 
+                  text-red-500 hover:text-red-700 
+                  dark:text-red-400 dark:hover:text-red-300 
                   text-xs font-medium
                 "
               >
@@ -221,30 +235,36 @@ export default function CardMemberPopup({
       </div>
     </div>
 
-    {/* Board Members */}
+    {/* BOARD MEMBERS */}
     <div className="p-3">
       <h3 className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">
         Board's members
       </h3>
 
-      <div className="space-y-1 max-h-40 overflow-y-auto">
+      <div className="space-y-1 max-h-40 overflow-y-auto custom-scroll">
         {filteredBoardMembers.length > 0 ? (
           filteredBoardMembers.map((m) => (
             <div
               key={m.userUId}
               className="
                 flex items-center justify-between p-1.5 rounded-md cursor-pointer
-                hover:bg-blue-50 dark:hover:bg-white/5
+                hover:bg-blue-50 dark:hover:bg-[#1F3A5F]
+                transition
               "
-              onClick={() => handleAddMember(m.userUId)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAddMember(m.userUId);
+              }}
             >
               <div className="flex items-center gap-2">
-                <div className="
-                  w-7 h-7 rounded-full 
-                  bg-gray-300 dark:bg-[#3F4147]
-                  text-gray-700 dark:text-gray-200 
-                  text-xs flex items-center justify-center font-semibold
-                ">
+                <div
+                  className="
+                    w-7 h-7 rounded-full 
+                    bg-gray-300 text-gray-700
+                    dark:bg-[#3A3B3D] dark:text-gray-200
+                    flex items-center justify-center text-xs font-semibold
+                  "
+                >
                   {(m.userName || m.user?.userName)
                     ?.split(" ")
                     .map((n) => n[0])
@@ -252,7 +272,6 @@ export default function CardMemberPopup({
                     .toUpperCase()
                     .slice(0, 2)}
                 </div>
-
                 <span className="text-gray-800 dark:text-gray-200 text-sm">
                   {m.userName || m.user?.userName}
                 </span>
@@ -272,5 +291,5 @@ export default function CardMemberPopup({
     </div>
   </div>
 );
-  
+
 }
