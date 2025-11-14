@@ -27,7 +27,7 @@
         public string? CardId { get; set; }
 
         // Trạng thái
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
         public bool Read { get; set; } = false;
         public DateTime? ReadAt { get; set; }
     }

@@ -132,7 +132,7 @@ export default function Notification() {
         <button
             onClick={() => setOpen((v) => !v)}
             className="relative p-2.5 hover:bg-gray-200 rounded-xl transition-all duration-200
-                       dark:bg-[#2B2D31] dark:hover:bg-[#3A3C42]"
+                       dark:bg-[#1E1F22] dark:hover:bg-[#3A3C42]"
             aria-label="Notifications"
         >
             <Bell className="text-gray-700 dark:text-[#F2F3F5]" size={22} strokeWidth={2.5} />

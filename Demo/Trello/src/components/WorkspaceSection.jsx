@@ -6,6 +6,7 @@ import {
   ChevronDown,
   ChevronRight,
   UserPlus,
+  Briefcase
 } from "lucide-react";
 import EditBoardModal from "./EditBoardModal";
 
@@ -87,9 +88,12 @@ export default function WorkspaceSection({
   return (
     <section>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-gray-800 dark:!text-gray-300">
-           Your workspaces
-        </h2>
+        <div className="flex items-center gap-2">
+          <Briefcase size={22} className="text-gray-700 dark:text-gray-300" /> {/* Icon mới */}
+          <h2 className="text-xl font-bold text-gray-800 dark:text-[#E8EAED]">
+            Your workspaces
+          </h2>
+        </div>
         <button
           onClick={onCreateWorkspace}
           className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transition"

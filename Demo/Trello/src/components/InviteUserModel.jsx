@@ -82,36 +82,44 @@ export default function InviteUserModal({ workspace, onClose, currentUser, onSuc
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 
+      dark:bg-black/70"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
+      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full 
+        dark:bg-[#1E1F22] dark:border dark:border-[#2A2D31]">
+        
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
+        <div className="flex items-center justify-between p-6 border-b 
+          dark:border-[#2A2D31] dark:bg-[#1E1F22]">
           <div>
-            <h2 className="text-xl font-semibold text-gray-800">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-[#E8EAED]">
               Invite Member
             </h2>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-gray-500 mt-1 dark:text-gray-400">
               {workspace.name}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition"
+            className="p-2 hover:bg-gray-100 rounded-lg transition
+              dark:hover:bg-[#2A2D31]"
           >
-            <X size={20} className="text-gray-500" />
+            <X size={20} className="text-gray-500 dark:text-gray-300" />
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-4 dark:bg-[#1E1F22]">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
               Member's email <span className="text-red-500">*</span>
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+              <Mail 
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-300" 
+                size={18} 
+              />
               <input
                 type="email"
                 value={email}
@@ -120,7 +128,10 @@ export default function InviteUserModal({ workspace, onClose, currentUser, onSuc
                   setError('');
                 }}
                 placeholder="user@example.com"
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg 
+                focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition
+                dark:bg-[#2A2D31] dark:text-[#E8EAED] dark:border-[#3A3D41] 
+                dark:placeholder:text-gray-400"
                 disabled={loading}
                 autoFocus
               />
@@ -128,25 +139,28 @@ export default function InviteUserModal({ workspace, onClose, currentUser, onSuc
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">
               Role
             </label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg 
+              focus:ring-2 focus:ring-blue-500 outline-none transition
+              dark:bg-[#2A2D31] dark:text-[#E8EAED] dark:border-[#3A3D41]"
               disabled={loading}
             >
-              <option value="Member">Member</option>
-              <option value="Admin">Admin</option>
-              <option value="Admin">Viewer - View only</option>
+              <option className="dark:text-white" value="Member">Member</option>
+              <option className="dark:text-white" value="Admin">Admin</option>
+              <option className="dark:text-white" value="Viewer">Viewer - View only</option>
             </select>
           </div>
 
           {error && (
-            <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg
+              dark:bg-red-900/30 dark:border-red-700">
               <AlertCircle size={18} className="text-red-600 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-700">{error}</p>
+              <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
             </div>
           )}
 
@@ -154,14 +168,18 @@ export default function InviteUserModal({ workspace, onClose, currentUser, onSuc
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
+              className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg 
+              hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed
+              dark:border-[#3A3D41] dark:text-gray-300 dark:hover:bg-[#2A2D31]"
               disabled={loading}
             >
               Cancel
             </button>
+
             <button
               type="submit"
-              className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm 
+              transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
             >
               {loading ? "Inviting..." : "Invite into workspace"}
@@ -170,5 +188,6 @@ export default function InviteUserModal({ workspace, onClose, currentUser, onSuc
         </form>
       </div>
     </div>
-  );
+);
+
 }

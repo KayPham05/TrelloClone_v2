@@ -47,13 +47,13 @@ export default function Board({ refresh, setRefresh, lists, setLists }) {
       setCards(Array.isArray(cardsData) ? cardsData : []);
       setBoardMembers(Array.isArray(membersData) ? membersData : []);
 
-      console.log("Data loaded:", {
+      console.log(" Data loaded:", {
         lists: listsData?.length || 0,
         cards: cardsData?.length || 0,
         members: membersData?.length || 0,
       });
     } catch (err) {
-      console.error("Error loading data:", err);
+      console.error("❌ Error loading data:", err);
       setLists([]);
       setCards([]);
       setBoardMembers([]);
@@ -130,14 +130,11 @@ export default function Board({ refresh, setRefresh, lists, setLists }) {
   };
 
   return (
-  <div
-    className="
-      flex flex-col h-full 
-      bg-gray-100 
-      dark:bg-[#1E1F22]
-      transition-colors
-    "
-  >
+  <div className="
+    flex flex-col h-full 
+    bg-gradient-to-br from-[#46237A] to-[#7A1E6E]
+    dark:bg-gradient-to-br dark:from-[#1E1F22] dark:to-[#2A2B2E]
+  ">
     <BoardHeader
       board={board}
       boardMembers={boardMembers}
@@ -149,11 +146,7 @@ export default function Board({ refresh, setRefresh, lists, setLists }) {
         <div
           ref={provided.innerRef}
           {...provided.droppableProps}
-          className="
-            flex gap-4 p-4 flex-1 overflow-x-auto 
-            scrollbar-thin scrollbar-track-transparent
-            scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600
-          "
+          className="flex gap-4 p-4 flex-1 overflow-x-auto"
         >
           {Array.isArray(lists) &&
             lists.map((list, index) => (
@@ -166,62 +159,60 @@ export default function Board({ refresh, setRefresh, lists, setLists }) {
                   <div
                     ref={listProvided.innerRef}
                     {...listProvided.draggableProps}
-                    className={`transition ${
+                    className={`${
                       listSnapshot.isDragging ? "opacity-50 rotate-2" : ""
                     }`}
                   >
-                    <Droppable
-                      droppableId={`list-${list.listUId}`}
-                      type="CARD"
-                    >
+                    <Droppable droppableId={`list-${list.listUId}`} type="CARD">
                       {(cardProvided, cardSnapshot) => (
                         <div
                           ref={cardProvided.innerRef}
                           {...cardProvided.droppableProps}
                           className={`
-                            board-list 
-                            rounded-xl
-                            w-72
-                            bg-white text-gray-800
-                            border border-gray-200
-                            dark:bg-[#2B2D31] dark:text-[#E8EAED] 
-                            dark:border-[#3F4147]
-                            transition-colors
-                            ${cardSnapshot.isDraggingOver ? 
-                              "ring-2 ring-blue-500 dark:ring-blue-400" 
-                              : ""}
+                            board-list
+                            ${cardSnapshot.isDraggingOver ? "dragging-over" : ""}
+                            dark:bg-[#2B2D31]
+                            dark:border dark:border-[#3A3C40]
+                            dark:shadow-[0_0_8px_rgba(0,0,0,0.25)]
+                            dark:text-gray-200
                           `}
                         >
-                          {/* HEADER LIST */}
-                          <div className="
-                            list-header flex justify-between items-center
-                            px-3 py-2 border-b 
-                            border-gray-200 dark:border-[#3F4147]
-                          ">
+                          {/* LIST HEADER */}
+                          <div
+                            className="
+                              list-header
+                              dark:bg-[#2B2D31]
+                              dark:text-gray-200
+                            "
+                          >
                             <div className="flex items-center gap-2 flex-1">
                               <div
                                 {...listProvided.dragHandleProps}
                                 className="
-                                  cursor-grab active:cursor-grabbing p-1
-                                  hover:bg-gray-100 dark:hover:bg-white/10 
-                                  rounded transition
+                                  cursor-grab active:cursor-grabbing p-1 
+                                  hover:bg-white/10 
+                                  dark:hover:bg-[#3A3C40]
+                                  rounded transition-colors
                                 "
                               >
                                 <GripVertical
                                   size={18}
-                                  className="text-gray-500 dark:text-gray-300"
+                                  className="
+                                    text-white/70 hover:text-white
+                                    dark:text-gray-300 dark:hover:text-white
+                                  "
                                 />
                               </div>
-                              <h4 className="list-title font-semibold text-sm">
+                              <h4 className="list-title dark:text-gray-200">
                                 {list.listName}
                               </h4>
                             </div>
 
                             <button
                               className="
-                                list-delete-btn p-1 rounded 
-                                hover:bg-red-50 dark:hover:bg-red-900/30
-                                text-red-600 dark:text-red-400
+                                list-delete-btn
+                                dark:text-gray-300 
+                                dark:hover:text-red-400
                               "
                               onClick={() => handleDeleteList(list.listUId)}
                             >
@@ -229,10 +220,10 @@ export default function Board({ refresh, setRefresh, lists, setLists }) {
                             </button>
                           </div>
 
-                          {/* CARDS */}
-                          <div className="list-cards p-2">
+                          {/* LIST CARDS */}
+                          <div className="list-cards">
                             {loading ? (
-                              <div className="text-gray-500 dark:text-gray-400 text-sm p-2">
+                              <div className="text-white/50 text-sm p-2 dark:text-gray-400">
                                 Loading...
                               </div>
                             ) : (
@@ -252,7 +243,9 @@ export default function Board({ refresh, setRefresh, lists, setLists }) {
                                         list={list}
                                         provided={cardDragProvided}
                                         snapshot={cardDragSnapshot}
-                                        onRefresh={() => setRefresh((r) => !r)}
+                                        onRefresh={() =>
+                                          setRefresh((r) => !r)
+                                        }
                                       />
                                     )}
                                   </PortalAwareDraggable>
@@ -261,7 +254,7 @@ export default function Board({ refresh, setRefresh, lists, setLists }) {
                             {cardProvided.placeholder}
                           </div>
 
-                          {/* ADD CARD */}
+                          {/* ADD CARD SECTION */}
                           <AddCardSection
                             listId={list.listUId}
                             onAdd={handleAddCard}
@@ -276,32 +269,36 @@ export default function Board({ refresh, setRefresh, lists, setLists }) {
 
           {provided.placeholder}
 
-          {/* ADD LIST */}
-          <div className="
-            add-list-box w-72 min-w-72 h-fit p-4 rounded-xl 
-            bg-white border border-gray-300 text-gray-700
-            dark:bg-[#2B2D31] dark:text-[#E8EAED] dark:border-[#3F4147]
-            transition-colors
-          ">
+          {/* ADD LIST BOX */}
+          <div
+            className="
+              add-list-box
+              dark:bg-[#26272A]
+              dark:border dark:border-[#26272A]
+            "
+          >
             <input
               type="text"
               value={newListName}
               onChange={(e) => setNewListName(e.target.value)}
               placeholder="List name..."
               className="
-                add-list-input w-full px-3 py-2 rounded-md 
-                bg-gray-100 border border-gray-300
-                dark:bg-[#1E1F22] dark:border-[#4A4D52]
-                dark:text-gray-100
-                focus:ring-2 focus:ring-blue-500 outline-none
+                add-list-input
+                dark:bg-[#3A3C40]
+                dark:text-gray-200
+                dark:border dark:border-[#4A4B4F]
+                dark:placeholder:text-gray-400
               "
-              onKeyDown={(e) => e.key === "Enter" && handleAddList()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleAddList();
+              }}
             />
             <button
               onClick={handleAddList}
               className="
-                add-list-btn w-full mt-2 flex items-center justify-center gap-2
-                bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md
+                add-list-btn
+                dark:bg-blue-500 dark:hover:bg-blue-600 
+                dark:text-white
               "
             >
               <Plus size={18} /> Add list
@@ -312,7 +309,8 @@ export default function Board({ refresh, setRefresh, lists, setLists }) {
     </Droppable>
   </div>
 );
-  
+
+
 }
 
 function AddCardSection({ listId, onAdd }) {
@@ -332,29 +330,23 @@ function AddCardSection({ listId, onAdd }) {
         <button
           className="
             flex items-center gap-2 
-            text-gray-700 dark:text-gray-200
-            hover:text-black dark:hover:text-white
+            text-white/80 hover:text-white 
             text-sm px-2 py-1 rounded-md 
-            hover:bg-gray-100 dark:hover:bg-white/10 transition
+            hover:bg-white/10 transition
           "
           onClick={() => setAdding(true)}
         >
           <Plus size={15} /> Add a card
         </button>
       ) : (
-        <div className="
-          p-2 rounded-md
-          bg-gray-100 border border-gray-300
-          dark:bg-[#1E1F22] dark:border-[#4A4D52]
-        ">
+        <div className="p-2 rounded-md bg-white/10 backdrop-blur-sm">
           <textarea
             className="
               w-full rounded-md px-2 py-1 text-sm 
-              bg-white border border-gray-300 text-gray-800
-              dark:bg-[#2B2D31] dark:border-[#4A4D52] 
-              dark:text-gray-100 
-              placeholder:text-gray-400 dark:placeholder:text-gray-500
-              focus:outline-none focus:ring-2 focus:ring-blue-500
+              text-white
+              bg-white/10 border border-white/20
+              placeholder:text-white/60
+              focus:outline-none focus:ring-2 focus:ring-white/40
             "
             rows={2}
             placeholder="Enter card title…"
@@ -379,10 +371,7 @@ function AddCardSection({ listId, onAdd }) {
                 setAdding(false);
                 setTitle("");
               }}
-              className="
-                text-gray-600 dark:text-gray-300
-                hover:text-black dark:hover:text-white text-sm
-              "
+              className="text-white/70 hover:text-white text-sm"
             >
               Cancel
             </button>

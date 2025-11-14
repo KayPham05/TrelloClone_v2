@@ -98,18 +98,18 @@ export default function Header({ className = "" }) {
         <div
           className="
             flex items-center rounded-lg px-4 py-2 w-96
-            bg-gray-100 hover:bg-gray-200 transition
+            bg-gray-100 text-[#1E1F22] hover:bg-gray-200 transition
             dark:bg-[#2A2B2E] dark:hover:bg-[#333437]
           "
         >
-          <Search className="text-gray-500 dark:text-gray-300" size={18} />
+          <Search className="text-[#1E1F22] dark:text-gray-300" size={18} />
           <input
             type="text"
             placeholder="Search Boards, Members..."
             className="
               bg-transparent border-none outline-none text-sm w-full px-3
-              text-gray-700 dark:text-gray-200
-              placeholder:text-gray-500 dark:placeholder:text-gray-400
+              text-[#1E1F22] dark:text-gray-200
+              placeholder:text-[#1E1F22] dark:placeholder:text-white
             "
           />
         </div>
