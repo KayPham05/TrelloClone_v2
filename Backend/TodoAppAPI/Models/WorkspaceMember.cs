@@ -1,6 +1,6 @@
 ﻿namespace TodoAppAPI.Models
 {
-    public class WorkspaceMember
+    public class WorkspaceMemberDto
     {
         public string WorkspaceMemberUId { get; set; } = Guid.NewGuid().ToString();
         public string WorkspaceUId { get; set; } = string.Empty;

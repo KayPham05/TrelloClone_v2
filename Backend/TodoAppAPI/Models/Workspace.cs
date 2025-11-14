@@ -14,6 +14,6 @@
 
         // Navigation Properties
         public ICollection<Board>? Boards { get; set; } // ← Changed to nullable
-        public ICollection<WorkspaceMember>? Members { get; set; } // ← Changed to nullable
+        public ICollection<WorkspaceMemberDto>? Members { get; set; } // ← Changed to nullable
     }
 }

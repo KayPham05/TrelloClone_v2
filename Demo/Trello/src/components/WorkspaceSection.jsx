@@ -18,38 +18,52 @@ export default function WorkspaceSection({
   onInviteUser,
   onOpenSetting,
   boardMembers,
+  workspaceMembersMap = {}
 }) {
   const [expandedWorkspaces, setExpandedWorkspaces] = useState({});
   const [editingBoard, setEditingBoard] = useState(null);
   const [wsLocal, setWsLocal] = useState(workspaces);
 
+  const [editingWorkspaceMembers, setEditingWorkspaceMembers] = useState([]);
+
   React.useEffect(() => setWsLocal(workspaces), [workspaces]);
 
-  const handleBoardSaved = (e) => {
-    if (!e) return;
-    // cập nhật ngay UI (optimistic)
-    setWsLocal((prev) =>
-      prev.map(ws => {
-        if (!ws.boards || ws.boards.length === 0) return ws;
+  const handleBoardSaved = (payload) => {
+  if (!payload) return;
 
-        if (e.type === "update" && e.board) {
-          return {
-            ...ws,
-            boards: ws.boards.map(b =>
-              b.boardUId === e.board.boardUId ? { ...b, ...e.board } : b
-            ),
-          };
-        }
-        if (e.type === "delete" && e.boardUId) {
-          return {
-            ...ws,
-            boards: ws.boards.filter(b => b.boardUId !== e.boardUId),
-          };
-        }
-        return ws;
+  // Nếu là delete
+  if (payload.type === "delete" && payload.boardUId) {
+    const deletedId = payload.boardUId;
+    setWsLocal((prev) =>
+      prev.map((ws) => {
+        if (!ws.boards || ws.boards.length === 0) return ws;
+        return {
+          ...ws,
+          boards: ws.boards.filter((b) => b.boardUId !== deletedId),
+        };
       })
     );
-  };
+    return;
+  }
+
+  // Còn lại xem như update board
+  const updatedBoard = payload.board || payload; // support cả 2 kiểu
+
+  if (!updatedBoard.boardUId) return;
+
+  setWsLocal((prev) =>
+    prev.map((ws) => {
+      if (!ws.boards || ws.boards.length === 0) return ws;
+
+      return {
+        ...ws,
+        boards: ws.boards.map((b) =>
+          b.boardUId === updatedBoard.boardUId ? { ...b, ...updatedBoard } : b
+        ),
+      };
+    })
+  );
+};
   
   const toggleWorkspace = (workspaceUId) => {
     setExpandedWorkspaces((prev) => ({
@@ -114,6 +128,8 @@ export default function WorkspaceSection({
           {wsLocal.map((workspace) => {
             const isExpanded = expandedWorkspaces[workspace.workspaceUId];
             console.log("boardMember:", boardMembers);
+            const wsMembers =
+            workspaceMembersMap[workspace.workspaceUId] || [];
             return (
               <div
                 key={workspace.workspaceUId}
@@ -200,8 +216,13 @@ export default function WorkspaceSection({
                                 title="Board settings"
                                 onClick={(e) => {
                                   e.stopPropagation();               
-                                  setEditingBoard(board);
+                                   setEditingBoard({
+                                    ...board,
+                                    workspaceUId: workspace.workspaceUId,
+                                  }); 
+                                  setEditingWorkspaceMembers(wsMembers);
                                 }}
+                                
                                 className="absolute absolute top-2 right-2 z-20 p-2 hover:rounded-full hover:bg-white/30 backdrop-blur-sm text-white dark:hover:bg-white/20"
                                 aria-label="Open board settings"
                               >
@@ -343,9 +364,13 @@ export default function WorkspaceSection({
       )}
        <EditBoardModal
         open={!!editingBoard}
-        onClose={() => setEditingBoard(null)}
+        onClose={() => {
+          setEditingBoard(null);
+          setEditingWorkspaceMembers([]); // reset
+        }}
         board={editingBoard}
         onSaved={handleBoardSaved}
+        workspaceMembers={editingWorkspaceMembers}
       />
     </section>
   );

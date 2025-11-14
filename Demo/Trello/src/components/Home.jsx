@@ -13,6 +13,7 @@ import {
   getAllWorkspacesAPI,
   createWorkspaceAPI,
   getWorkspaceBoardsAPI,
+  getWorkspaceMembersAPI,
 } from "../services/WorkspaceAPI";
 import {
   getRecentBoardsAPI,
@@ -41,6 +42,7 @@ export default function Home() {
     useState(null);
   const [showCreateBoardModal, setShowCreateBoardModal] = useState(false);
   const [selectedWorkspaceId, setSelectedWorkspaceId] = useState(null);
+  const [workspaceMembersMap, setWorkspaceMembersMap] = useState({});
   const navigate = useNavigate();
 
   const fetchBoards = useCallback(async (currentUser, userWorkspaces = []) => {
@@ -95,7 +97,40 @@ export default function Home() {
       setRecentBoards([]);
     }
   }, []);
+  const fetchWorkspaceMembers = useCallback(async (workspacesData) => {
+  if (!workspacesData || workspacesData.length === 0) {
+    setWorkspaceMembersMap({});
+    return;
+  }
 
+  const map = {};
+
+  await Promise.all(
+    workspacesData.map(async (ws) => {
+      try {
+        const res = await getWorkspaceMembersAPI(ws.workspaceUId);
+
+        // axiosClient thường trả data trực tiếp giống mấy API khác
+        const data = Array.isArray(res)
+          ? res
+          : Array.isArray(res?.members)
+          ? res.members
+          : [];
+
+        map[ws.workspaceUId] = data;
+      } catch (err) {
+        console.error(
+          `Error occurs when getting members for workspace ${ws.name}`,
+          err
+        );
+        map[ws.workspaceUId] = [];
+      }
+    })
+  );
+
+  setWorkspaceMembersMap(map);
+  console.log("Workspace members loaded:", map);
+}, []);
   const fetchWorkspaces = useCallback(async (currentUser) => {
     if (!currentUser) return [];
 
@@ -139,13 +174,18 @@ export default function Home() {
   }, []);
 
   const refreshAllData = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
-    const userWorkspaces = await fetchWorkspaces(user);
-    await fetchBoards(user, userWorkspaces);
-    setLoading(false);
-  }, [user, fetchBoards, fetchWorkspaces]);
+  if (!user) return;
+  setLoading(true);
 
+  const userWorkspaces = await fetchWorkspaces(user);
+
+  await Promise.all([
+    fetchBoards(user, userWorkspaces),
+    fetchWorkspaceMembers(userWorkspaces),
+  ]);
+
+  setLoading(false);
+}, [user, fetchBoards, fetchWorkspaces, fetchWorkspaceMembers]);
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (!storedUser) {
@@ -156,29 +196,32 @@ export default function Home() {
 
     // Cải thiện: Không logout nếu chỉ là lỗi network/timeout thông thường
     (async () => {
-      try {
-        await Ping(); // Trigger refresh token nếu accessToken hết hạn
-        const workspacesData = await fetchWorkspaces(storedUser);
-        await fetchBoards(storedUser, workspacesData);
+  try {
+      await Ping(); // Trigger refresh token nếu accessToken hết hạn
+      const workspacesData = await fetchWorkspaces(storedUser);
+
+      await Promise.all([
+        fetchBoards(storedUser, workspacesData),
+        fetchWorkspaceMembers(workspacesData),
+      ]);
+
+      setLoading(false);
+    } catch (err) {
+      console.error("Error during initial load:", err);
+      console.log("Error details:", {
+        status: err.response?.status,
+        message: err.message,
+        code: err.code,
+      });
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        console.error("Authentication failed, logging out...");
+        handleLogout();
+      } else {
+        console.warn("Non-auth error, keeping session active");
         setLoading(false);
-      } catch (err) {
-        console.error("Error during initial load:", err);
-        console.log("Error details:", {
-          status: err.response?.status,
-          message: err.message,
-          code: err.code,
-        });
-        // CHỈ LOGOUT KHI LÀ LỖI AUTHENTICATION (401/403)
-        if (err.response?.status === 401 || err.response?.status === 403) {
-          console.error("Authentication failed, logging out...");
-          handleLogout();
-        } else {
-          // Các lỗi khác (network, timeout, 500...) vẫn cho phép dùng app
-          console.warn("Non-auth error, keeping session active");
-          setLoading(false);
-        }
       }
-    })();
+    }
+  })();
   }, [fetchBoards, fetchWorkspaces]);
 
   const handleLogout = async () => {
@@ -285,6 +328,7 @@ export default function Home() {
                 setShowSettingModal(true);
               }}
               boardMembers={boardMembers}
+              workspaceMembersMap={workspaceMembersMap}
             />
           </div>
         </main>
