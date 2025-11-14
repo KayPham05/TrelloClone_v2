@@ -14,3 +14,9 @@ export const createListAPI = (list, userUId = getUserUId()) =>
 
 export const updateListStatusAPI = (listUId, newStatus, userUId = getUserUId()) =>
     AxiosClient.put(`${END_POINT.LISTS}/${listUId}?newStatus=${newStatus}&userUId=${userUId}`);
+
+export const reorderListsAPI = (boardUId, order) =>
+  AxiosClient.put(`${END_POINT.LISTS}/reorder`, {
+    boardUId,
+    order,
+  });

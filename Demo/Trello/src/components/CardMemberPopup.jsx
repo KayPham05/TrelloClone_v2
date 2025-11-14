@@ -129,11 +129,11 @@ export default function CardMemberPopup({
   >
     {/* HEADER */}
     <div
-      className="
-        flex justify-between items-center px-3 py-2 
+      className="absolute z-[9999] bg-white rounded-lg shadow-xl w-72 card-member-popup flex justify-between items-center px-3 py-2 
         border-b border-gray-100 
-        dark:border-[#2C2D30]
-      "
+        dark:border-[#2C2D30]"
+      style={{ top: position?.top, left: position?.left }}
+      onClick={(e) => e.stopPropagation()}
     >
       <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
         Thay đổi thành viên
@@ -222,6 +222,21 @@ export default function CardMemberPopup({
                   dark:text-red-400 dark:hover:text-red-300 
                   text-xs font-medium
                 "
+      {/* Thành viên của bảng */}
+      <div className="p-3">
+        <h3 className="text-xs font-semibold text-gray-600 mb-2">
+          Board's members
+        </h3>
+        <div className="space-y-1 max-h-40 overflow-y-auto">
+          {filteredBoardMembers.length > 0 ? (
+            filteredBoardMembers.map((m) => (
+              <div
+                key={m.userUId}
+                className="flex items-center justify-between p-1.5 rounded-md hover:bg-blue-50 cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleAddMember(m.userUId);
+                }}
               >
                 ✕
               </button>
@@ -276,17 +291,11 @@ export default function CardMemberPopup({
                   {m.userName || m.user?.userName}
                 </span>
               </div>
-
-              <span className="text-blue-600 dark:text-blue-400 text-xs font-medium">
-                Add
-              </span>
-            </div>
-          ))
-        ) : (
-          <p className="text-gray-500 dark:text-gray-400 text-xs italic">
-            No member found
-          </p>
-        )}
+            ))
+          ) : (
+            <p className="text-gray-500 text-xs italic text-gray-500 dark:text-gray-400 text-xs italic">No member found</p>
+          )}
+        </div>
       </div>
     </div>
   </div>

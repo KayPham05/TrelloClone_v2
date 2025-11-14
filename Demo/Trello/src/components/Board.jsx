@@ -47,13 +47,13 @@ export default function Board({ refresh, setRefresh, lists, setLists }) {
       setCards(Array.isArray(cardsData) ? cardsData : []);
       setBoardMembers(Array.isArray(membersData) ? membersData : []);
 
-      console.log(" Data loaded:", {
+      console.log("Data loaded:", {
         lists: listsData?.length || 0,
         cards: cardsData?.length || 0,
         members: membersData?.length || 0,
       });
     } catch (err) {
-      console.error("❌ Error loading data:", err);
+      console.error("Error loading data:", err);
       setLists([]);
       setCards([]);
       setBoardMembers([]);

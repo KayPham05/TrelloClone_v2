@@ -21,7 +21,12 @@ export default function CardMenu({
 }) {
   useEffect(() => {
     const handleClick = (e) => {
-      if (!e.target.closest(".card-menu-floating")) onClose();
+      if (
+        !e.target.closest(".card-menu-floating") &&
+        !e.target.closest(".card-member-popup")
+      ) {
+        onClose();
+      }
     };
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);

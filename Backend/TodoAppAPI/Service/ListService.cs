@@ -54,9 +54,9 @@ namespace TodoAppAPI.Service
                  .ToListAsync();
         }
 
-        public Task<List> GetListByIdAsync(string listUId)
+        public async Task<List> GetListByIdAsync(string listUId)
         {
-            throw new NotImplementedException();
+            return await _context.Lists.FirstOrDefaultAsync(l => l.ListUId == listUId);
         }
 
         public Task<bool> UpdateListAsync(List list)
@@ -82,6 +82,24 @@ namespace TodoAppAPI.Service
 
 
             }
+        }
+
+        public async Task<bool> UpdateListPositionAsync(string boardUId, List<List> newOrder)
+        {
+            try
+            {
+                foreach (var item in newOrder)
+                {
+                    var list = await _context.Lists.FirstOrDefaultAsync(l => l.ListUId == item.ListUId);
+                    if (list != null)
+                    {
+                        list.Position = item.Position;
+                    }
+                }
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch { return false; }
         }
     }
 }
