@@ -45,79 +45,115 @@ export default function Header({ className = "" }) {
 
 
   return (
-    <>
-    <header className={`flex items-center justify-between px-6  bg-white border-b shadow-sm ${className}`}>
+  <>
+    <header
+      className={[
+        "flex items-center justify-between px-6 border-b shadow-sm bg-white",
+        "dark:bg-[#2B2D31] dark:border-[#3F4147]",
+        className
+      ].join(" ")}
+    >
       {/* Logo & Brand */}
       <div className="flex items-center gap-4">
-        <Grid3x3 
-          className="text-gray-600 cursor-pointer hover:text-gray-800 transition" 
-          size={20} 
+        <Grid3x3
+          className="text-gray-600 dark:text-[#E8EAED] cursor-pointer hover:text-gray-800 dark:hover:text-white transition"
+          size={20}
         />
+
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded flex items-center justify-center shadow-md">
+          <div className="
+            w-8 h-8 
+            bg-gradient-to-br from-blue-600 to-blue-700 
+            dark:from-blue-500 dark:to-blue-600
+            rounded flex items-center justify-center shadow-md
+          ">
             <span className="text-white font-bold text-sm">▤</span>
           </div>
-          <span className="text-xl font-bold text-gray-800">Trello</span>
+
+          <span className="text-xl font-bold text-gray-800 dark:text-[#E8EAED]">
+            Trello
+          </span>
         </div>
       </div>
 
       {/* Search & Actions */}
       <div className="flex items-center gap-4">
         {/* Search Bar */}
-        <div className="flex items-center bg-gray-100 rounded-lg px-4 py-2 w-96 hover:bg-gray-200 transition">
-          <Search className="text-gray-500" size={18} />
+        <div
+          className={[
+            "flex items-center rounded-lg px-4 py-2 w-96 transition",
+            "bg-gray-100 hover:bg-gray-200",
+            "dark:bg-[#1E1F22] dark:hover:bg-[#3A3C42]"
+          ].join(" ")}
+        >
+          <Search className="text-gray-500 dark:text-[#9AA0A6]" size={18} />
           <input
             type="text"
             placeholder="Search Boards, Members..."
-            className="bg-transparent border-none outline-none text-sm w-full px-3 text-gray-700 placeholder:text-gray-500"
+            className="
+              bg-transparent border-none outline-none text-sm w-full px-3
+              text-gray-700 placeholder:text-gray-500
+              dark:text-[#E8EAED] dark:placeholder:text-[#9AA0A6]
+            "
           />
         </div>
 
         {/* Create Button */}
-        <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm">
+        <button className="
+          flex items-center gap-2 
+          bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 
+          rounded-lg text-sm font-medium transition shadow-sm
+          dark:bg-blue-500 dark:hover:bg-blue-600
+        ">
           <Plus size={16} />
           Create New
         </button>
 
         {/* User Actions */}
-        <div className="flex items-center gap-3" ref = {profileWrapRef}>
+        <div className="flex items-center gap-3" ref={profileWrapRef}>
           {/* Notification */}
           <Notification />
 
           {/* User Profile */}
-          <button aria-haspopup="menu" 
-              aria-expanded={isProfileOpen}
-              onClick={() => setIsProfileOpen(v => !v)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition">
-            <UserCircle className="text-gray-600" size={28} />  
+          <button
+            aria-haspopup="menu"
+            aria-expanded={isProfileOpen}
+            onClick={() => setIsProfileOpen(v => !v)}
+            className="
+              p-2 rounded-lg transition 
+              hover:bg-gray-100 dark:hover:bg-[#3A3C42]
+            "
+          >
+            <UserCircle className="text-gray-600 dark:text-[#E8EAED]" size={28} />
           </button>
-          <Profile 
+
+          <Profile
             open={isProfileOpen}
-            onClose={() => setIsProfileOpen(false)} 
-            onOpenSettings={() => {           
-              setSettingsOpen(true);          
-              setIsProfileOpen(false);        
+            onClose={() => setIsProfileOpen(false)}
+            onOpenSettings={() => {
+              setSettingsOpen(true);
+              setIsProfileOpen(false);
             }}
           />
         </div>
       </div>
     </header>
+
     <PersonalSettings
-        open={settingsOpen}
-        initialTab="profile"
-        onClose={() => setSettingsOpen(false)}
-        currentUser={{
-          userName: user?.userName ?? "",
-          email: user?.email ?? "",
-          bio: user?.bio ?? "",
-        }}
-        onSaveProfile={async (payload) => {
-          // TODO: call API .NET 9 lưu profile
-          // await fetch('/api/profile', { method: 'PUT', headers: {...}, body: JSON.stringify(payload) })
-          console.log("SAVE PROFILE", payload);
-        }}
-      />
-    </>
-  );
+      open={settingsOpen}
+      initialTab="profile"
+      onClose={() => setSettingsOpen(false)}
+      currentUser={{
+        userName: user?.userName ?? "",
+        email: user?.email ?? "",
+        bio: user?.bio ?? "",
+      }}
+      onSaveProfile={async (payload) => {
+        console.log("SAVE PROFILE", payload);
+      }}
+    />
+  </>
+);
+
   
 }

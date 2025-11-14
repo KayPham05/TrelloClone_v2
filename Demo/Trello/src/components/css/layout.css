@@ -50,7 +50,7 @@
 
 /* --- Gutter giữa 2 cột (SplitJS) --- */
 .gutter {
-  background-color: #dfe1e6;
+  background-color: #ffffff;
   cursor: col-resize;
   background-repeat: no-repeat;
   background-position: 50%;
@@ -59,8 +59,25 @@
 }
 
 .gutter:hover {
-  background-color: #b6bcc2;
+  background-color: #a0a1a4;
 }
+
+.gutter:active {
+  background-color: #a9a9a9; 
+}
+
+.dark .gutter {
+  background-color: #1E1F22;       
+}
+
+.dark .gutter:hover {
+  background-color: #dfe1e6;      
+}
+
+.dark .gutter:active {
+  background-color: #b5b8bd;        
+}
+
 
 /* --- Scrollbar đẹp hơn --- */
 .left::-webkit-scrollbar,

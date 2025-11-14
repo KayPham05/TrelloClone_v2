@@ -20,7 +20,7 @@ builder.Services.AddScoped<IBoardService, BoardService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IListService, ListService>();
 builder.Services.AddScoped<ICardsService, CardsService>();
-builder.Services.AddScoped<IUserInboxCard,  UserInboxCardService>();
+builder.Services.AddScoped<IUserInboxCard, UserInboxCardService>();
 builder.Services.AddScoped<IAddInboxCardService, AddInboxCardService>();
 builder.Services.AddScoped<IWorkspaceService, WorkspaceService>();
 builder.Services.AddScoped<IUserRecentBoardService, UserBoardRecentService>();

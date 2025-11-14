@@ -127,133 +127,153 @@ export default function Notification() {
     };
 
     return (
-        <div className="relative" ref={ref}>
-            {/* Bell Button */}
-            <button
-                onClick={() => setOpen((v) => !v)}
-                className="relative p-2.5 hover:bg-gray-200 rounded-xl transition-all duration-200"
-                aria-label="Notifications"
-            >
-                <Bell className="text-gray-700" size={20} strokeWidth={2} />
-                {unread > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center shadow">
-                        {unread > 9 ? "9+" : unread}
-                    </span>
-                )}
-            </button>
+    <div className="relative" ref={ref}>
+        {/* Bell Button */}
+        <button
+            onClick={() => setOpen((v) => !v)}
+            className="relative p-2.5 hover:bg-gray-200 rounded-xl transition-all duration-200
+                       dark:bg-[#2B2D31] dark:hover:bg-[#3A3C42]"
+            aria-label="Notifications"
+        >
+            <Bell className="text-gray-700 dark:text-[#F2F3F5]" size={22} strokeWidth={2.5} />
+            {unread > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center shadow">
+                    {unread > 9 ? "9+" : unread}
+                </span>
+            )}
+        </button>
 
-            {/* Popup */}
-            {open && (
-                <div className="absolute right-0 mt-3 w-[420px] bg-white border border-gray-200 shadow-2xl rounded-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                    {/* Header */}
-                    <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-white">
-                        <div className="flex items-center gap-2">
-                            <Bell size={18} className="text-blue-600" strokeWidth={2.5} />
-                            <h3 className="text-base font-bold text-gray-800">Notifications</h3>
-                            {unread > 0 && (
-                                <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
-                                    {unread}
-                                </span>
-                            )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                            {unread > 0 && (
-                                <button
-                                    onClick={onMarkAll}
-                                    className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline transition"
-                                >
-                                    Mark all read
-                                </button>
-                            )}
-                            <button
-                                onClick={() => setOpen(false)}
-                                className="p-1 hover:bg-gray-100 rounded-lg transition"
-                            >
-                                <X size={16} className="text-gray-500" />
-                            </button>
-                        </div>
+        {/* Popup */}
+        {open && (
+            <div className="absolute right-0 mt-3 w-[420px] bg-white border border-gray-200 shadow-2xl rounded-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200
+                            dark:bg-[#2B2D31] dark:border-[#3F4147]">
+                
+                {/* Header */}
+                <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-white
+                                dark:bg-[#2B2D31] dark:border-[#3F4147]">
+                    <div className="flex items-center gap-2">
+                        <Bell size={18} className="text-blue-600 dark:text-[#F2F3F5]" strokeWidth={2.5} />
+                        
+                        {/* Title */}
+                        <h3 className="text-base font-bold 	dark:text-[#32BEFF]">Notifications</h3>
+
+                        {unread > 0 && (
+                            <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full bg-red-500 text-white ">
+                                {unread}
+                            </span>
+                        )}
                     </div>
 
-                    {/* Content */}
-                    <div className="max-h-[480px] overflow-y-auto">
-                        {!loading && items.length === 0 && (
-                            <div className="flex flex-col items-center justify-center py-12 px-4">
-                                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3">
-                                    <Bell size={28} className="text-gray-400" strokeWidth={1.5} />
-                                </div>
-                                <p className="text-sm font-medium text-gray-600">No notifications yet</p>
-                                <p className="text-xs text-gray-400 mt-1">We'll notify you when something arrives</p>
-                            </div>
-                        )}
-
-                        {items.map((n) => (
-                            <div
-                                key={n.notiId}
-                                className={`group relative border-b border-gray-100 last:border-b-0 transition-all duration-200 ${!n.read
-                                        ? "bg-blue-50/50 hover:bg-blue-100/80"
-                                        : "bg-white hover:bg-gray-200"
-                                    }`}
-                            >
-                                <div
-                                    className="flex gap-3 p-4 cursor-pointer"
-                                    onClick={() => onItemClick(n)}
-                                >
-                                    {/* Icon */}
-                                    <div className="flex-shrink-0 mt-0.5">
-                                        <TypeIcon type={n.type} />
-                                    </div>
-
-                                    {/* Content */}
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-start justify-between gap-2 mb-1">
-                                            <h4 className="text-sm font-bold text-gray-900 line-clamp-1">
-                                                {n.title}
-                                            </h4>
-                                            {!n.read && (
-                                                <span className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-1.5"></span>
-                                            )}
-                                        </div>
-                                        <p className="text-xs text-gray-600 line-clamp-2 mb-2 leading-relaxed">
-                                            {n.message}
-                                        </p>
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-[11px] font-medium text-gray-400">
-                                                {timeAgo(n.createdAt)}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {/* Delete Button */}
-                                    <button
-                                        onClick={(e) => onDelete(e, n.notiId)}
-                                        className="absolute top-3 right-3 p-1.5 bg-white hover:bg-red-50 border border-gray-200 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-sm hover:shadow hover:border-red-200"
-                                        aria-label="Delete notification"
-                                    >
-                                        <Trash2 size={13} className="text-red-500" strokeWidth={2.5} />
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-
-                        {/* Load More */}
-                        {hasMore && !loading && items.length > 0 && (
+                    <div className="flex items-center gap-2">
+                        {unread > 0 && (
                             <button
-                                onClick={() => fetchPage(page + 1)}
-                                className="w-full py-3 text-sm font-medium text-blue-600 hover:bg-blue-50 transition-colors duration-200"
+                                onClick={onMarkAll}
+                                className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline transition
+                                           dark:text-[#8AB4F8] dark:hover:text-[#A8C7FA]"
                             >
-                                Load more notifications
+                                Mark all read
                             </button>
                         )}
-
-                        {/* Loading */}
-                        {loading && (
-                            <div className="flex items-center justify-center py-8">
-                                <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                            </div>
-                        )}
+                        <button
+                            onClick={() => setOpen(false)}
+                            className="p-1 hover:bg-gray-100 rounded-lg transition dark:hover:bg-[#3A3C42]"
+                        >
+                            <X size={16} className="text-gray-500 dark:text-[#F2F3F5]" />
+                        </button>
                     </div>
                 </div>
-            )}
-        </div>
-    );
+
+                {/* Content */}
+                <div className="max-h-[480px] overflow-y-auto dark:text-[#F2F3F5]">
+                    
+                    {/* Empty */}
+                    {!loading && items.length === 0 && (
+                        <div className="flex flex-col items-center justify-center py-12 px-4">
+                            <div className="w-16 h-16 bg-gray-100 dark:bg-[#3A3C42] rounded-full flex items-center justify-center mb-3">
+                                <Bell size={28} className="text-gray-400 dark:text-[#F2F3F5]" strokeWidth={1.5} />
+                            </div>
+
+                            {/* Empty Title */}
+                            <p className="text-sm font-medium text-gray-600 dark:text-[#E8EAED]">No notifications yet</p>
+
+                            {/* Empty Subtitle */}
+                            <p className="text-xs text-gray-400 dark:text-[#9AA0A6] mt-1">
+                                We'll notify you when something arrives
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Items */}
+                    {items.map((n) => (
+                        <div
+                            key={n.notiId}
+                            className={`group relative border-b border-gray-100 last:border-b-0 transition-all duration-200 dark:border-[#3F4147]
+                                ${
+                                    !n.read
+                                        ? "bg-blue-50/50 hover:bg-blue-100/80 dark:bg-[#1E1F22] dark:hover:bg-[#3A3C42]"
+                                        : "bg-white hover:bg-gray-200 dark:bg-[#2B2D31] dark:hover:bg-[#3A3C42]"
+                                }`}
+                        >
+                            <div className="flex gap-3 p-4 cursor-pointer" onClick={() => onItemClick(n)}>
+                                <div className="flex-shrink-0 mt-0.5">
+                                    <TypeIcon type={n.type} dark />
+                                </div>
+
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-start justify-between gap-2 mb-1">
+                                        <h4 className="text-sm font-bold text-gray-900 dark:text-[#F2F3F5] line-clamp-1">
+                                            {n.title}
+                                        </h4>
+
+                                        {!n.read && <span className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-1.5"></span>}
+                                    </div>
+
+                                    <p className="text-xs text-gray-600 dark:text-[#B5BAC1] line-clamp-2 mb-2 leading-relaxed">
+                                        {n.message}
+                                    </p>
+
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[11px] font-medium text-gray-400 dark:text-[#B5BAC1]">
+                                            {timeAgo(n.createdAt)}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={(e) => onDelete(e, n.notiId)}
+                                    className="absolute top-3 right-3 p-1.5 bg-white hover:bg-red-50 border border-gray-200 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-sm hover:shadow hover:border-red-200 dark:bg-[#3A3C42] dark:border-[#4A4D54] dark:hover:bg-[#4F525A]"
+                                    aria-label="Delete notification"
+                                >
+                                    <Trash2 size={13} className="text-red-500 dark:text-[#F23F43]" strokeWidth={2.5} />
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+
+                    {/* Load More */}
+                    {hasMore && !loading && items.length > 0 && (
+                        <button
+                            onClick={() => fetchPage(page + 1)}
+                            className="w-full py-3 text-sm font-medium text-blue-600 hover:bg-blue-50
+                                       dark:text-[#8AB4F8] dark:hover:text-[#A8C7FA] dark:hover:bg-[#3A3C42]"
+                        >
+                            Load more notifications
+                        </button>
+                    )}
+
+                    {/* Loading */}
+                    {loading && (
+                        <div className="flex items-center justify-center py-8">
+                            <div className="w-6 h-6 border-2 border-blue-600 dark:border-[#F2F3F5] border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        )}
+    </div>
+);
+
+
+
+
 }

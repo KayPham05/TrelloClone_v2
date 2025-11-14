@@ -130,189 +130,262 @@ export default function CreateBoardModal({
   };
 
   return (
+  <div
+    className="
+      fixed inset-0 bg-black/60 
+      flex items-center justify-center 
+      z-50 p-4
+    "
+    onClick={(e) => {
+      if (e.target === e.currentTarget) onClose();
+    }}
+  >
     <div
-      className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+      className="
+        bg-white dark:bg-[#1E1F22] 
+        text-gray-800 dark:text-gray-200
+        rounded-2xl shadow-2xl 
+        border border-gray-200 dark:border-[#3F4147]
+        w-full max-w-md relative p-6
+      "
     >
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative p-6">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition"
-        >
-          <X size={20} />
-        </button>
+      {/* Close button */}
+      <button
+        onClick={onClose}
+        className="
+          absolute top-4 right-4 p-2 rounded-full 
+          hover:bg-gray-100 dark:hover:bg-white/10 
+          transition text-gray-700 dark:text-gray-300
+        "
+      >
+        <X size={20} />
+      </button>
 
-        <h2 className="text-xl font-bold text-gray-800 mb-6">Create new board</h2>
+      <h2 className="text-xl font-bold mb-6 text-gray-800 dark:text-gray-100">
+        Create new board
+      </h2>
 
-        <form onSubmit={handleCreate} className="space-y-5">
-          {/* Tên board */}
+      <form onSubmit={handleCreate} className="space-y-5">
+
+        {/* Board name */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Board name <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            type="text"
+            value={boardName}
+            onChange={(e) => setBoardName(e.target.value)}
+            placeholder="Ex: Website Project, Marketing Plan"
+            className="
+              w-full px-4 py-2.5 rounded-lg
+              border border-gray-300 dark:border-[#4A4D52]
+              bg-white dark:bg-[#2B2D31]
+              text-gray-800 dark:text-gray-100
+              placeholder:text-gray-400 dark:placeholder:text-gray-500
+              focus:ring-2 focus:ring-blue-500 outline-none
+              transition
+            "
+            required
+            autoFocus
+          />
+        </div>
+
+        {/* Workspace */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            From workspace
+          </label>
+
+          <select
+            value={workspaceId || ""}
+            onChange={(e) => setWorkspaceId(e.target.value || null)}
+            className="
+              w-full px-3 py-2.5 rounded-lg
+              border border-gray-300 dark:border-[#4A4D52]
+              bg-white dark:bg-[#2B2D31]
+              text-gray-800 dark:text-gray-100
+              focus:ring-2 focus:ring-blue-500 outline-none
+            "
+          >
+            <option value="">(None – Personal board)</option>
+
+            {workspaces.map((ws) => (
+              <option key={ws.workspaceUId} value={ws.workspaceUId}>
+                {ws.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Members (only when Private) */}
+        {workspaceId && visibility === "Private" && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Board name <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Board members
             </label>
-            <input
-              type="text"
-              value={boardName}
-              onChange={(e) => setBoardName(e.target.value)}
-              placeholder="Ex: Website Project, Marketing Plan"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
-              required
-              autoFocus
-            />
-          </div>
 
-          {/* Workspace */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              From workspace
-            </label>
-            <select
-              value={workspaceId || ""}
-              onChange={(e) => setWorkspaceId(e.target.value || null)}
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-gray-700"
-            >
-              <option value="">(None - Personal board)</option>
-              {workspaces.map((ws) => (
-                <option key={ws.workspaceUId} value={ws.workspaceUId}>
-                  {ws.name}
-                </option>
-              ))}
-            </select>
-          </div>
+            <div className="
+              max-h-40 overflow-y-auto rounded-lg p-2 space-y-2
+              border border-gray-300 dark:border-[#4A4D52]
+              bg-gray-50 dark:bg-[#2B2D31]
+            ">
+              {members.length > 0 ? (
+                members.map((m) => {
+                  const isOwner =
+                    m.userUId === currentUser?.userUId && m.role === "Owner";
 
-          {/* Thành viên trong board (chỉ khi Private) */}
-          {workspaceId && visibility === "Private" && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Thành viên trong board
-              </label>
-              <div className="max-h-40 overflow-y-auto border rounded-lg p-2 space-y-2">
-                {members.length > 0 ? (
-                  members.map((m) => {
-                    const isThisMemberCurrentUser = m.userUId === currentUser?.userUId;
-                    const isOwner = isThisMemberCurrentUser && m.role === "Owner";
-                    const shouldLock = isOwner;
+                  const currentSelection = selectedMembers.find(
+                    (sm) => sm.userUId === m.userUId
+                  );
 
-                    //  Lấy role hiện tại từ selectedMembers
-                    const currentSelection = selectedMembers.find(
-                      sm => sm.userUId === m.userUId
-                    );
-                    const currentRole = currentSelection?.BoardRole || "";
+                  const currentRole = currentSelection?.BoardRole || "";
 
-                    return (
-                      <div
-                        key={m.userUId}
-                        className="flex justify-between items-center bg-gray-50 rounded-lg px-3 py-2"
-                      >
-                        <span className="text-sm text-gray-700 font-medium">
-                          {m.userName || m.email}
-                          {isOwner && (
-                            <span className="ml-2 text-xs text-blue-600 font-medium">
-                              (Owner)
-                            </span>
-                          )}
-                        </span>
-
-                        {shouldLock ? (
-                          <select
-                            disabled
-                            value="Owner"
-                            className="border border-gray-200 bg-gray-100 rounded-md text-sm px-2 py-1 text-gray-500 cursor-not-allowed"
-                          >
-                            <option>Owner</option>
-                          </select>
-                        ) : (
-                          <select
-                            value={currentRole}
-                            onChange={(e) =>
-                              handleMemberChange(m.userUId, e.target.value)
-                            }
-                            className="border border-gray-300 rounded-md text-sm px-2 py-1 text-gray-700 cursor-pointer"
-                          >
-                            <option value="">Not participating in</option>
-                            <option value="Admin" title="🔱 Quản trị viên có thể quản lý board và điều chỉnh thành viên">
-                              Admin
-                            </option>
-                            <option value="Member" title="👥 Thành viên có thể tạo, chỉnh sửa và di chuyển thẻ trong board">
-                              Member
-                            </option>
-                            <option value="Viewer" title="👀 Người xem chỉ có quyền xem nội dung trong board, không thể chỉnh sửa">
-                              Viewer
-                            </option>
-                          </select>
+                  return (
+                    <div
+                      key={m.userUId}
+                      className="
+                        flex justify-between items-center
+                        bg-gray-50 dark:bg-[#1E1F22]
+                        border border-gray-200 dark:border-[#3F4147]
+                        rounded-lg px-3 py-2
+                      "
+                    >
+                      <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                        {m.userName || m.email}
+                        {isOwner && (
+                          <span className="ml-2 text-xs text-blue-600 dark:text-blue-400 font-medium">
+                            (Owner)
+                          </span>
                         )}
-                      </div>
-                    );
-                  })
-                ) : (
-                  <p className="text-sm text-gray-500 text-center">
-                    There is no member in this workspace.
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
+                      </span>
 
-          {/* Quyền truy cập */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Permissions
-            </label>
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => setVisibility("Public")}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition ${visibility === "Public"
-                  ? "bg-blue-100 border-blue-500 text-blue-700"
-                  : "border-gray-300 hover:bg-gray-50 text-gray-700"
-                  }`}
-              >
-                <Globe size={16} />
-                Public
-              </button>
-              <button
-                type="button"
-                onClick={() => setVisibility("Private")}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition ${visibility === "Private"
-                  ? "bg-blue-100 border-blue-500 text-blue-700"
-                  : "border-gray-300 hover:bg-gray-50 text-gray-700"
-                  }`}
-              >
-                <Lock size={16} />
-                Private
-              </button>
+                      {isOwner ? (
+                        <select
+                          disabled
+                          value="Owner"
+                          className="
+                            rounded-md px-2 py-1 text-sm cursor-not-allowed
+                            bg-gray-100 dark:bg-[#3A3B3F]
+                            border border-gray-200 dark:border-[#4A4D52]
+                            text-gray-500 dark:text-gray-400
+                          "
+                        >
+                          <option>Owner</option>
+                        </select>
+                      ) : (
+                        <select
+                          value={currentRole}
+                          onChange={(e) =>
+                            handleMemberChange(m.userUId, e.target.value)
+                          }
+                          className="
+                            rounded-md px-2 py-1 text-sm cursor-pointer
+                            bg-white dark:bg-[#2B2D31]
+                            border border-gray-300 dark:border-[#4A4D52]
+                            text-gray-800 dark:text-gray-200
+                          "
+                        >
+                          <option value="">Not participating</option>
+                          <option value="Admin">Admin</option>
+                          <option value="Member">Member</option>
+                          <option value="Viewer">Viewer</option>
+                        </select>
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
+                  No member in this workspace.
+                </p>
+              )}
             </div>
-            <p className="text-xs text-gray-500 mt-1">
-              {visibility === "Public"
-                ? "All workspace members can view this board"
-                : "Only one who invited can access this board"}
-            </p>
           </div>
+        )}
 
-          {/* Nút hành động */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+        {/* Permissions */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Permissions
+          </label>
+
+          <div className="flex gap-3">
+            {/* Public */}
             <button
               type="button"
-              onClick={onClose}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+              onClick={() => setVisibility("Public")}
+              className={`
+                flex items-center gap-2 px-4 py-2.5 rounded-lg border transition
+                ${visibility === "Public"
+                  ? "bg-blue-100 dark:bg-blue-900/40 border-blue-500 dark:border-blue-400 text-blue-700 dark:text-blue-300"
+                  : "border-gray-300 dark:border-[#4A4D52] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5"
+                }
+              `}
             >
-              Cancel
+              <Globe size={16} />
+              Public
             </button>
+
+            {/* Private */}
             <button
-              type="submit"
-              disabled={isLoading}
-              className={`px-4 py-2.5 rounded-lg text-white font-medium shadow-sm transition ${isLoading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
-                }`}
+              type="button"
+              onClick={() => setVisibility("Private")}
+              className={`
+                flex items-center gap-2 px-4 py-2.5 rounded-lg border transition
+                ${visibility === "Private"
+                  ? "bg-blue-100 dark:bg-blue-900/40 border-blue-500 dark:border-blue-400 text-blue-700 dark:text-blue-300"
+                  : "border-gray-300 dark:border-[#4A4D52] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5"
+                }
+              `}
             >
-              {isLoading ? "Creating..." : "Create Board"}
+              <Lock size={16} />
+              Private
             </button>
           </div>
-        </form>
-      </div>
+
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            {visibility === "Public"
+              ? "All workspace members can view this board"
+              : "Only invited users can access this board"}
+          </p>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-[#3F4147]">
+          <button
+            type="button"
+            onClick={onClose}
+            className="
+              px-4 py-2.5 rounded-lg
+              border border-gray-300 dark:border-[#4A4D52]
+              text-gray-700 dark:text-gray-200
+              hover:bg-gray-50 dark:hover:bg-white/5
+              transition
+            "
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={`
+              px-4 py-2.5 rounded-lg font-medium shadow-sm transition text-white
+              ${isLoading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+              }
+            `}
+          >
+            {isLoading ? "Creating..." : "Create Board"}
+          </button>
+        </div>
+
+      </form>
     </div>
-  );
+  </div>
+);
+
 }

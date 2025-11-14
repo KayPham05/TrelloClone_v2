@@ -27,7 +27,8 @@ import {
 } from "../services/AddTodoItem";
 import { updateCardAPI } from "../services/todoApi";
 import { getCardMembersAPI } from "../services/CardMemberAPI";
-import "./css/CardModal.css";
+import "../components/css/CardModal.css";
+import "../components/css/CardModalDark.css";
 
 export default function CardModal({ card, onClose, onSave }) {
   const [title, setTitle] = useState(card.title || "");

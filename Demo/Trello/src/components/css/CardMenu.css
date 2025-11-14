@@ -106,3 +106,64 @@
   background: #e5e7eb;
   margin: 4px 0;
 }
+
+/* ===========================
+   DARK MODE – CARD MENU
+   =========================== */
+.dark .card-menu-floating {
+  background: #2B2D31; /* nền popup Discord */
+  border: 1px solid #3F4147;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+}
+
+.dark .card-menu-header {
+  border-bottom: 1px solid #3F4147;
+}
+
+.dark .card-menu-header span {
+  color: #D1D2D3; /* text phụ sáng vừa */
+}
+
+.dark .menu-close-btn {
+  color: #AEB1B7;
+}
+
+.dark .menu-close-btn:hover {
+  background: #4A4D54;
+  color: #FFFFFF;
+}
+
+/* Items */
+.dark .card-menu-item {
+  color: #E4E5E7; /* text chính */
+}
+
+.dark .card-menu-item svg {
+  color: #AEB1B7;
+}
+
+.dark .card-menu-item:hover {
+  background: #3F4147; /* hover nhẹ như Discord */
+}
+
+.dark .card-menu-item:hover svg {
+  color: #FFFFFF;
+}
+
+/* Danger */
+.dark .card-menu-item.danger {
+  color: #ff6b6b;
+}
+
+.dark .card-menu-item.danger svg {
+  color: #ff6b6b;
+}
+
+.dark .card-menu-item.danger:hover {
+  background: rgba(255, 107, 107, 0.15);
+}
+
+/* Divider */
+.dark .card-menu-divider {
+  background: #3F4147;
+}
