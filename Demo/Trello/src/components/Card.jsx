@@ -17,6 +17,7 @@ export default function Card({
   boardMembers,
   board,
   provided,
+  list,
   snapshot,
   onRefresh,
 }) {
@@ -36,6 +37,20 @@ export default function Card({
   const [cardMembers, setCardMembers] = useState([]);
   const [isLoadingMembers, setIsLoadingMembers] = useState(false);
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        !e.target.closest(".card-menu-floating") &&
+        !e.target.closest(".card-member-popup")
+      ) {
+        setMenuState({ open: false, position: { top: 0, left: 0 } });
+        setMemberPopup({ open: false, position: { top: 0, left: 0 } });
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
   // Load card members khi card thay đổi hoặc sau khi refresh
   useEffect(() => {
     const fetchCardMembers = async () => {
@@ -109,6 +124,9 @@ export default function Card({
 
   const handleCloseMenu = () => {
     setMenuState({ open: false, position: { top: 0, left: 0 } });
+
+    // ✔ Tắt luôn popup thành viên nếu đang mở
+    setMemberPopup({ open: false, position: { top: 0, left: 0 } });
   };
 
   // Mở modal chi tiết
@@ -307,10 +325,10 @@ export default function Card({
             onClose={() =>
               setMemberPopup({ open: false, position: { top: 0, left: 0 } })
             }
-            onChange={onRefresh}
             position={memberPopup.position}
             boardMembers={boardMembers}
             board={board}
+            list={list}
             onChangeCard={handleCardMembersChange}
           />,
           document.body

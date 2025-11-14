@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoAppAPI.Data;
 using TodoAppAPI.Interfaces;
@@ -10,6 +11,7 @@ namespace TodoAppAPI.Controllers
 {
     [Route("v1/api/Activity")]
     [ApiController]
+    [Authorize]
     public class ActivityController : ControllerBase
     {
         private readonly IActivity _activityService;

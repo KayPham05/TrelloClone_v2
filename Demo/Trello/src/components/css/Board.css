@@ -134,3 +134,45 @@
   z-index: 9999;
   pointer-events: none;
 }
+
+/* Thêm vào Board.css */
+
+/* Drag effect cho list */
+.board-list {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Khi đang kéo list */
+.opacity-50 {
+  opacity: 0.5;
+}
+
+.rotate-2 {
+  transform: rotate(2deg);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* List header với drag handle */
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 4px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.list-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Cursor styles */
+.cursor-grab {
+  cursor: grab;
+  user-select: none;
+}
+
+.cursor-grab:active {
+  cursor: grabbing;
+}

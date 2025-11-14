@@ -13,7 +13,7 @@ export default function CardMemberPopup({
   card,
   requester,
   onClose,
-  onChange,
+  // onChange,
   position, // vị trí popup (truyền từ Card.jsx)
   boardMembers,
   board,
@@ -48,6 +48,7 @@ export default function CardMemberPopup({
 
   // Thêm thành viên vào card
   const handleAddMember = async (userUId) => {
+    console.log("addCard")
     try {
       await addCardMemberAPI(
         userUId,
@@ -59,7 +60,7 @@ export default function CardMemberPopup({
       const res = await getCardMembersAPI(card.cardUId);
       setCardMembers(Array.isArray(res) ? res : []);
       onChangeCard && onChangeCard(Array.isArray(res) ? res : []);
-      onChange && onChange();
+      // onChange && onChange();
 
       // Tạo notification cho thành viên được thêm vào card
       const notificationPayload = {
@@ -69,7 +70,7 @@ export default function CardMemberPopup({
         title: "Card Assignment",
         message: `${requester.userName} assigned you to card '${card.title}' in board '${board.boardName}'.`,
         link: `/boards/${board.boardUId}`,
-        workspaceId: board.workspaceUId || null, 
+        workspaceId: board.workspaceUId || null,
         boardId: board.boardUId,
         listId: list?.listUId || null,
         cardId: card.cardUId,
@@ -77,7 +78,6 @@ export default function CardMemberPopup({
 
       console.log("Sending card assignment notification:", notificationPayload);
       await addNotificationAPI(notificationPayload);
-
     } catch (err) {
       toast.error("Can't add member :(");
       console.error(err);
@@ -97,7 +97,7 @@ export default function CardMemberPopup({
       const res = await getCardMembersAPI(card.cardUId);
       setCardMembers(Array.isArray(res) ? res : []);
       onChangeCard && onChangeCard(Array.isArray(res) ? res : []);
-      onChange && onChange();
+      // onChange && onChange();
     } catch (err) {
       toast.error("Can't remove member");
       console.error(err);
@@ -116,11 +116,9 @@ export default function CardMemberPopup({
   console.log("cardMembers", cardMembers);
   return (
     <div
-      className="absolute z-[9999] bg-white rounded-lg shadow-xl border border-gray-200 w-72"
-      style={{
-        top: position?.top || 0,
-        left: position?.left || 0,
-      }}
+      className="absolute z-[9999] bg-white rounded-lg shadow-xl border border-gray-200 w-72 card-member-popup"
+      style={{ top: position?.top, left: position?.left }}
+      onClick={(e) => e.stopPropagation()}
     >
       {/* Header */}
       <div className="flex justify-between items-center border-b border-gray-100 px-3 py-2">
@@ -198,7 +196,10 @@ export default function CardMemberPopup({
               <div
                 key={m.userUId}
                 className="flex items-center justify-between p-1.5 rounded-md hover:bg-blue-50 cursor-pointer"
-                onClick={() => handleAddMember(m.userUId)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleAddMember(m.userUId);
+                }}
               >
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-full bg-gray-300 text-gray-700 text-xs flex items-center justify-center font-semibold">
@@ -217,9 +218,7 @@ export default function CardMemberPopup({
               </div>
             ))
           ) : (
-            <p className="text-gray-500 text-xs italic">
-              No member found
-            </p>
+            <p className="text-gray-500 text-xs italic">No member found</p>
           )}
         </div>
       </div>

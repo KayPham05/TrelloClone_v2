@@ -27,7 +27,7 @@ namespace TodoAppAPI.Controllers
             var result = await _addInboxCardService.AddCardToInbox(addInboxCard);
             if (!result)
                 return StatusCode(500, new { message = "Lỗi khi thêm Inbox Card." });
-            _ = _activity.AddActivity(addInboxCard.UserUId, $"added card '{addInboxCard}' to inbox");
+            _ = _activity.AddActivity(addInboxCard.UserUId, $"added card '{addInboxCard.Card?.Title}' to inbox");
             return Ok(new { message = "Thêm Inbox Card thành công." });
         }
     }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TodoAppAPI.DTOs;
 using TodoAppAPI.Interfaces;
 using TodoAppAPI.Models;
 using TodoAppAPI.Service;
@@ -72,6 +73,17 @@ namespace TodoAppAPI.Controllers
             _ = _activity.AddActivity(userUId, $"updated list '{existingList.ListName}' status to '{newStatus}'");
             return Ok(new {message = "cập nhật trạng thái thành công"});
         }
+
+        [HttpPut("reorder")]
+        public async Task<IActionResult> Reorder([FromBody] ReorderRequest req)
+        {
+            if (req == null || req.Order == null)
+                return BadRequest("Invalid order");
+
+            var ok = await _listService.UpdateListPositionAsync(req.BoardUId, req.Order);
+            return ok ? Ok() : StatusCode(500);
+        }
+
 
     }
 }
