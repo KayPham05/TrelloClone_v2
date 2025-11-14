@@ -1,16 +1,16 @@
 import AxiosClient from "./axios/axiosApi";
-const END_POINT = {
-  LISTS: "lists",
+const END_POINT = { LISTS: "lists" };
+
+const getUserUId = () => {
+    try { return JSON.parse(localStorage.getItem("user"))?.userUId; }
+    catch { return undefined; }
 };
 
-export const getListsByBoardIdAPI = (boardUId) => {
-  return AxiosClient.get(`${END_POINT.LISTS}/?boardUId=${boardUId}`);
-}
+export const getListsByBoardIdAPI = (boardUId) =>
+    AxiosClient.get(`${END_POINT.LISTS}/?boardUId=${boardUId}`);
 
-export const createListAPI = (list) => {
-  return AxiosClient.post(`${END_POINT.LISTS}`, list);
-}
+export const createListAPI = (list, userUId = getUserUId()) =>
+    AxiosClient.post(`${END_POINT.LISTS}?userUId=${userUId}`, list);
 
-export const updateListStatusAPI = (id, newStatus) => {
-  return AxiosClient.put(`${END_POINT.LISTS}/${id}?newStatus=${newStatus}`);
-}
+export const updateListStatusAPI = (listUId, newStatus, userUId = getUserUId()) =>
+    AxiosClient.put(`${END_POINT.LISTS}/${listUId}?newStatus=${newStatus}&userUId=${userUId}`);

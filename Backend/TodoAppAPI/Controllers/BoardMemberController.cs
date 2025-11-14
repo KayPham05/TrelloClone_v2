@@ -12,10 +12,11 @@ namespace TodoAppAPI.Controllers
     public class BoardMemberController : ControllerBase
     {
         private readonly IBoardMemberService _boardMemberService;
-
-        public BoardMemberController(IBoardMemberService boardMemberService)
+        private readonly IActivity _activity;
+        public BoardMemberController(IBoardMemberService boardMemberService, IActivity activity)
         {
             _boardMemberService = boardMemberService;
+            _activity = activity;
         }
 
         // Thêm thành viên vào board
@@ -28,7 +29,7 @@ namespace TodoAppAPI.Controllers
             var success = await _boardMemberService.AddBoardMemberAsync(boardUId, userUId, requesterUId, role);
             if (!success)
                 return Forbid("Không thể thêm thành viên. Kiểm tra quyền hoặc dữ liệu.");
-
+            _ = _activity.AddActivity(requesterUId, $"added user '{userUId}' to board '{boardUId}' with role '{role}'");
             return Ok(new { message = $"Đã thêm thành viên vào board với quyền {role}." });
         }
 
@@ -42,7 +43,7 @@ namespace TodoAppAPI.Controllers
             var success = await _boardMemberService.UpdateBoardMemberRoleAsync(boardUId, userUId, newRole, requesterUId);
             if (!success)
                 return Forbid("Không thể cập nhật quyền thành viên này.");
-
+            _ = _activity.AddActivity(requesterUId, $"updated role of user '{userUId}' in board '{boardUId}' to '{newRole}'");
             return Ok(new { message = $"Đã cập nhật quyền thành viên thành {newRole}." });
         }
 
@@ -56,7 +57,7 @@ namespace TodoAppAPI.Controllers
             var success = await _boardMemberService.RemoveBoardMemberAsync(boardUId, userUId, requesterUId);
             if (!success)
                 return Forbid("Không thể xóa thành viên. Kiểm tra quyền hoặc dữ liệu.");
-
+            _ = _activity.AddActivity(requesterUId, $"removed user '{userUId}' from board '{boardUId}'");
             return Ok(new { message = "Đã xóa thành viên khỏi board thành công." });
         }
 

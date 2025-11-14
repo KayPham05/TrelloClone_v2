@@ -24,29 +24,26 @@ namespace TodoAppAPI.Migrations
 
             modelBuilder.Entity("TodoAppAPI.Models.Activity", b =>
                 {
-                    b.Property<string>("ActivUId")
+                    b.Property<string>("ActivityUId")
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("Action")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("CardUId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(128)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("UserUId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(128)");
 
-                    b.HasKey("ActivUId");
+                    b.HasKey("ActivityUId");
 
                     b.HasIndex("CardUId");
 
@@ -289,6 +286,78 @@ namespace TodoAppAPI.Migrations
                     b.HasIndex("BoardUId");
 
                     b.ToTable("Lists", (string)null);
+                });
+
+            modelBuilder.Entity("TodoAppAPI.Models.Notification", b =>
+                {
+                    b.Property<string>("NotiId")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("ActorId")
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("BoardId")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("CardId")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("Link")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("ListId")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("Read")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RecipientId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(140)
+                        .HasColumnType("nvarchar(140)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<string>("WorkspaceId")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.HasKey("NotiId");
+
+                    b.HasIndex("ActorId");
+
+                    b.HasIndex("BoardId", "CreatedAt");
+
+                    b.HasIndex("CardId", "CreatedAt");
+
+                    b.HasIndex("RecipientId", "Read", "CreatedAt");
+
+                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("TodoAppAPI.Models.Role", b =>
@@ -612,19 +681,14 @@ namespace TodoAppAPI.Migrations
 
             modelBuilder.Entity("TodoAppAPI.Models.Activity", b =>
                 {
-                    b.HasOne("TodoAppAPI.Models.Card", "Card")
+                    b.HasOne("TodoAppAPI.Models.Card", null)
                         .WithMany("Activities")
-                        .HasForeignKey("CardUId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CardUId");
 
                     b.HasOne("TodoAppAPI.Models.User", "User")
                         .WithMany("Activities")
                         .HasForeignKey("UserUId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Card");
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("User");
                 });
@@ -722,6 +786,24 @@ namespace TodoAppAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Board");
+                });
+
+            modelBuilder.Entity("TodoAppAPI.Models.Notification", b =>
+                {
+                    b.HasOne("TodoAppAPI.Models.User", "Actor")
+                        .WithMany("SentNotifications")
+                        .HasForeignKey("ActorId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("TodoAppAPI.Models.User", "Recipient")
+                        .WithMany("ReceivedNotifications")
+                        .HasForeignKey("RecipientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Actor");
+
+                    b.Navigation("Recipient");
                 });
 
             modelBuilder.Entity("TodoAppAPI.Models.TodoItem", b =>
@@ -878,6 +960,10 @@ namespace TodoAppAPI.Migrations
                     b.Navigation("OwnedBoards");
 
                     b.Navigation("OwnedWorkspaces");
+
+                    b.Navigation("ReceivedNotifications");
+
+                    b.Navigation("SentNotifications");
 
                     b.Navigation("Session");
 
