@@ -10,5 +10,6 @@ namespace TodoAppAPI.Interfaces
         Task<bool> UpdateListAsync(List list);
         Task<bool> DeleteListAsync(string listUId);
         Task<bool> UpdateStatus(List list);
+        Task<bool> UpdateListPositionAsync(string boardUId, List<List> newOrder);
     }
 }

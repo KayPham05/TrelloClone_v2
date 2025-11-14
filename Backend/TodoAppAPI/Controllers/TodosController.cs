@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using TodoAppAPI.DTOs;
 using TodoAppAPI.Interfaces;
 using TodoAppAPI.Models;
+using TodoAppAPI.Service;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -14,9 +15,11 @@ namespace TodoAppAPI.Controllers
     public class TodosController : ControllerBase
     {
         private readonly ICardsService _cardService;
-        public TodosController(ICardsService todosService)
+        private readonly IActivity _activity;
+        public TodosController(ICardsService todosService, IActivity activity)
         {
             _cardService = todosService;
+            _activity = activity;
         }
 
         // GET: api/<TodosController>
@@ -39,7 +42,11 @@ namespace TodoAppAPI.Controllers
         public IActionResult Add(Card card)
         {
             if (_cardService.AddCard(card))
+            {
+                _ = _activity.AddActivity(" ", $"added card '{card.Title}' to list '{card.ListUId}'");
                 return Ok("Thêm card thành công");
+            }
+                
             return BadRequest("Không thể thêm card");
 
         }
@@ -50,7 +57,11 @@ namespace TodoAppAPI.Controllers
         {
             card.CardUId = id;
             if (_cardService.UpdateCard(card))
+            {
+                _ = _activity.AddActivity(" ", $"updated card '{card.Title}' in list '{card.ListUId}'");
                 return Ok("Cập nhật card thành công");
+            }
+                
             return NotFound("Card không tồn tại");
         }
 
@@ -58,8 +69,18 @@ namespace TodoAppAPI.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(string id)
         {
+            var card = _cardService.GetById(id);
+            if (card == null)
+                return NotFound("Card không tồn tại");
+
+            var cardName = card.Title;
+
             if (_cardService.DeleteCard(id))
+            {
+                _ = _activity.AddActivity(" ", $"deleted a card with id '{cardName}'");
                 return Ok("Xóa card thành công");
+            }
+                
             return NotFound("Card không tồn tại");
         }
 
@@ -76,21 +97,35 @@ namespace TodoAppAPI.Controllers
         [HttpPut("{CardUId}/update-list")]
         public async Task<IActionResult> UpdateListUId(string CardUId, [FromBody] UpdateListRequest body)
         {
+            var card = _cardService.GetById(CardUId);
+            if (card == null)
+                return NotFound("Card không tồn tại");
+
+            var oldListUId = card.ListUId;
+
             var success = await _cardService.UpdateListUid(CardUId, body.ListUId, body.UserUId);
             if (!success)
                 return BadRequest(new { message = "Không thể cập nhật ListUId cho Card." });
+
+            _ = _activity.AddActivity(body.UserUId,
+                $"moved card '{card.Title}' to another list");
+
             return Ok(new { message = "Cập nhật ListUId cho Card thành công." });
         }
 
         [HttpPut("{CardUId}/update-status")]
         public async Task<IActionResult> UpdateSatus(string CardUId, [FromQuery] string newStatus)
         {
+            var card = _cardService.GetById(CardUId);
+            if (card == null)
+                return NotFound("Card không tồn tại");
+
             var success = await _cardService.UpdateStatus(CardUId,  newStatus);
             if (!success)
                 return BadRequest(new { message = "Không thể cập nhật status cho Card." });
+            _ = _activity.AddActivity(" ",
+                $"updated status of card '{card.Title}' to '{newStatus}'");
             return Ok(new { message = "Cập nhật status cho Card thành công." });
         }
-
-
     }
 }

@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import SettingsSidebar from "./SettingsSidebar.jsx";
 import SettingsContent from "./SettingsContent.jsx";
+import ActivityContent from "./ActivityContent.jsx";
 import {
   getUsernameByUserUIdAPI,
   getBioByUserUIdAPI,

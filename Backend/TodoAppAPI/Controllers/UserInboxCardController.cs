@@ -12,9 +12,11 @@ namespace TodoAppAPI.Controllers
     public class UserInboxCardController : ControllerBase
     {
         private readonly IUserInboxCard _userInboxCard;
-        public UserInboxCardController(IUserInboxCard userInboxCard)
+        private readonly IActivity _activity;
+        public UserInboxCardController(IUserInboxCard userInboxCard, IActivity activity)
         {
             _userInboxCard = userInboxCard;
+            _activity = activity;
         }
         [HttpGet("{userUId}")]
         public async Task<IActionResult> GetUserInboxCards(string userUId)
@@ -28,7 +30,10 @@ namespace TodoAppAPI.Controllers
         {
             var result = await _userInboxCard.AddCardInbox(userUId, cardUId);
             if (result)
-                return Ok(new { message = "Thêm card vào inbox thành công" });
+            {
+                _ = _activity.AddActivity(userUId, $"add card '{cardUId}' to inbox");
+                return Ok(new { message = "Thêm card vào inbox thành công" }); 
+            }
             return StatusCode(500, new { message = "Lỗi khi thêm card vào inbox" });
         }
     }

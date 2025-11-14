@@ -16,13 +16,11 @@ namespace TodoAppAPI.Configurations
                    .HasMaxLength(128);
 
             builder.Property(x => x.Action)
-                   .IsRequired()
                    .IsRequired(false)
                    .HasMaxLength(200);
 
             builder.Property(x => x.CreatedAt)
-                    .HasDefaultValueSql("GETUTCDATE()");
-
+                   .HasDefaultValueSql("GETUTCDATE()");
 
             // User → Activity: NoAction
             builder.HasOne(x => x.User)

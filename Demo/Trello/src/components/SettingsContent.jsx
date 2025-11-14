@@ -1,11 +1,13 @@
 // SettingsContent.jsx
 import React, { useMemo, useState, useEffect } from "react";
+import ActivityContent from "./ActivityContent.jsx";
 
 export default function SettingsContent({ tab, currentUser, onSaveProfile, loading }) {
   if (tab === "profile")
     return <ProfileVisibility currentUser={currentUser} onSave={onSaveProfile} loading={loading} />;
   if (tab === "settings") return <Placeholder title="Settings" />;
-  if (tab === "activity") return <Placeholder title="Activity" />;
+  if (tab === "activity")
+    return <ActivityContent currentUser={currentUser} />; 
   if (tab === "cards")    return <Placeholder title="Cards" />;
   if (tab === "theme")    return <Placeholder title="Theme" />;
   return null;
