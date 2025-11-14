@@ -57,7 +57,6 @@ namespace TodoAppAPI.Data
         public DbSet<CardMember> CardMembers { get; set; }
         public DbSet<UserSession> UserSessions { get; set; }
         public DbSet<UserOtp> UserOtps { get; set; }
-
         public DbSet<Notification> Notifications { get; set; }
     }
 }

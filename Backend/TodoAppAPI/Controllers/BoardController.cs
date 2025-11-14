@@ -11,10 +11,11 @@ namespace TodoAppAPI.Controllers
     public class BoardController : ControllerBase
     {
         private readonly IBoardService _boardService;
-
-        public BoardController(IBoardService boardService)
+        private readonly IActivity _activity;
+        public BoardController(IBoardService boardService, IActivity activity)
         {
             _boardService = boardService;
+            _activity = activity;
         }
 
 
@@ -33,6 +34,7 @@ namespace TodoAppAPI.Controllers
             var board = await _boardService.GetBoardByIdAsync(uid);
             if (board == null)
                 return NotFound(new { message = "Board không tồn tại." });
+            _ = _activity.AddActivity(board.UserUId, $"viewed board '{board.BoardName}'");
             return Ok(board);
         }
 
@@ -74,7 +76,7 @@ namespace TodoAppAPI.Controllers
             var success = await _boardService.UpdateBoardAsync(board);
             if (!success)
                 return NotFound(new { message = "Không tìm thấy board để cập nhật." });
-
+            _ = _activity.AddActivity(board.UserUId, $"updated board '{board.BoardName}'");
             return Ok(new { message = "Cập nhật thành công." });
         }
 
@@ -85,7 +87,7 @@ namespace TodoAppAPI.Controllers
             var success = await _boardService.DeleteBoardAsync(uid);
             if (!success)
                 return NotFound(new { message = "Không tìm thấy board để xóa." });
-
+            _ = _activity.AddActivity("System", $"deleted board with UID '{uid}'");
             return Ok(new { message = "Xóa thành công." });
         }
     }

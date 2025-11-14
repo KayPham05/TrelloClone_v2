@@ -11,6 +11,7 @@ import Login from "./components/Login.jsx";
 import Register from "./components/Register.jsx";
 import Home from "./components/Home.jsx";
 import Layout from "./components/layout.jsx";
+import Activity from "./components/ActivityList.jsx";
 import "./index.css";
 
 
@@ -28,6 +29,7 @@ createRoot(document.getElementById("root")).render(
           <Route path="/home" element={<Home />} />
           <Route path="/dashboard" element={<Layout />} />
         </Route>
+        <Route path="/activity" element={<Activity />} />
       </Routes>
       <ToastContainer
         position="top-right"

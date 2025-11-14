@@ -13,9 +13,11 @@ namespace TodoAppAPI.Controllers
     public class AddInboxCardController : ControllerBase
     {
         private readonly IAddInboxCardService _addInboxCardService;
-        public AddInboxCardController(IAddInboxCardService addInboxCardService)
+        private readonly IActivity _activity;
+        public AddInboxCardController(IAddInboxCardService addInboxCardService, IActivity activity)
         {
             _addInboxCardService = addInboxCardService;
+            _activity = activity;
         }
         [HttpPost]
         public async Task<IActionResult> AddInboxCardUser([FromBody] AddInboxCard addInboxCard)
@@ -25,6 +27,7 @@ namespace TodoAppAPI.Controllers
             var result = await _addInboxCardService.AddCardToInbox(addInboxCard);
             if (!result)
                 return StatusCode(500, new { message = "Lỗi khi thêm Inbox Card." });
+            _ = _activity.AddActivity(addInboxCard.UserUId, $"added card '{addInboxCard}' to inbox");
             return Ok(new { message = "Thêm Inbox Card thành công." });
         }
     }

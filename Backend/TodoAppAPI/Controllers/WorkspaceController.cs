@@ -13,9 +13,11 @@ namespace TodoAppAPI.Controllers
     public class WorkspaceController : ControllerBase
     {
         private readonly IWorkspaceService _workspaceService;
-        public WorkspaceController(IWorkspaceService workspaceService)
+        private readonly IActivity _activity;
+        public WorkspaceController(IWorkspaceService workspaceService, IActivity activity)
         {
             _workspaceService = workspaceService;
+            _activity = activity;
         }
         [HttpPost("create")]
         public async Task<IActionResult> CreateWorkspace([FromQuery] string creatorUserId, [FromQuery] string name, [FromQuery] string? description = null)
@@ -25,6 +27,7 @@ namespace TodoAppAPI.Controllers
             var result = await _workspaceService.AddWorkspace(creatorUserId, name, description);
             if (!result)
                 return StatusCode(500, new { message = "Error creating workspace." });
+            _ = _activity.AddActivity(creatorUserId, $"created workspace '{name}'");
             return Ok(new { message = "Workspace created successfully." });
         }
         [HttpDelete("delete")]
@@ -35,6 +38,7 @@ namespace TodoAppAPI.Controllers
             var result = await _workspaceService.DeleteWorkspace(workspaceId, requestUserId);
             if (!result)
                 return Ok(new { message = "Không có quyền" });
+            _ = _activity.AddActivity(requestUserId, $"deleted workspace '{workspaceId}'");
             return Ok(new { message = "Workspace deleted successfully." });
         }
 
@@ -50,7 +54,7 @@ namespace TodoAppAPI.Controllers
 
             if (!result)
                 return Forbid("Bạn không có quyền chỉnh sửa workspace này.");
-
+            _ = _activity.AddActivity(dto.RequesterUId, $"updated workspace '{dto.WorkspaceId}'");
             return Ok(new { message = "Workspace updated successfully." });
         }
 
@@ -61,7 +65,7 @@ namespace TodoAppAPI.Controllers
 
             if (!success)
                 return Forbid("Bạn không có quyền thực hiện hành động này hoặc dữ liệu không hợp lệ.");
-
+            _ = _activity.AddActivity(requesterUId, $"updated role of user '{targetUserUId}' in workspace '{workspaceUId}' to '{newRole}'");
             return Ok(new { message = "Cập nhật vai trò thành viên thành công!" });
         }
 
@@ -114,7 +118,7 @@ namespace TodoAppAPI.Controllers
 
             if (!success)
                 return Forbid("Bạn không có quyền xóa thành viên này hoặc thao tác không hợp lệ");
-
+            _ = _activity.AddActivity(requesterUId, $"removed user '{userId}' from workspace '{workspaceId}'");
             return Ok(new { message = "Đã xóa thành viên khỏi workspace thành công!" });
         }
 
