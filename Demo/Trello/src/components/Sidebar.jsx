@@ -34,7 +34,7 @@ export default function Sidebar({
             flex flex-col transition-all duration-300 ease-in-out ${className}`}
     >
         {/* Header */}
-        <div className="p-4 border-b dark:border-[#3F4147]">
+        <div className="p-4 border-b dark:bg-[#1E1F23] dark:border-[#3F4147]">
             <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'}`}>
                 <button
                     onClick={toggleSidebar}

@@ -32,7 +32,7 @@ namespace TodoAppAPI.Service
             if (noti == null) return false;
 
             noti.Read = true;
-            noti.ReadAt = DateTime.UtcNow;
+            noti.ReadAt = DateTime.Now;
             await _context.SaveChangesAsync();
             return true;
         }
@@ -43,7 +43,7 @@ namespace TodoAppAPI.Service
         .Where(n => n.RecipientId == userId && !n.Read)
         .ExecuteUpdateAsync(setter => setter
             .SetProperty(n => n.Read, true)
-            .SetProperty(n => n.ReadAt, DateTime.UtcNow));
+            .SetProperty(n => n.ReadAt, DateTime.Now));
             return count;
         }
 
@@ -86,7 +86,7 @@ namespace TodoAppAPI.Service
                     BoardId = dto.BoardId,
                     ListId = dto.ListId,
                     CardId = dto.CardId,
-                    CreatedAt = DateTime.UtcNow,
+                    CreatedAt = DateTime.Now,
                     Read = false
                 };
 

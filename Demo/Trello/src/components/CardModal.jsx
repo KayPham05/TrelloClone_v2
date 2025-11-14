@@ -203,7 +203,7 @@ export default function CardModal({ card, onClose, onSave }) {
           cardMembers.length > 0 && (
             <div className="flex items-center gap-2 px-4 py-2">
               <User size={16} className="text-gray-500" />
-              <span className="text-sm font-medium text-gray-700">Thành viên:</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Card Members:</span>
               <div className="flex items-center gap-1">
                 {cardMembers.map((member, index) => {
                   const colors = [
@@ -289,7 +289,7 @@ export default function CardModal({ card, onClose, onSave }) {
                   className="description-display"
                   onClick={() => setIsEditingDesc(true)}
                 >
-                  {description || "Thêm mô tả chi tiết hơn..."}
+                  {description || "Add a more detailed description..."}
                 </div>
               ) : (
                 <div className="description-edit">
@@ -304,16 +304,17 @@ export default function CardModal({ card, onClose, onSave }) {
                       className="btn-primary"
                       onClick={() => setIsEditingDesc(false)}
                     >
-                      Lưu
+                      Save
                     </button>
                     <button
-                      className="btn-secondary"
+                      className="btn-secondary text-gray-700 bg-gray-200 hover:bg-gray-300
+    dark:text-gray-300 dark:bg-[#2B2D31] dark:hover:bg-[#3A3C40] px-3 py-1.5 rounded-lg transition"
                       onClick={() => {
                         setIsEditingDesc(false);
                         setDescription(card.description || "");
                       }}
                     >
-                      Hủy
+                      Cancel
                     </button>
                   </div>
                 </div>
@@ -380,7 +381,7 @@ export default function CardModal({ card, onClose, onSave }) {
               <div className="todo-add">
                 <input
                   className="todo-input"
-                  placeholder="Thêm một mục"
+                  placeholder="New to-do item..."
                   value={newTodo}
                   onChange={(e) => setNewTodo(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleAddTodo()}
@@ -429,7 +430,7 @@ export default function CardModal({ card, onClose, onSave }) {
                 <div className="comment-box">
                   <textarea
                     className="comment-textarea"
-                    placeholder="Viết bình luận..."
+                    placeholder="Write a comment..."
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                   />

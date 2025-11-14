@@ -51,7 +51,7 @@ namespace TodoAppAPI.Configurations
             builder.Property(x => x.Link).HasMaxLength(300);
 
             // ===== Thời gian & trạng thái =====
-            builder.Property(x => x.CreatedAt).IsRequired().HasDefaultValueSql("GETUTCDATE()");
+            builder.Property(x => x.CreatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
             builder.Property(x => x.ReadAt).IsRequired(false);
             builder.Property(x => x.Read).IsRequired().HasDefaultValue(false);
 

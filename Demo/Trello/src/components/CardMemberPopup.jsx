@@ -115,116 +115,94 @@ export default function CardMemberPopup({
 
   console.log("cardMembers", cardMembers);
 
-
   return (
-  <div
-    className="
-      absolute z-[9999] w-72 rounded-lg border shadow-xl 
-      bg-white border-gray-200 
-      dark:bg-[#1E1F22] dark:border-[#2C2D30] 
-      card-member-popup
-    "
-    style={{ top: position?.top, left: position?.left }}
-    onClick={(e) => e.stopPropagation()}
-  >
-    {/* HEADER */}
     <div
-      className="absolute z-[9999] bg-white rounded-lg shadow-xl w-72 card-member-popup flex justify-between items-center px-3 py-2 
-        border-b border-gray-100 
-        dark:border-[#2C2D30]"
+      className="
+        absolute z-[9999] bg-white rounded-lg shadow-xl border border-gray-200 w-72 card-member-popup
+        dark:bg-[#2A2D31] dark:border-[#3A3D41]
+      "
       style={{ top: position?.top, left: position?.left }}
       onClick={(e) => e.stopPropagation()}
     >
-      <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-        Thay đổi thành viên
-      </h2>
-      <button
-        onClick={onClose}
-        className="
-          p-1 rounded-md 
-          hover:bg-gray-100 dark:hover:bg-[#2A2B2E] 
-          transition
-        "
-      >
-        <X size={16} className="text-gray-700 dark:text-gray-300" />
-      </button>
-    </div>
+      {/* Header */}
+      <div className="
+        flex justify-between items-center border-b border-gray-100 px-3 py-2
+        dark:border-[#2A2D31]
+      ">
+        <h2 className="text-sm font-semibold text-gray-800 dark:text-[#E8EAED]">
+          CHANGE CARD MEMBERS
+        </h2>
+        <button
+          onClick={onClose}
+          className="p-2 hover:bg-gray-100 rounded-2 transition dark:hover:bg-[#2A2D31]"
+        >
+          <X size={16} className="dark:text-white dark:hover:bg-[#3A3D41]" />
+        </button>
+      </div>
 
-    {/* SEARCH */}
-    <div
-      className="
-        p-3 border-b border-gray-100 
-        dark:border-[#2C2D30]
-      "
-    >
-      <input
-        type="text"
-        placeholder="Member searching"
-        className="
-          w-full px-2 py-1 text-sm rounded-md
-          border border-gray-300 
-          bg-white text-gray-800
-          focus:ring-1 focus:ring-blue-500 outline-none
+      {/* Search */}
+      <div className="p-3 border-b border-gray-100 dark:border-[#2A2D31]">
+        <input
+          type="text"
+          placeholder="Member searching"
+          className="
+            w-full border border-gray-300 rounded-md px-2 py-1 text-sm 
+            focus:ring-1 focus:ring-blue-500 outline-none
+            dark:bg-[#2A2D31] dark:border-[#3A3D41] dark:text-[#E8EAED]
+            dark:placeholder:text-white/40
+          "
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
 
-          dark:bg-[#2A2B2E] dark:border-[#3A3B3D]
-          dark:text-gray-200 dark:placeholder:text-gray-400
-        "
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-    </div>
-
-    {/* CARD MEMBERS */}
-    <div
-      className="
-        p-3 border-b border-gray-100 
-        dark:border-[#2C2D30]
-      "
-    >
-      <h3 className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">
-        Card's members
-      </h3>
-
-      <div className="space-y-1 max-h-36 overflow-y-auto custom-scroll">
-        {cardMembers.length > 0 ? (
-          cardMembers.map((m) => (
-            <div
-              key={m.userUId}
-              className="
-                flex items-center justify-between p-1.5 rounded-md
-                hover:bg-gray-50 dark:hover:bg-[#2A2B2E]
-                transition
-              "
-            >
-              <div className="flex items-center gap-2">
-                <div
-                  className="
-                    w-7 h-7 rounded-full bg-blue-600 text-white 
-                    flex items-center justify-center text-xs font-semibold
-                  "
-                >
-                  {m.user?.userName
-                    ?.split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .toUpperCase()
-                    .slice(0, 2)}
-                </div>
-                <span className="text-gray-800 dark:text-gray-200 text-sm">
-                  {m.user?.userName}
-                </span>
-              </div>
-
-              <button
-                onClick={() => handleRemoveMember(m.userUId)}
+      {/* Thành viên của thẻ */}
+      <div className="p-3 border-b border-gray-100 dark:border-[#2A2D31]">
+        <h3 className="text-xs font-semibold text-gray-600 mb-2 dark:text-gray-300">
+          Card's members
+        </h3>
+        <div className="space-y-1 max-h-36 overflow-y-auto">
+          {cardMembers.length > 0 ? (
+            cardMembers.map((m) => (
+              <div
+                key={m.userUId}
                 className="
-                  text-red-500 hover:text-red-700 
-                  dark:text-red-400 dark:hover:text-red-300 
-                  text-xs font-medium
+                  flex items-center justify-between p-1.5 rounded-md 
+                  hover:bg-gray-50 dark:hover:bg-[#2A2D31]
                 "
+              >
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-semibold">
+                    {m.user?.userName
+                      ?.split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .toUpperCase()
+                      .slice(0, 2)}
+                  </div>
+                  <span className="text-gray-800 text-sm dark:text-[#E8EAED]">
+                    {m.user?.userName}
+                  </span>
+                </div>
+                <button
+                  onClick={() => handleRemoveMember(m.userUId)}
+                  className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-xs font-medium"
+                >
+                  ✕
+                </button>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500 text-xs italic dark:text-gray-400">
+              This card has no member
+            </p>
+          )}
+        </div>
+      </div>
+
       {/* Thành viên của bảng */}
       <div className="p-3">
-        <h3 className="text-xs font-semibold text-gray-600 mb-2">
+        <h3 className="text-xs font-semibold text-gray-600 mb-2 dark:text-gray-300">
           Board's members
         </h3>
         <div className="space-y-1 max-h-40 overflow-y-auto">
@@ -232,73 +210,42 @@ export default function CardMemberPopup({
             filteredBoardMembers.map((m) => (
               <div
                 key={m.userUId}
-                className="flex items-center justify-between p-1.5 rounded-md hover:bg-blue-50 cursor-pointer"
+                className="
+                  flex items-center justify-between p-1.5 rounded-md 
+                  hover:bg-blue-50 cursor-pointer
+                  dark:hover:bg-[#2A2D31]
+                "
                 onClick={(e) => {
                   e.stopPropagation();
                   handleAddMember(m.userUId);
                 }}
               >
-                ✕
-              </button>
-            </div>
-          ))
-        ) : (
-          <p className="text-gray-500 dark:text-gray-400 text-xs italic">
-            This card has no member
-          </p>
-        )}
-      </div>
-    </div>
-
-    {/* BOARD MEMBERS */}
-    <div className="p-3">
-      <h3 className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">
-        Board's members
-      </h3>
-
-      <div className="space-y-1 max-h-40 overflow-y-auto custom-scroll">
-        {filteredBoardMembers.length > 0 ? (
-          filteredBoardMembers.map((m) => (
-            <div
-              key={m.userUId}
-              className="
-                flex items-center justify-between p-1.5 rounded-md cursor-pointer
-                hover:bg-blue-50 dark:hover:bg-[#1F3A5F]
-                transition
-              "
-              onClick={(e) => {
-                e.stopPropagation();
-                handleAddMember(m.userUId);
-              }}
-            >
-              <div className="flex items-center gap-2">
-                <div
-                  className="
-                    w-7 h-7 rounded-full 
-                    bg-gray-300 text-gray-700
-                    dark:bg-[#3A3B3D] dark:text-gray-200
-                    flex items-center justify-center text-xs font-semibold
-                  "
-                >
-                  {(m.userName || m.user?.userName)
-                    ?.split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .toUpperCase()
-                    .slice(0, 2)}
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full bg-gray-300 text-gray-700 dark:bg-[#3A3D41] dark:text-gray-200 text-xs flex items-center justify-center font-semibold">
+                    {(m.userName || m.user?.userName)
+                      ?.split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .toUpperCase()
+                      .slice(0, 2)}
+                  </div>
+                  <span className="text-gray-800 text-sm dark:text-[#E8EAED]">
+                    {m.userName || m.user?.userName}
+                  </span>
                 </div>
-                <span className="text-gray-800 dark:text-gray-200 text-sm">
-                  {m.userName || m.user?.userName}
+                <span className="text-blue-600 text-xs font-medium dark:text-blue-400">
+                  Add
                 </span>
               </div>
             ))
           ) : (
-            <p className="text-gray-500 text-xs italic text-gray-500 dark:text-gray-400 text-xs italic">No member found</p>
+            <p className="text-gray-500 text-xs italic dark:text-gray-400">
+              No member found
+            </p>
           )}
         </div>
       </div>
     </div>
-  </div>
 );
 
 }
