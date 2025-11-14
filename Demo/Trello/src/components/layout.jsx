@@ -19,7 +19,7 @@ export default function Layout() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [activeTab, setActiveTab] = useState("inbox");
   const [refresh, setRefresh] = useState(false);
-  const [lists, setLists] = useState([]); // 🔥 Lift state lên Layout
+  const [lists, setLists] = useState([]);
   
   const user = JSON.parse(localStorage.getItem("user"));
   
@@ -33,7 +33,7 @@ export default function Layout() {
     )
       return;
 
-    // 🔥 XỬ LÝ KÉO THẢ LIST
+    //  XỬ LÝ KÉO THẢ LIST
     if (type === "LIST") {
       const reorderedLists = Array.from(lists);
       const [movedList] = reorderedLists.splice(source.index, 1);
@@ -59,16 +59,16 @@ export default function Layout() {
             Position: list.Position,
           }))
         );
-        console.log("✅ Lists reordered successfully");
+        console.log(" Lists reordered successfully");
       } catch (err) {
-        console.error("❌ Error reordering lists:", err);
+        console.error(" Error reordering lists:", err);
         // Nếu lỗi, reload lại data
         setRefresh((r) => !r);
       }
       return;
     }
 
-    // 🔥 XỬ LÝ KÉO THẢ CARD
+    //  XỬ LÝ KÉO THẢ CARD
     try {
       let newListUId = null;
 
@@ -113,105 +113,139 @@ export default function Layout() {
   };
 
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="fixed top-[64px] left-0 right-0 bottom-0 w-full overflow-hidden">
-        <div className="h-full w-full">
-          {showInbox ? (
-            <Split
-              className="flex h-full"
-              sizes={[25, 75]}
-              minSize={[0, 400]}
-              gutterSize={8}
-              onDragEnd={(newSizes) => {
-                if (newSizes[0] <= 10) {
-                  setIsAnimating(true);
-                  setTimeout(() => {
-                    setShowInbox(false);
-                    setIsAnimating(false);
-                  }, 400);
-                }
-              }}
-            >
-              {/* Cột Inbox */}
-              <div
-                className={`bg-[#0D1B2A] h-full overflow-y-auto rounded-tr-xl ${
-                  isAnimating ? "animate-slideOutLeft" : "animate-slideInLeft"
-                }`}
-              >
-                <Inbox refresh={refresh} setRefresh={setRefresh} />
-              </div>
+  <DragDropContext onDragEnd={handleDragEnd}>
+    <div className="fixed top-[64px] left-0 right-0 bottom-0 w-full overflow-hidden bg-gray-50 dark:bg-[#1E1F22]">
 
-              {/* Cột Board */}
-              <div className="flex-1 bg-gradient-to-br from-[#46237A] to-[#7A1E6E] rounded-tl-xl overflow-y-auto">
-                <Board 
-                  refresh={refresh} 
-                  setRefresh={setRefresh}
-                  lists={lists}
-                  setLists={setLists}
-                />
-              </div>
-            </Split>
-          ) : (
-            // Khi tắt hẳn: chỉ còn Board full màn hình
-            <div className="h-full w-full bg-gradient-to-br from-purple-700 to-purple-500 rounded-tl-xl overflow-y-auto">
-              <Board 
-                refresh={refresh} 
+      <div className="h-full w-full">
+        {showInbox ? (
+          <Split
+            className="flex h-full"
+            sizes={[25, 75]}
+            minSize={[0, 380]}
+            gutterSize={8}
+            onDragEnd={(newSizes) => {
+              if (newSizes[0] <= 10) {
+                setIsAnimating(true);
+                setTimeout(() => {
+                  setShowInbox(false);
+                  setIsAnimating(false);
+                }, 400);
+              }
+            }}
+          >
+            {/* INBOX PANEL */}
+            <div
+              className={`
+                h-full overflow-y-auto rounded-tr-xl 
+                bg-white dark:bg-[#1E1F22] 
+                border-r border-gray-200 dark:border-[#2C2D30]
+                transition-all 
+                ${isAnimating ? "animate-slideOutLeft" : "animate-slideInLeft"}
+              `}
+            >
+              <Inbox refresh={refresh} setRefresh={setRefresh} />
+            </div>
+
+            {/* BOARD PANEL */}
+            <div
+              className="
+                flex-1 overflow-y-auto rounded-tl-xl 
+                bg-gray-100 dark:bg-[#1E1F22]
+              "
+            >
+              <Board
+                refresh={refresh}
                 setRefresh={setRefresh}
                 lists={lists}
                 setLists={setLists}
               />
             </div>
-          )}
-          {/* Thanh công cụ dưới cùng */}
-          <div className="absolute bottom-0 left-0 w-full flex items-center justify-center bg-[#0b1320]/80 backdrop-blur-md text-sm text-gray-200 border-t border-gray-700">
-            <div className="flex items-center gap-3 px-4 py-2">
-              <button
-                className={`flex items-center gap-1 px-3 py-2 rounded-lg transition-all ${
+          </Split>
+        ) : (
+          /* KHI ẨN INBOX: BOARD FULL */
+          <div className="h-full w-full overflow-y-auto rounded-tl-xl bg-gray-100 dark:bg-[#1E1F22]">
+            <Board
+              refresh={refresh}
+              setRefresh={setRefresh}
+              lists={lists}
+              setLists={setLists}
+            />
+          </div>
+        )}
+
+        {/* === BOTTOM TOOLBAR (giống Notification UI) === */}
+        <div
+          className="
+            absolute bottom-0 left-0 w-full border-t
+            bg-white/80 dark:bg-[#1E1F22]/80 
+            backdrop-blur-lg
+            border-gray-200 dark:border-[#2C2D30]
+            flex items-center justify-center
+          "
+        >
+          <div className="flex items-center gap-3 px-4 py-2 text-sm">
+
+            {/* TAB: Inbox */}
+            <button
+              onClick={() => {
+                toggleInbox();
+                setActiveTab("inbox");
+              }}
+              className={`
+                flex items-center gap-1 px-3 py-2 rounded-lg transition
+                ${
                   activeTab === "inbox"
-                    ? "bg-indigo-600 text-white"
-                    : "hover:bg-[#1d2945]"
-                }`}
-                onClick={() => {
-                  toggleInbox();
-                  setActiveTab("inbox");
-                }}
-              >
-                <InboxIcon size={16} />
-                <span>Inbox</span>
-                {showInbox ? (
-                  <ChevronDown size={14} className="ml-1" />
-                ) : (
-                  <ChevronUp size={14} className="ml-1" />
-                )}
-              </button>
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#2A2B2E]"
+                }
+              `}
+            >
+              <InboxIcon size={16} />
+              <span>Inbox</span>
+              {showInbox ? (
+                <ChevronDown size={14} className="ml-1" />
+              ) : (
+                <ChevronUp size={14} className="ml-1" />
+              )}
+            </button>
 
-              <button
-                className={`flex items-center gap-1 px-3 py-2 rounded-lg transition-all ${
+            {/* TAB: Planner */}
+            <button
+              onClick={() => setActiveTab("plan")}
+              className={`
+                flex items-center gap-1 px-3 py-2 rounded-lg transition
+                ${
                   activeTab === "plan"
-                    ? "bg-indigo-600 text-white"
-                    : "hover:bg-[#1d2945]"
-                }`}
-                onClick={() => setActiveTab("plan")}
-              >
-                <LayoutGrid size={16} />
-                <span>Project Planner</span>
-              </button>
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#2A2B2E]"
+                }
+              `}
+            >
+              <LayoutGrid size={16} />
+              <span>Project Planner</span>
+            </button>
 
-              <button
-                className={`flex items-center gap-1 px-3 py-2 rounded-lg transition-all ${
+            {/* TAB: Info */}
+            <button
+              onClick={() => setActiveTab("info")}
+              className={`
+                flex items-center gap-1 px-3 py-2 rounded-lg transition
+                ${
                   activeTab === "info"
-                    ? "bg-indigo-600 text-white"
-                    : "hover:bg-[#1d2945]"
-                }`}
-                onClick={() => setActiveTab("info")}
-              >
-                <Info size={16} />
-                <span>Information board</span>
-              </button>
-            </div>
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#2A2B2E]"
+                }
+              `}
+            >
+              <Info size={16} />
+              <span>Information Board</span>
+            </button>
+
           </div>
         </div>
       </div>
-    </DragDropContext>
-  );
+    </div>
+  </DragDropContext>
+);
+
 }

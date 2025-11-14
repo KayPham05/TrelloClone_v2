@@ -47,13 +47,13 @@ export default function Board({ refresh, setRefresh, lists, setLists }) {
       setCards(Array.isArray(cardsData) ? cardsData : []);
       setBoardMembers(Array.isArray(membersData) ? membersData : []);
 
-      console.log("✅ Data loaded:", {
+      console.log("Data loaded:", {
         lists: listsData?.length || 0,
         cards: cardsData?.length || 0,
         members: membersData?.length || 0,
       });
     } catch (err) {
-      console.error("❌ Error loading data:", err);
+      console.error("Error loading data:", err);
       setLists([]);
       setCards([]);
       setBoardMembers([]);
@@ -130,132 +130,189 @@ export default function Board({ refresh, setRefresh, lists, setLists }) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-br from-[#46237A] to-[#7A1E6E]">
-      <BoardHeader
-        board={board}
-        boardMembers={boardMembers}
-        onBoardUpdated={handleBoardUpdated}
-      />
+  <div
+    className="
+      flex flex-col h-full 
+      bg-gray-100 
+      dark:bg-[#1E1F22]
+      transition-colors
+    "
+  >
+    <BoardHeader
+      board={board}
+      boardMembers={boardMembers}
+      onBoardUpdated={handleBoardUpdated}
+    />
 
-      <Droppable droppableId="all-lists" direction="horizontal" type="LIST">
-        {(provided) => (
-          <div
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-            className="flex gap-4 p-4 flex-1 overflow-x-auto"
-          >
-            {Array.isArray(lists) &&
-              lists.map((list, index) => (
-                <Draggable
-                  key={list.listUId}
-                  draggableId={list.listUId}
-                  index={index}
-                >
-                  {(listProvided, listSnapshot) => (
-                    <div
-                      ref={listProvided.innerRef}
-                      {...listProvided.draggableProps}
-                      className={`${
-                        listSnapshot.isDragging ? "opacity-50 rotate-2" : ""
-                      }`}
+    <Droppable droppableId="all-lists" direction="horizontal" type="LIST">
+      {(provided) => (
+        <div
+          ref={provided.innerRef}
+          {...provided.droppableProps}
+          className="
+            flex gap-4 p-4 flex-1 overflow-x-auto 
+            scrollbar-thin scrollbar-track-transparent
+            scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600
+          "
+        >
+          {Array.isArray(lists) &&
+            lists.map((list, index) => (
+              <Draggable
+                key={list.listUId}
+                draggableId={list.listUId}
+                index={index}
+              >
+                {(listProvided, listSnapshot) => (
+                  <div
+                    ref={listProvided.innerRef}
+                    {...listProvided.draggableProps}
+                    className={`transition ${
+                      listSnapshot.isDragging ? "opacity-50 rotate-2" : ""
+                    }`}
+                  >
+                    <Droppable
+                      droppableId={`list-${list.listUId}`}
+                      type="CARD"
                     >
-                      <Droppable
-                        droppableId={`list-${list.listUId}`}
-                        type="CARD"
-                      >
-                        {(cardProvided, cardSnapshot) => (
-                          <div
-                            ref={cardProvided.innerRef}
-                            {...cardProvided.droppableProps}
-                            className={`board-list ${
-                              cardSnapshot.isDraggingOver ? "dragging-over" : ""
-                            }`}
-                          >
-                            <div className="list-header">
-                              <div className="flex items-center gap-2 flex-1">
-                                <div
-                                  {...listProvided.dragHandleProps}
-                                  className="cursor-grab active:cursor-grabbing p-1 hover:bg-white/10 rounded transition-colors"
-                                >
-                                  <GripVertical
-                                    size={18}
-                                    className="text-white/70 hover:text-white"
-                                  />
-                                </div>
-                                <h4 className="list-title">{list.listName}</h4>
-                              </div>
-                              <button
-                                className="list-delete-btn"
-                                onClick={() => handleDeleteList(list.listUId)}
+                      {(cardProvided, cardSnapshot) => (
+                        <div
+                          ref={cardProvided.innerRef}
+                          {...cardProvided.droppableProps}
+                          className={`
+                            board-list 
+                            rounded-xl
+                            w-72
+                            bg-white text-gray-800
+                            border border-gray-200
+                            dark:bg-[#2B2D31] dark:text-[#E8EAED] 
+                            dark:border-[#3F4147]
+                            transition-colors
+                            ${cardSnapshot.isDraggingOver ? 
+                              "ring-2 ring-blue-500 dark:ring-blue-400" 
+                              : ""}
+                          `}
+                        >
+                          {/* HEADER LIST */}
+                          <div className="
+                            list-header flex justify-between items-center
+                            px-3 py-2 border-b 
+                            border-gray-200 dark:border-[#3F4147]
+                          ">
+                            <div className="flex items-center gap-2 flex-1">
+                              <div
+                                {...listProvided.dragHandleProps}
+                                className="
+                                  cursor-grab active:cursor-grabbing p-1
+                                  hover:bg-gray-100 dark:hover:bg-white/10 
+                                  rounded transition
+                                "
                               >
-                                <Trash2 size={16} />
-                              </button>
+                                <GripVertical
+                                  size={18}
+                                  className="text-gray-500 dark:text-gray-300"
+                                />
+                              </div>
+                              <h4 className="list-title font-semibold text-sm">
+                                {list.listName}
+                              </h4>
                             </div>
 
-                            <div className="list-cards">
-                              {loading ? (
-                                <div className="text-white/50 text-sm p-2">
-                                  Loading...
-                                </div>
-                              ) : (
-                                cards
-                                  .filter((c) => c.listUId === list.listUId)
-                                  .map((card, cardIndex) => (
-                                    <PortalAwareDraggable
-                                      key={card.cardUId}
-                                      draggableId={card.cardUId}
-                                      index={cardIndex}
-                                    >
-                                      {(cardDragProvided, cardDragSnapshot) => (
-                                        <Card
-                                          card={card}
-                                          boardMembers={boardMembers}
-                                          board={board}
-                                          provided={cardDragProvided}
-                                          snapshot={cardDragSnapshot}
-                                          onRefresh={() =>
-                                            setRefresh((r) => !r)
-                                          }
-                                        />
-                                      )}
-                                    </PortalAwareDraggable>
-                                  ))
-                              )}
-                              {cardProvided.placeholder}
-                            </div>
-                            <AddCardSection
-                              listId={list.listUId}
-                              onAdd={handleAddCard}
-                            />
+                            <button
+                              className="
+                                list-delete-btn p-1 rounded 
+                                hover:bg-red-50 dark:hover:bg-red-900/30
+                                text-red-600 dark:text-red-400
+                              "
+                              onClick={() => handleDeleteList(list.listUId)}
+                            >
+                              <Trash2 size={16} />
+                            </button>
                           </div>
-                        )}
-                      </Droppable>
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-            {provided.placeholder}
 
-            <div className="add-list-box">
-              <input
-                type="text"
-                value={newListName}
-                onChange={(e) => setNewListName(e.target.value)}
-                placeholder="List name..."
-                className="add-list-input"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleAddList();
-                }}
-              />
-              <button onClick={handleAddList} className="add-list-btn">
-                <Plus size={18} /> Add list
-              </button>
-            </div>
+                          {/* CARDS */}
+                          <div className="list-cards p-2">
+                            {loading ? (
+                              <div className="text-gray-500 dark:text-gray-400 text-sm p-2">
+                                Loading...
+                              </div>
+                            ) : (
+                              cards
+                                .filter((c) => c.listUId === list.listUId)
+                                .map((card, cardIndex) => (
+                                  <PortalAwareDraggable
+                                    key={card.cardUId}
+                                    draggableId={card.cardUId}
+                                    index={cardIndex}
+                                  >
+                                    {(cardDragProvided, cardDragSnapshot) => (
+                                      <Card
+                                        card={card}
+                                        boardMembers={boardMembers}
+                                        board={board}
+                                        list={list}
+                                        provided={cardDragProvided}
+                                        snapshot={cardDragSnapshot}
+                                        onRefresh={() => setRefresh((r) => !r)}
+                                      />
+                                    )}
+                                  </PortalAwareDraggable>
+                                ))
+                            )}
+                            {cardProvided.placeholder}
+                          </div>
+
+                          {/* ADD CARD */}
+                          <AddCardSection
+                            listId={list.listUId}
+                            onAdd={handleAddCard}
+                          />
+                        </div>
+                      )}
+                    </Droppable>
+                  </div>
+                )}
+              </Draggable>
+            ))}
+
+          {provided.placeholder}
+
+          {/* ADD LIST */}
+          <div className="
+            add-list-box w-72 min-w-72 h-fit p-4 rounded-xl 
+            bg-white border border-gray-300 text-gray-700
+            dark:bg-[#2B2D31] dark:text-[#E8EAED] dark:border-[#3F4147]
+            transition-colors
+          ">
+            <input
+              type="text"
+              value={newListName}
+              onChange={(e) => setNewListName(e.target.value)}
+              placeholder="List name..."
+              className="
+                add-list-input w-full px-3 py-2 rounded-md 
+                bg-gray-100 border border-gray-300
+                dark:bg-[#1E1F22] dark:border-[#4A4D52]
+                dark:text-gray-100
+                focus:ring-2 focus:ring-blue-500 outline-none
+              "
+              onKeyDown={(e) => e.key === "Enter" && handleAddList()}
+            />
+            <button
+              onClick={handleAddList}
+              className="
+                add-list-btn w-full mt-2 flex items-center justify-center gap-2
+                bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md
+              "
+            >
+              <Plus size={18} /> Add list
+            </button>
           </div>
-        )}
-      </Droppable>
-    </div>
-  );
+        </div>
+      )}
+    </Droppable>
+  </div>
+);
+  
 }
 
 function AddCardSection({ listId, onAdd }) {
@@ -275,23 +332,29 @@ function AddCardSection({ listId, onAdd }) {
         <button
           className="
             flex items-center gap-2 
-            text-white/80 hover:text-white 
+            text-gray-700 dark:text-gray-200
+            hover:text-black dark:hover:text-white
             text-sm px-2 py-1 rounded-md 
-            hover:bg-white/10 transition
+            hover:bg-gray-100 dark:hover:bg-white/10 transition
           "
           onClick={() => setAdding(true)}
         >
           <Plus size={15} /> Add a card
         </button>
       ) : (
-        <div className="p-2 rounded-md bg-white/10 backdrop-blur-sm">
+        <div className="
+          p-2 rounded-md
+          bg-gray-100 border border-gray-300
+          dark:bg-[#1E1F22] dark:border-[#4A4D52]
+        ">
           <textarea
             className="
               w-full rounded-md px-2 py-1 text-sm 
-              text-white
-              bg-white/10 border border-white/20
-              placeholder:text-white/60
-              focus:outline-none focus:ring-2 focus:ring-white/40
+              bg-white border border-gray-300 text-gray-800
+              dark:bg-[#2B2D31] dark:border-[#4A4D52] 
+              dark:text-gray-100 
+              placeholder:text-gray-400 dark:placeholder:text-gray-500
+              focus:outline-none focus:ring-2 focus:ring-blue-500
             "
             rows={2}
             placeholder="Enter card title…"
@@ -316,7 +379,10 @@ function AddCardSection({ listId, onAdd }) {
                 setAdding(false);
                 setTitle("");
               }}
-              className="text-white/70 hover:text-white text-sm"
+              className="
+                text-gray-600 dark:text-gray-300
+                hover:text-black dark:hover:text-white text-sm
+              "
             >
               Cancel
             </button>

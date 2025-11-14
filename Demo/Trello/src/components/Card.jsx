@@ -170,169 +170,178 @@ export default function Card({
       : "#86EFAC"; // xanh
 
   return (
-    <>
-      <div
-        ref={provided.innerRef}
-        {...provided.draggableProps}
-        {...provided.dragHandleProps}
-        className={`card-item transition-all duration-300 ${
-          snapshot.isDragging ? "rotate-2 shadow-lg scale-[1.02]" : ""
-        } ${isCompleted ? "completed-card" : ""}`}
-      >
-        <div className="card-row">
-          {/* Nút hoàn thành toggle */}
-          <div className="card-button-complete">
-            <button onClick={handleToggleComplete}>
-              {isCompleted ? (
-                <i className="bi bi-check-circle-fill text-green-500"></i>
-              ) : (
-                <i className="bi bi-circle text-gray-400"></i>
-              )}
-            </button>
-          </div>
+  <>
+    <div
+      ref={provided.innerRef}
+      {...provided.draggableProps}
+      {...provided.dragHandleProps}
+      className={`
+        card-item transition-all duration-300 rounded-lg
+        border border-gray-200 bg-white
+        dark:bg-[#1E1F22] dark:border-[#2C2D30]
+        px-3 py-2 shadow-sm
+        hover:shadow-md cursor-pointer
+        ${snapshot.isDragging ? "rotate-2 scale-[1.02] shadow-lg" : ""}
+        ${isCompleted ? "opacity-80" : ""}
+      `}
+    >
+      {/* ROW */}
+      <div className="flex items-start gap-2">
+        {/* COMPLETE BUTTON */}
+        <button
+          className="mt-0.5"
+          onClick={handleToggleComplete}
+        >
+          {isCompleted ? (
+            <i className="bi bi-check-circle-fill text-green-500 text-lg"></i>
+          ) : (
+            <i className="bi bi-circle text-gray-400 text-lg"></i>
+          )}
+        </button>
 
-          {/* Tiêu đề card */}
-          <div
-            className={`content ${
-              isCompleted ? "line-through text-gray-600" : ""
-            }`}
-            onClick={handleOpenCard}
-          >
-            {card.title}
-          </div>
-
-          {/* Nút edit */}
-          <div className="card-button-edit">
-            <button onClick={handleOpenMenu}>
-              <i className="bi bi-pencil-square"></i>
-            </button>
-          </div>
-
-          {/* Menu chỉnh sửa */}
-          {menuState.open &&
-            createPortal(
-              <>
-                <div className="menu-overlay" onClick={handleCloseMenu}></div>
-                <CardMenu
-                  position={menuState.position}
-                  onOpenCard={() => {
-                    handleOpenCard();
-                    handleCloseMenu();
-                  }}
-                  onEdit={() => {
-                    handleOpenCard();
-                    handleCloseMenu();
-                  }}
-                  onDelete={handleDelete}
-                  onManageMembers={handleManageMembers}
-                  onClose={handleCloseMenu}
-                  listUId={card.listUId}
-                />
-              </>,
-              document.body
-            )}
+        {/* TITLE */}
+        <div
+          className={`
+            flex-1 text-sm leading-snug
+            ${isCompleted ? "line-through text-gray-500 dark:text-gray-400" : "text-gray-800 dark:text-gray-200"}
+          `}
+          onClick={handleOpenCard}
+        >
+          {card.title}
         </div>
 
-        {/* Hiển thị các thành viên trong thẻ - ĐẶT BÊN NGOÀI card-row */}
-        {isLoadingMembers ? (
-          <div className="flex items-center gap-1 mt-2 px-2">
-            <div className="w-6 h-6 bg-gray-200 animate-pulse rounded-full"></div>
-          </div>
-        ) : (
-          cardMembers.length > 0 && (
-            <div className="flex items-center gap-1 mt-2 px-2">
-              {cardMembers.slice(0, 3).map((member, index) => {
-                const colors = [
-                  "bg-blue-700",
-                  "bg-yellow-600",
-                  "bg-orange-600",
-                  "bg-emerald-600",
-                  "bg-green-600",
-                  "bg-violet-600",
-                  "bg-rose-600",
-                  "bg-teal-600",
-                  "bg-indigo-600",
-                ];
-                const color = colors[index % colors.length];
+        {/* EDIT BUTTON */}
+        <button
+          onClick={handleOpenMenu}
+          className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+        >
+          <i className="bi bi-pencil-square"></i>
+        </button>
 
-                return (
-                  <div
-                    key={member.userUId}
-                    className={`w-6 h-6 ${color} text-white text-xs flex items-center justify-center rounded-full font-semibold flex-shrink-0`}
-                    title={member.user?.userName}
-                  >
-                    {member.user?.userName
-                      ?.split(" ")
-                      .map((n) => n[0])
-                      .join("")
-                      .toUpperCase()
-                      .slice(0, 2)}
-                  </div>
-                );
-              })}
-
-              {cardMembers.length > 3 && (
-                <div className="w-6 h-6 bg-gray-400 text-white text-xs flex items-center justify-center rounded-full flex-shrink-0">
-                  +{cardMembers.length - 3}
-                </div>
-              )}
-            </div>
-          )
-        )}
-
-        {/* Hiển thị ngày đến hạn */}
-        {card.dueDate && (
-          <div
-            className={`due-date flex items-center gap-1 mt-2 text-xs font-medium w-fit px-2 py-0.5 rounded-full transition-all duration-300 ${
-              isCompleted ? "bg-green-500 text-white" : ""
-            }`}
-            style={
-              !isCompleted
-                ? {
-                    backgroundColor: dueColor,
-                    color: "#1E293B",
-                  }
-                : {}
-            }
-          >
-            <i className="bi bi-clock me-1"></i>
-            {new Date(card.dueDate).toLocaleDateString("vi-VN", {
-              day: "numeric",
-              month: "short",
-            })}
-          </div>
-        )}
+        {/* MENU */}
+        {menuState.open &&
+          createPortal(
+            <>
+              <div
+                className="menu-overlay fixed inset-0"
+                onClick={handleCloseMenu}
+              ></div>
+              <CardMenu
+                position={menuState.position}
+                onOpenCard={() => {
+                  handleOpenCard();
+                  handleCloseMenu();
+                }}
+                onEdit={() => {
+                  handleOpenCard();
+                  handleCloseMenu();
+                }}
+                onDelete={handleDelete}
+                onManageMembers={handleManageMembers}
+                onClose={handleCloseMenu}
+                listUId={card.listUId}
+              />
+            </>,
+            document.body
+          )}
       </div>
 
-      {/* Modal chi tiết card */}
-      {showModal &&
-        createPortal(
-          <CardModal
-            card={card}
-            cardMembers={cardMembers}
-            onClose={handleCloseModal}
-            onSave={handleSaveModal}
-          />,
-          document.body
-        )}
+      {/* MEMBERS */}
+      {!isLoadingMembers && cardMembers.length > 0 && (
+        <div className="flex items-center gap-1 mt-2">
+          {cardMembers.slice(0, 3).map((member, index) => {
+            const colors = [
+              "bg-blue-700",
+              "bg-yellow-600",
+              "bg-orange-600",
+              "bg-emerald-600",
+              "bg-green-600",
+              "bg-violet-600",
+              "bg-rose-600",
+              "bg-teal-600",
+              "bg-indigo-600",
+            ];
+            const color = colors[index % colors.length];
 
-      {/* Popup quản lý members */}
-      {memberPopup.open &&
-        createPortal(
-          <CardMemberPopup
-            card={card}
-            requester={JSON.parse(localStorage.getItem("user"))}
-            onClose={() =>
-              setMemberPopup({ open: false, position: { top: 0, left: 0 } })
-            }
-            position={memberPopup.position}
-            boardMembers={boardMembers}
-            board={board}
-            list={list}
-            onChangeCard={handleCardMembersChange}
-          />,
-          document.body
-        )}
-    </>
-  );
+            return (
+              <div
+                key={member.userUId}
+                className={`w-6 h-6 ${color} text-white text-xs flex items-center justify-center rounded-full font-semibold`}
+                title={member.user?.userName}
+              >
+                {member.user?.userName
+                  ?.split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .toUpperCase()
+                  .slice(0, 2)}
+              </div>
+            );
+          })}
+
+          {cardMembers.length > 3 && (
+            <div className="w-6 h-6 bg-gray-400 dark:bg-gray-600 text-white text-xs flex items-center justify-center rounded-full">
+              +{cardMembers.length - 3}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* DUE DATE */}
+      {card.dueDate && (
+        <div
+          className={`
+            flex items-center gap-1 mt-2 text-xs font-medium w-fit px-2 py-0.5 rounded-full
+            ${isCompleted ? "bg-green-500 text-white" : ""}
+          `}
+          style={
+            !isCompleted
+              ? {
+                  backgroundColor: dueColor,
+                  color: "#1E293B",
+                }
+              : {}
+          }
+        >
+          <i className="bi bi-clock me-1"></i>
+          {new Date(card.dueDate).toLocaleDateString("vi-VN", {
+            day: "numeric",
+            month: "short",
+          })}
+        </div>
+      )}
+    </div>
+
+    {/* MODAL */}
+    {showModal &&
+      createPortal(
+        <CardModal
+          card={card}
+          cardMembers={cardMembers}
+          onClose={handleCloseModal}
+          onSave={handleSaveModal}
+        />,
+        document.body
+      )}
+
+    {/* MEMBERS POPUP */}
+    {memberPopup.open &&
+      createPortal(
+        <CardMemberPopup
+          card={card}
+          requester={JSON.parse(localStorage.getItem("user"))}
+          onClose={() =>
+            setMemberPopup({ open: false, position: { top: 0, left: 0 } })
+          }
+          position={memberPopup.position}
+          boardMembers={boardMembers}
+          board={board}
+          list={list}
+          onChangeCard={handleCardMembersChange}
+        />,
+        document.body
+      )}
+  </>
+);
+
 }

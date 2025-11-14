@@ -15,17 +15,20 @@ export default function SettingsContent({ tab, currentUser, onSaveProfile, loadi
 
 function Placeholder({ title }) {
   return (
-    <div className="h-full flex flex-col dark:!text-gray-300">
+    <div className="h-full flex flex-col dark:text-[#E8EAED]">
       <Header title={title} subtitle="Developing..." />
+
       <div className="px-8 pb-8 overflow-auto">
-        <div className="text-sm text-gray-600 dark:!text-gray-300">
-          Layour border is ready
+        <div className="text-sm text-gray-600 dark:text-[#9AA0A6]">
+          Layout border is ready
         </div>
       </div>
+
       <SaveBar disabled />
     </div>
   );
 }
+
 
 /* ================= Profile & Visibility ================= */
 
@@ -34,15 +37,11 @@ function ProfileVisibility({ currentUser, onSave, loading }) {
     userName: currentUser?.userName || "",
     email: currentUser?.email || "",
     bio: currentUser?.bio || "",
-    visibility: {
-      userName: "public",
-      email:    "private",
-      bio:      "public"
-    }
+    visibility: { userName: "public", email: "private", bio: "public" }
   }), [currentUser?.userName, currentUser?.email, currentUser?.bio]);
 
   const [form, setForm] = useState(init);
-  useEffect(() => { setForm(init); }, [init]); // khi DB về -> reset form
+  useEffect(() => { setForm(init); }, [init]);
 
   const [saving, setSaving] = useState(false);
   const dirty = JSON.stringify(form) !== JSON.stringify(init);
@@ -53,38 +52,39 @@ function ProfileVisibility({ currentUser, onSave, loading }) {
   const handleSave = async () => {
     if (!dirty || saving) return;
     setSaving(true);
-    try {
-      await onSave?.(form);   // form có userName, email, bio
-      // Sau onSave -> parent refetch DB -> init cập nhật -> effect trên set lại form → OK
-    } finally {
-      setSaving(false);
-    }
+    try { await onSave?.(form); }
+    finally { setSaving(false); }
   };
 
   return (
-    <div className="h-full flex flex-col dark:!text-gray-300">
+    <div className="h-full flex flex-col dark:text-[#E8EAED]">
       <Header
         title="Profile and Visibility"
         subtitle="Personal information and visibility management"
       />
 
       <div className="px-8 pb-28 overflow-auto space-y-6">
-        <div className="rounded-xl border border-gray-200 dark:border-neutral-800 overflow-hidden">
-          <div className="bg-gray-50 dark:bg-neutral-950/40 px-5 py-4">
-            <h3 className="font-semibold dark:!text-gray-300 dark:font-bold">Manage your personal information</h3>
-            <p className="text-sm text-gray-600 dark:!text-gray-300">
+
+        <div className="rounded-xl border border-gray-200 dark:border-[#3F4147] overflow-hidden">
+          <div className="bg-gray-50 dark:bg-[#1E1F22] px-5 py-4">
+            <h3 className="font-semibold dark:text-[#E8EAED] dark:font-bold">
+              Manage your personal information
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-[#9AA0A6]">
               Trellone Account Management. You may modify your information below.
             </p>
           </div>
 
           <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* userName */}
+            
+            {/* Username */}
             <Field label="Username">
               <input
                 className="mt-1 w-full rounded-lg border px-3 py-2
-                           border-gray-300 dark:border-neutral-700
-                           bg-white dark:bg-neutral-900 focus:outline-none
-                           focus:ring-2 focus:ring-blue-500/50"
+                  border-gray-300 dark:border-[#3F4147]
+                  bg-white dark:bg-[#2B2D31]
+                  text-gray-800 dark:text-[#E8EAED]
+                  focus:outline-none focus:ring-2 focus:ring-blue-500/40"
                 value={form.userName}
                 onChange={e => onField("userName", e.target.value)}
                 placeholder="Let's make a cool username!"
@@ -93,12 +93,13 @@ function ProfileVisibility({ currentUser, onSave, loading }) {
               <VisPicker value={form.visibility.userName} onChange={v => onVis("userName", v)} />
             </Field>
 
-            {/* Email (read-only) */}
+            {/* Email */}
             <Field label="Email">
               <input
                 className="mt-1 w-full rounded-lg border px-3 py-2
-                           border-gray-300 dark:border-neutral-700
-                           bg-gray-50 dark:bg-neutral-800/50 text-gray-700 dark:!text-gray-200"
+                  border-gray-300 dark:border-[#3F4147]
+                  bg-gray-50 dark:bg-[#3A3C42]
+                  text-gray-700 dark:text-[#E8EAED]"
                 value={form.email}
                 readOnly
               />
@@ -110,9 +111,10 @@ function ProfileVisibility({ currentUser, onSave, loading }) {
               <textarea
                 rows={6}
                 className="mt-1 w-full rounded-lg border px-3 py-2
-                           border-gray-300 dark:border-neutral-700
-                           bg-white dark:bg-neutral-900 focus:outline-none
-                           focus:ring-2 focus:ring-blue-500/50"
+                  border-gray-300 dark:border-[#3F4147]
+                  bg-white dark:bg-[#2B2D31]
+                  text-gray-800 dark:text-[#E8EAED]
+                  focus:outline-none focus:ring-2 focus:ring-blue-500/40"
                 value={form.bio}
                 onChange={e => onField("bio", e.target.value)}
                 placeholder="Tell people a bit about you…"
@@ -124,36 +126,40 @@ function ProfileVisibility({ currentUser, onSave, loading }) {
         </div>
       </div>
 
-      <SaveBar
-        disabled={!dirty || saving || loading}
-        saving={saving}
-        onSave={handleSave}
-      />
+      <SaveBar disabled={!dirty || saving || loading} saving={saving} onSave={handleSave} />
     </div>
   );
 }
+
 
 /* ================= Small Pieces ================= */
 
 function Header({ title, subtitle }) {
   return (
     <div className="px-8 pt-8 pb-4">
-      <h1 className="text-2xl font-extrabold tracking-tight">{title}</h1>
+      <h1 className="text-2xl font-extrabold tracking-tight dark:text-[#E8EAED]">
+        {title}
+      </h1>
+
       {subtitle && (
-        <p className="text-sm text-gray-600 dark:!text-gray-300 mt-1">{subtitle}</p>
+        <p className="text-sm text-gray-600 dark:text-[#9AA0A6] mt-1">
+          {subtitle}
+        </p>
       )}
     </div>
   );
 }
 
+
 function Field({ label, children, className = "" }) {
   return (
     <div className={className}>
-      <label className="text-sm font-medium dark:!text-gray-300 dark:font-bold">{label}</label>
+      <label className="text-sm font-medium dark:text-[#E8EAED]">{label}</label>
       {children}
     </div>
   );
 }
+
 
 function VisPicker({ value, onChange }) {
   const Opt = ({ v, label }) => (
@@ -163,36 +169,42 @@ function VisPicker({ value, onChange }) {
       className={[
         "mt-2 text-xs px-2 py-1 rounded-md border transition",
         value === v
-          ? "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:!text-blue-300 dark:border-blue-900/60"
-          : "text-gray-600 dark:!text-gray-300 border-gray-300 dark:border-neutral-700 hover:bg-gray-100 dark:hover:bg-neutral-800"
+          ? "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-[#8AB4F8] dark:border-blue-900/60"
+          : "text-gray-600 dark:text-[#B5BAC1] border-gray-300 dark:border-[#3F4147] hover:bg-gray-100 dark:hover:bg-[#3A3C42]"
       ].join(" ")}
     >
       {label}
     </button>
   );
+
   return (
     <div className="flex items-center gap-2">
-      <span className="mt-2 text-xs text-gray-500 dark:!text-gray-300">Visibility:</span>
-      <Opt v="public" label="Public" />
+      <span className="mt-2 text-xs text-gray-500 dark:text-[#9AA0A6]">Visibility:</span>
+      <Opt v="public"  label="Public" />
       <Opt v="private" label="Private" />
     </div>
   );
 }
 
+
 function SaveBar({ disabled = true, saving = false, onSave }) {
   return (
-    <div className="
-      sticky bottom-0 w-full border-t
-      border-gray-200 dark:border-neutral-800
-      bg-white/85 dark:bg-neutral-900/85 backdrop-blur
-      px-8 py-3
-    ">
+    <div
+      className="
+        sticky bottom-0 w-full border-t
+        border-gray-200 dark:border-[#3F4147]
+        bg-white/85 dark:bg-[#2B2D31]/85 backdrop-blur
+        px-8 py-3
+      "
+    >
       <button
         onClick={onSave}
         disabled={disabled}
         className={[
           "px-4 py-2 rounded-lg text-white transition",
-          !disabled ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-300 cursor-not-allowed dark:!text-gray-600"
+          !disabled
+            ? "bg-blue-600 hover:bg-blue-700"
+            : "bg-gray-300 cursor-not-allowed dark:text-[#555]"
         ].join(" ")}
       >
         {saving ? "Saving…" : "Save"}
@@ -200,3 +212,4 @@ function SaveBar({ disabled = true, saving = false, onSave }) {
     </div>
   );
 }
+

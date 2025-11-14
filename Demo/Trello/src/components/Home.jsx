@@ -244,149 +244,187 @@ export default function Home() {
   }));
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 home ">
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar
-          workspaces={workspacesWithBoards}
-          onCreateWorkspace={() => setShowCreateWorkspaceModal(true)}
-          onCreateBoard={handleCreateBoard}
-          onSelectBoard={openDashboard}
-        />
+  <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-[#2B2D31] home">
+    <div className="flex flex-1 overflow-hidden">
 
-        <main className="flex-1 p-8 overflow-y-auto">
-          <div className="max-w-7xl mx-auto space-y-10 ">
-            <RecentBoardsSection
-              recentBoards={recentBoards}
-              workspaces={workspaces}
-              loading={loading}
-              onSelectBoard={openDashboard}
-              boardMembers={boardMembers}
-            />
+      {/* LEFT SIDEBAR (đã có dark mode riêng) */}
+      <Sidebar
+        workspaces={workspacesWithBoards}
+        onCreateWorkspace={() => setShowCreateWorkspaceModal(true)}
+        onCreateBoard={handleCreateBoard}
+        onSelectBoard={openDashboard}
+      />
 
-            <PersonalBoardSection
-              boards={boardsPersonal}
-              loading={loading}
-              onCreateBoard={handleCreateBoard}
-              onSelectBoard={openDashboard}
-            />
+      {/* MAIN CONTENT */}
+      <main className="flex-1 p-8 overflow-y-auto bg-white dark:bg-[#2B2D31]">
+        <div className="max-w-7xl mx-auto space-y-10">
 
-            <WorkspaceSection
-              workspaces={workspacesWithBoards}
-              loading={loading}
-              onCreateWorkspace={() => setShowCreateWorkspaceModal(true)}
-              onCreateBoard={handleCreateBoard}
-              onSelectBoard={openDashboard}
-              onInviteUser={(ws) => {
-                setSelectedWorkspace(ws);
-                setShowInviteModal(true);
-              }}
-              onOpenSetting={(ws) => {
-                setSelectedWorkspaceSetting(ws);
-                setShowSettingModal(true);
-              }}
-              boardMembers={boardMembers}
-            />
-          </div>
-        </main>
+          <RecentBoardsSection
+            recentBoards={recentBoards}
+            workspaces={workspaces}
+            loading={loading}
+            onSelectBoard={openDashboard}
+            boardMembers={boardMembers}
+          />
 
-        <RightSidebar
-          recentBoards={recentBoards}
-          onCreateBoard={() => handleCreateBoard()}
-          onSelectBoard={openDashboard}
-        />
-      </div>
+          <PersonalBoardSection
+            boards={boardsPersonal}
+            loading={loading}
+            onCreateBoard={handleCreateBoard}
+            onSelectBoard={openDashboard}
+          />
 
-      {showCreateWorkspaceModal && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-          onClick={(e) => {
-            if (e.target === e.currentTarget)
-              setShowCreateWorkspaceModal(false);
-          }}
-        >
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-5">
-              New Workspace
-            </h2>
-
-            <form onSubmit={handleCreateWorkspace} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Workspace name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  required
-                  autoFocus
-                  placeholder="VD: Dev Team, Marketing Team..."
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description (Optional)
-                </label>
-                <textarea
-                  name="description"
-                  rows="3"
-                  placeholder="Ex: Product Development Project Management"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none transition"
-                ></textarea>
-              </div>
-
-              <div className="flex gap-3 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setShowCreateWorkspaceModal(false)}
-                  className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm transition"
-                >
-                  Create Workspace
-                </button>
-              </div>
-            </form>
-          </div>
+          <WorkspaceSection
+            workspaces={workspacesWithBoards}
+            loading={loading}
+            onCreateWorkspace={() => setShowCreateWorkspaceModal(true)}
+            onCreateBoard={handleCreateBoard}
+            onSelectBoard={openDashboard}
+            onInviteUser={(ws) => {
+              setSelectedWorkspace(ws);
+              setShowInviteModal(true);
+            }}
+            onOpenSetting={(ws) => {
+              setSelectedWorkspaceSetting(ws);
+              setShowSettingModal(true);
+            }}
+            boardMembers={boardMembers}
+          />
         </div>
-      )}
+      </main>
 
-      {showInviteModal && selectedWorkspace && (
-        <InviteUserModal
-          workspace={selectedWorkspace}
-          onClose={() => {
-            setShowInviteModal(false);
-            setSelectedWorkspace(null);
-          }}
-          currentUser={user}
-          onSuccess={refreshAllData}
-        />
-      )}
-      {showSettingModal && selectedWorkspaceSetting && (
-        <WorkspaceSettingModal
-          workspace={selectedWorkspaceSetting}
-          currentUser={user}
-          onClose={() => {
-            setShowSettingModal(false);
-            setSelectedWorkspaceSetting(null);
-          }}
-          onSuccess={refreshAllData}
-        />
-      )}
-      {showCreateBoardModal && (
-        <CreateBoardModal
-          currentUser={user}
-          workspaces={workspaces}
-          defaultWorkspaceId={selectedWorkspaceId}
-          onClose={() => setShowCreateBoardModal(false)}
-          onSuccess={refreshAllData}
-        />
-      )}
+      {/* RIGHT SIDEBAR (đã có dark mode riêng) */}
+      <RightSidebar
+        recentBoards={recentBoards}
+        onCreateBoard={() => handleCreateBoard()}
+        onSelectBoard={openDashboard}
+      />
     </div>
-  );
+
+    {/* CREATE WORKSPACE MODAL */}
+    {showCreateWorkspaceModal && (
+      <div
+        className="fixed inset-0 bg-black/50 dark:bg-black/60
+                   flex items-center justify-center z-50 p-4"
+        onClick={(e) => {
+          if (e.target === e.currentTarget)
+            setShowCreateWorkspaceModal(false);
+        }}
+      >
+        <div className="bg-white dark:bg-[#1E1F22]
+                        dark:border dark:border-[#3F4147]
+                        rounded-xl shadow-2xl max-w-md w-full p-6">
+
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-[#E8EAED] mb-5">
+            New Workspace
+          </h2>
+
+          <form onSubmit={handleCreateWorkspace} className="space-y-4">
+
+            {/* Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-[#E8EAED] mb-2">
+                Workspace name <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="name"
+                required
+                autoFocus
+                placeholder="VD: Dev Team, Marketing Team..."
+                className="w-full px-4 py-2.5 border border-gray-300 
+                           dark:border-[#3F4147]
+                           rounded-lg bg-white dark:bg-[#2B2D31]
+                           text-gray-800 dark:text-[#E8EAED]
+                           focus:ring-2 focus:ring-blue-500 
+                           outline-none transition"
+              />
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-[#E8EAED] mb-2">
+                Description (Optional)
+              </label>
+              <textarea
+                name="description"
+                rows="3"
+                placeholder="Ex: Product Development Project Management"
+                className="w-full px-4 py-2.5 border border-gray-300 
+                           dark:border-[#3F4147]
+                           rounded-lg bg-white dark:bg-[#2B2D31]
+                           text-gray-800 dark:text-[#E8EAED]
+                           focus:ring-2 focus:ring-blue-500
+                           outline-none resize-none transition"
+              ></textarea>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex gap-3 pt-3">
+              <button
+                type="button"
+                onClick={() => setShowCreateWorkspaceModal(false)}
+                className="flex-1 px-4 py-2.5 border border-gray-300 dark:border-[#3F4147]
+                           text-gray-700 dark:text-[#E8EAED]
+                           rounded-lg hover:bg-gray-50 dark:hover:bg-[#3A3C42]
+                           transition"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                className="flex-1 px-4 py-2.5 
+                           bg-blue-600 hover:bg-blue-700 
+                           text-white font-medium rounded-lg shadow-sm
+                           transition dark:bg-[#8AB4F8] dark:hover:bg-[#A8C7FA]
+                           dark:text-[#1E1F22]"
+              >
+                Create Workspace
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    )}
+
+    {/* OTHER MODALS – giữ nguyên logic */}
+    {showInviteModal && selectedWorkspace && (
+      <InviteUserModal
+        workspace={selectedWorkspace}
+        onClose={() => {
+          setShowInviteModal(false);
+          setSelectedWorkspace(null);
+        }}
+        currentUser={user}
+        onSuccess={refreshAllData}
+      />
+    )}
+
+    {showSettingModal && selectedWorkspaceSetting && (
+      <WorkspaceSettingModal
+        workspace={selectedWorkspaceSetting}
+        currentUser={user}
+        onClose={() => {
+          setShowSettingModal(false);
+          setSelectedWorkspaceSetting(null);
+        }}
+        onSuccess={refreshAllData}
+      />
+    )}
+
+    {showCreateBoardModal && (
+      <CreateBoardModal
+        currentUser={user}
+        workspaces={workspaces}
+        defaultWorkspaceId={selectedWorkspaceId}
+        onClose={() => setShowCreateBoardModal(false)}
+        onSuccess={refreshAllData}
+      />
+    )}
+
+  </div>
+);
+
 }
