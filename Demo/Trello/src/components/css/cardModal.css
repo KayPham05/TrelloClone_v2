@@ -2,26 +2,25 @@
 .modal-overlay-new {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
+  background: rgba(0, 0, 0, 0.55);
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: start;
   z-index: 50;
+  padding-top: 30px;
 }
 
 /* === WRAPPER === */
 .cardmodal-wrapper {
-  background-color: #1d2125;
-  color: #b6c2cf;
-  width: 1260px; /* mở rộng 40% */
+  background-color: #ffffff;
+  color: #172b4d;
+  width: 1260px;
   max-height: 92vh;
   border-radius: 10px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 8px 24px -4px rgba(9, 30, 66, 0.35);
-  position: absolute;
-  top: 30px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
 }
 
 /* === HEADER === */
@@ -30,7 +29,8 @@
   justify-content: space-between;
   align-items: flex-start;
   padding: 20px 24px;
-  border-bottom: 1px solid #2c3338;
+  border-bottom: 1px solid #dfe1e6;
+  background: #f4f5f7;
 }
 
 .header-left {
@@ -41,14 +41,14 @@
 
 .header-icon {
   margin-top: 5px;
-  color: #a1a1a1;
+  color: #5e6c84;
 }
 
 .header-title {
   font-size: 1.4rem;
   font-weight: 600;
   background: transparent;
-  color: white;
+  color: #172b4d;
   border: none;
   resize: none;
   width: 100%;
@@ -56,25 +56,25 @@
 }
 
 .header-subtitle {
-  color: #9aa0a6;
+  color: #5e6c84;
   font-size: 0.9rem;
 }
 
 .header-subtitle span {
-  color: #58a6ff;
+  color: #0079bf;
   font-weight: 500;
 }
 
 .close-btn {
   background: none;
   border: none;
-  color: #aaa;
+  color: #6b778c;
   cursor: pointer;
   transition: color 0.2s;
 }
 
 .close-btn:hover {
-  color: #fff;
+  color: #172b4d;
 }
 
 /* === DUE DATE === */
@@ -83,15 +83,15 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 24px;
-  border-bottom: 1px solid #2f2f2f;
-  background-color: #252525;
+  border-bottom: 1px solid #dfe1e6;
+  background: #fff;
 }
 
 .due-label {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #aaa;
+  color: #6b778c;
 }
 
 .due-content {
@@ -101,9 +101,9 @@
 }
 
 .due-input {
-  background-color: #333;
-  border: 1px solid #444;
-  color: #fff;
+  background-color: #ffffff;
+  border: 1px solid #dfe1e6;
+  color: #172b4d;
   border-radius: 6px;
   padding: 4px 8px;
 }
@@ -121,8 +121,8 @@
 }
 
 .due-status.soon {
-  background-color: #d6b91e;
-  color: #222;
+  background-color: #f2d600;
+  color: #172b4d;
 }
 
 .due-status.normal {
@@ -137,25 +137,14 @@
   overflow-y: auto;
 }
 
-/* LEFT */
+/* === LEFT === */
 .cardmodal-left {
   flex: 2;
   padding: 24px 32px;
+  background: #ffffff;
   overflow-y: auto;
 }
 
-/* RIGHT */
-.cardmodal-right {
-  flex: 1;
-  padding: 24px;
-  background-color: #22272b;
-  border-left: 1px solid #333;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-/* === SECTIONS === */
 .modal-section {
   margin-bottom: 24px;
 }
@@ -164,14 +153,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #ccc;
+  color: #172b4d;
   margin-bottom: 10px;
 }
 
 .section-header h3 {
   font-size: 14px;
   font-weight: 600;
-  margin: 0;
 }
 
 .section-actions {
@@ -182,15 +170,15 @@
 /* === DESCRIPTION === */
 .description-display {
   padding: 10px;
-  background-color: #333;
+  background-color: #f4f5f7;
   border-radius: 6px;
   cursor: pointer;
-  color: #ccc;
+  color: #172b4d;
   transition: background 0.2s;
 }
 
 .description-display:hover {
-  background-color: #3b3b3b;
+  background-color: #ebecf0;
 }
 
 .description-edit textarea {
@@ -198,19 +186,19 @@
   height: 100px;
   border-radius: 6px;
   padding: 10px;
-  background-color: #333;
-  border: none;
-  color: #eee;
+  background-color: #ffffff;
+  border: 1px solid #dfe1e6;
+  color: #172b4d;
   resize: none;
 }
 
+/* === DESCRIPTION BUTTONS === */
 .description-actions {
   margin-top: 8px;
   display: flex;
   gap: 8px;
 }
 
-/* === BUTTONS === */
 .btn-primary {
   background-color: #0079bf;
   border: none;
@@ -227,20 +215,19 @@
 
 .btn-secondary {
   background: transparent;
-  color: #ccc;
-  border: none;
+  color: #5e6c84;
   cursor: pointer;
+  border: none;
   font-size: 14px;
 }
 
 .btn-secondary:hover {
-  color: white;
+  color: #172b4d;
 }
 
 .btn-sm {
   font-size: 12px;
   padding: 4px 8px;
-  border-radius: 4px;
 }
 
 /* === CHECKLIST === */
@@ -253,7 +240,7 @@
 
 .progress-text {
   font-size: 12px;
-  color: #9fadbc;
+  color: #42526e;
   width: 28px;
   text-align: right;
 }
@@ -261,14 +248,14 @@
 .progress-bar {
   flex: 1;
   height: 6px;
-  background: #2c3338;
+  background: #ebecf0;
   border-radius: 3px;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: #579dff;
+  background: #5aac44;
   border-radius: 3px;
   transition: width 0.3s ease;
 }
@@ -283,16 +270,15 @@
 .todo-input {
   width: 100%;
   padding: 6px 10px;
-  background: #22272b;
-  border: 1px solid #2c3338;
+  background: #fafbfc;
+  border: 1px solid #dfe1e6;
   border-radius: 4px;
-  color: #b6c2cf;
+  color: #172b4d;
   font-size: 14px;
 }
 
 .todo-input:focus {
-  border-color: #579dff;
-  outline: none;
+  border-color: #0079bf;
 }
 
 .todo-list {
@@ -316,20 +302,29 @@
 }
 
 .todo-text {
-  color: #b6c2cf;
+  color: #172b4d;
 }
 
 .todo-delete {
   background: transparent;
   border: none;
-  color: #9fadbc;
+  color: #5e6c84;
   cursor: pointer;
-  font-size: 13px;
-  padding: 4px;
 }
 
 .todo-delete:hover {
-  color: #ca3521;
+  color: #b04632;
+}
+
+/* === RIGHT PANEL === */
+.cardmodal-right {
+  flex: 1;
+  padding: 24px;
+  background-color: #fff;
+  border-left: 1px solid #dfe1e6;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 /* === COMMENTS === */
@@ -360,11 +355,10 @@
   width: 100%;
   min-height: 40px;
   border-radius: 6px;
-  border: none;
-  background-color: #333;
-  color: white;
+  border: 1px solid #dfe1e6;
+  background-color: #ffffff;
+  color: #172b4d;
   padding: 8px;
-  resize: none;
 }
 
 .comment-list {
@@ -379,16 +373,17 @@
 }
 
 .comment-content {
-  background-color: #333;
+  background-color: #ffffff;
   padding: 10px;
   border-radius: 6px;
   flex: 1;
+  border: 1px solid #dfe1e6;
 }
 
 .comment-header {
   display: flex;
   justify-content: space-between;
-  color: #aaa;
+  color: #6b778c;
   margin-bottom: 5px;
 }
 
@@ -428,11 +423,11 @@
 
 .cardmodal-left::-webkit-scrollbar-thumb,
 .comment-list::-webkit-scrollbar-thumb {
-  background: #2c3338;
+  background: #dfe1e6;
   border-radius: 4px;
 }
 
 .cardmodal-left::-webkit-scrollbar-thumb:hover,
 .comment-list::-webkit-scrollbar-thumb:hover {
-  background: #3b4248;
+  background: #b3bac5;
 }

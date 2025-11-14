@@ -1,32 +1,56 @@
-import React, {useState} from "react";
-import { ChevronDown, Users, Share2, Star, Filter, Settings } from "lucide-react";
-import "./css/BoardHeaderStyle.css";
+import React, { useState } from "react";
+import {
+  ChevronDown,
+  Users,
+  Share2,
+  Star,
+  Filter,
+  Settings,
+} from "lucide-react";
 import EditBoardModal from "./EditBoardModal";
 
-
-export default function BoardHeader({ board, boardMembers, onBoardUpdated }) {
-   const [editing, setEditing] = useState(false);
+export default function BoardHeader({
+  board,
+  boardMembers,
+  onBoardUpdated,
+}) {
+  const [editing, setEditing] = useState(false);
 
   const handleSaved = (nextBoard) => {
     if (nextBoard && onBoardUpdated) onBoardUpdated(nextBoard);
     setEditing(false);
   };
+
   return (
-    <div className="board-header-container">
-      {/* LEFT - Board name */}
-      <div className="board-header-left">
-        <h2 className="board-title">
+    <div
+      className={[
+        "w-full flex items-center justify-between px-6 py-3 border-b",
+        "bg-white text-gray-800 border-gray-200",
+        // DARK MODE
+        "dark:bg-[#2B2D31] dark:text-[#E8EAED] dark:border-[#3F4147]",
+      ].join(" ")}
+    >
+      {/* LEFT: Board name */}
+      <div className="flex items-center gap-2">
+        <h2 className="text-lg font-bold  truncate dark:text-[#E8EAED] ">
           {board?.boardName || "Bảng Trello của tôi"}
         </h2>
-        <ChevronDown size={18} className="icon-down" />
+
+        <ChevronDown
+          size={18}
+          className="text-gray-600 dark:text-[#E8EAED] cursor-pointer"
+        />
       </div>
 
-      {/* RIGHT - Actions */}
-      <div className="board-header-right flex items-center gap-3">
+      {/* RIGHT: Actions */}
+      <div className="flex items-center gap-3">
+        {/* Members */}
         {(boardMembers?.length ?? 0) > 0 && (
           <div className="flex -space-x-2">
             {boardMembers
-              .filter((m) => ["Owner", "Admin", "Member"].includes(m.role))
+              .filter((m) =>
+                ["Owner", "Admin", "Member"].includes(m.role)
+              )
               .slice(0, 4)
               .map((member, index) => {
                 const avatarColors = [
@@ -40,13 +64,19 @@ export default function BoardHeader({ board, boardMembers, onBoardUpdated }) {
                   "bg-teal-600",
                   "bg-indigo-600",
                 ];
-                const colorClass = avatarColors[index % avatarColors.length];
+                const colorClass =
+                  avatarColors[index % avatarColors.length];
 
                 return (
                   <div
                     key={member.userUId}
                     title={`${member.userName} (${member.role})`}
-                    className={`w-8 h-8 ${colorClass} text-white text-sm flex items-center justify-center font-semibold rounded-full shadow-md hover:scale-110 transition-transform`}
+                    className={[
+                      "w-8 h-8 rounded-full flex items-center justify-center shadow-md",
+                      "text-white text-sm font-semibold",
+                      colorClass,
+                      "hover:scale-110 transition-transform",
+                    ].join(" ")}
                   >
                     {member.userName
                       ?.split(" ")
@@ -58,6 +88,7 @@ export default function BoardHeader({ board, boardMembers, onBoardUpdated }) {
                 );
               })}
 
+            {/* +N */}
             {boardMembers.filter((m) =>
               ["Owner", "Admin", "Member"].includes(m.role)
             ).length > 4 && (
@@ -71,22 +102,38 @@ export default function BoardHeader({ board, boardMembers, onBoardUpdated }) {
           </div>
         )}
 
-        <button className="header-btn">
+        {/* Buttons */}
+        <BoardHeaderBtn>
           <Filter size={18} />
-        </button>
-        <button className="header-btn">
+        </BoardHeaderBtn>
+
+        <BoardHeaderBtn>
           <Star size={18} />
-        </button>
-        <button className="header-btn">
+        </BoardHeaderBtn>
+
+        <BoardHeaderBtn>
           <Users size={18} />
-        </button>
-        <button className="header-btn" onClick={() => setEditing(true)} title="Board settings">
+        </BoardHeaderBtn>
+
+        <BoardHeaderBtn
+          onClick={() => setEditing(true)}
+          title="Board settings"
+        >
           <Settings size={18} />
-        </button>
-        <button className="header-share-btn">
-          <Share2 size={16} /> Share
+        </BoardHeaderBtn>
+
+        <button
+          className={[
+            "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold",
+            "bg-blue-600 text-white hover:bg-blue-700 shadow-md",
+            "dark:bg-blue-500 dark:hover:bg-blue-600",
+          ].join(" ")}
+        >
+          <Share2 size={16} />
+          Share
         </button>
       </div>
+
       {editing && (
         <EditBoardModal
           open={editing}
@@ -96,5 +143,22 @@ export default function BoardHeader({ board, boardMembers, onBoardUpdated }) {
         />
       )}
     </div>
+  );
+}
+
+/* Small reusable button */
+function BoardHeaderBtn({ children, onClick, title }) {
+  return (
+    <button
+      onClick={onClick}
+      title={title}
+      className={[
+        "p-2 rounded-lg transition shadow-sm",
+        "bg-gray-100 hover:bg-gray-200 text-gray-700",
+        "dark:bg-[#3A3C42] dark:hover:bg-[#4A4C52] dark:text-[#E8EAED]",
+      ].join(" ")}
+    >
+      {children}
+    </button>
   );
 }
