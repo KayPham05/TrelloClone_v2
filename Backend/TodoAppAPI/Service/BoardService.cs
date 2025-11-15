@@ -80,7 +80,7 @@ namespace TodoAppAPI.Service
 
         private async Task AddOwnerToWorkspaceMembersAsync(string workspaceUId, string userUId)
         {
-            var newMember = new WorkspaceMember
+            var newMember = new WorkspaceMemberDto
             {
                 WorkspaceMemberUId = Guid.NewGuid().ToString(),
                 WorkspaceUId = workspaceUId,

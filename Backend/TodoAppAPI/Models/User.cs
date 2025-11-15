@@ -31,7 +31,7 @@ namespace TodoAppAPI.Models
         public ICollection<Activity>? Activities { get; set; }
         public ICollection<Comment>? Comments { get; set; }
         public ICollection<BoardMember>? BoardMemberships { get; set; }
-        public ICollection<WorkspaceMember>? WorkspaceMemberships { get; set; }
+        public ICollection<WorkspaceMemberDto>? WorkspaceMemberships { get; set; }
         public ICollection<UserInboxCard>? InboxCards { get; set; } // ← Changed from UserInboxCards
         public ICollection<Notification> ReceivedNotifications { get; set; } = new List<Notification>();
         public ICollection<Notification> SentNotifications { get; set; } = new List<Notification>();

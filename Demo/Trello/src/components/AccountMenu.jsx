@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
-import { ChevronRight, ExternalLink } from "lucide-react";
+import { ChevronRight, ExternalLink} from "lucide-react";
 import { createPortal } from "react-dom";
 import { applyTheme, getInitialTheme } from "../components/Theme.ts";
 import {

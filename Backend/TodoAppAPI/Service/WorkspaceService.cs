@@ -39,7 +39,7 @@ namespace TodoAppAPI.Service
                 await _context.SaveChangesAsync();
 
                 // 3. Auto add creator as Owner in WorkspaceMember
-                var ownerMember = new WorkspaceMember
+                var ownerMember = new WorkspaceMemberDto
                 {
                     WorkspaceMemberUId = Guid.NewGuid().ToString(),
                     WorkspaceUId = workspace.WorkspaceUId,
@@ -137,13 +137,20 @@ namespace TodoAppAPI.Service
         }
 
 
-        public async Task<List<WorkspaceMember>> GetWorkspaceMembers(string workspaceId)
+        public async Task<List<WorkspaceMembersDto>> GetWorkspaceMembers(string workspaceId)
         {
             return await _context.WorkspaceMembers
               .Where(m => m.WorkspaceUId == workspaceId)
               .Include(m => m.User)
               .OrderByDescending(m => m.Role == "Owner")
               .ThenBy(m => m.User.UserName)
+              .Select(m => new WorkspaceMembersDto
+              {
+                  UserUId = m.UserUId,
+                  Role = m.Role,
+                  UserName = m.User != null ? m.User.UserName : "",
+                  Email = m.User != null ? m.User.Email : ""
+              })
               .ToListAsync();
         }
 
@@ -174,7 +181,7 @@ namespace TodoAppAPI.Service
                 if (existingMember != null)
                     return false;
 
-                var newMember = new WorkspaceMember
+                var newMember = new WorkspaceMemberDto
                 {
                     WorkspaceMemberUId = Guid.NewGuid().ToString(),
                     WorkspaceUId = workspaceId,
